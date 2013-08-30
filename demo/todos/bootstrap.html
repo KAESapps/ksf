@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Todo demo app</title>
+    <style type="text/css">
+    	.TodoListManager {
+    		width: 300px;
+    		margin: auto;
+    		padding: 20px;
+    		background-color: lightblue;
+    	}
+    	.add-new {
+    		display: block;
+    		margin: auto;
+    		border: none;
+			padding: 1ex;
+			font-size: 14px;
+    	}
+    	.list {
+    		margin: auto;
+			padding: 0;
+			margin-top: 1em;
+			width: 210px;
+    	}
+    </style>
+</head>
+<body>
+    <script data-dojo-config="async: true, isDebug: true", src="../../deps/dojo/dojo.js"></script>
+    <script>
+		require({
+			baseUrl: '../../deps',
+			paths: {
+				ksf: ".."
+			}
+		}, ['ksf/tests/require-config'], function(config) {
+			require(config, [
+				"ksf/demo/todos/TodoListManager",
+				'ksf/demo/Todo',
+				'ksf/collections/OrderableSet'
+			], function(TodoListManager, Todo, OrderableSet) {
+				window.todos = new OrderableSet();
+				todos.addEach([
+					new Todo({text:'learn angular', done:true}),
+					new Todo({text:'build an angular app', done:false}),
+					new Todo({text:'faire les courses', done:true}),
+				]);
+
+				todosManager = new TodoListManager();
+				todosManager.set('todoList', todos);
+				document.body.appendChild(todosManager.get("domNode"));
+				//todosManager.updateRendering();
+			});
+		});
+	</script>
+</body>
+</html>

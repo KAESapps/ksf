@@ -1,0 +1,23 @@
+{
+	"camelcase" : true,
+//	"indent": 2,
+	"undef": true,
+//	"quotmark": "single",
+//	"maxlen": 80,
+	"trailing": true,
+	"curly": true,
+
+	"browser": true,
+	"devel": true,
+	"trailing": true,
+	"sub": true,
+	"eqeqeq": true,
+//	"unused": true,
+	"evil": true,
+	"expr": true,
+	"predef": [
+		"require",
+		"define"
+	]
+
+}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Test loader</title>
+</head>
+<body>
+    <script src="../deps/dojo/dojo.js"></script>
+    <link rel="stylesheet" href="../deps/dijit/themes/dijit.css" />
+    <script>
+		require({
+			paths: {
+				ksf: "../..",
+				frb: "../frb-amd",
+				collections: "../collections-amd"
+			}
+		}, [
+			'require',
+			'dojo/router',
+			'dojo/domReady!'
+		], function(
+			require,
+			router
+		) {
+			var helpText = document.getElementById('help');
+			router.register(/(.+)/, function(ev) {
+				// Remove help text
+				if (helpText.parentNode) {
+					document.body.removeChild(helpText);
+				}
+				try {
+					require(ev.params[0].match(/[^\+]+/g));
+				} catch (ex) {
+					// Probably a misconfiguration, show help text
+					document.body.appendChild(helpText);
+					throw ex;
+				}
+			});
+			router.startup();
+		});
+	</script>
+	<div id="help">
+		<h1>Test loader</h1>
+		<h2>Usage</h2>
+		<p>
+			Refer to AMD module in the url hash as follows:
+			<pre>http://.../test_loader.html<strong>#path/to/amd/module1+path/to/amd/module2</strong></pre>
+		</p>
+	</div>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Todo demo app</title>
+</head>
+<body>
+    <script data-dojo-config="async: true, isDebug: true", src="../deps/dojo/dojo.js"></script>
+    <script>
+		require({
+			paths: {
+				ksf: "../..",
+				collections: "../collections-amd"
+			},
+			packages: [
+				{ name: 'compose', location: '../compose', main: 'compose' },
+				{ name: 'bacon.js', location: '../bacon.js/dist', main: 'Bacon' }
+			]
+		}, [
+			"ksf/demo/TodosManager",
+			'ksf/demo/Todo',
+
+		], function(TodosManager, Todo){
+
+			var todos = [
+				new Todo({text:'learn angular', done:true}),
+				new Todo({text:'build an angular app', done:false}),
+				new Todo({text:'faire les courses', done:true}),
+			];
+
+
+			todosManager = new TodosManager();
+			todosManager.set("todos", todos);
+			document.body.appendChild(todosManager.get("domNode"));
+
+			todosManager2 = new TodosManager();
+			document.body.appendChild(todosManager2.get("domNode"));
+			todosManager2.set("todos", todos);
+
+
+		});
+	</script>
+</body>
+</html>

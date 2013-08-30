@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Browser test runner</title>
+		<script src="../node_modules/intern/node_modules/dojo/dojo.js"></script>
+		<script>
+(function () {
+	var ksfRoot = location.pathname.replace(/[^\/]+$/, '') + '../';
+	require({
+		baseUrl: ksfRoot + 'deps/',
+		packages: [
+			{ name: 'intern', location: ksfRoot + 'node_modules/intern' },
+			{ name: 'chai', location: ksfRoot + 'node_modules/intern/node_modules/chai', main: 'chai' },
+			{ name: 'ksf', location: ksfRoot }
+		],
+		map: { 'intern': { 'dojo': 'intern/node_modules/dojo' } }
+	}, [ 'intern/client' ]);
+})();
+		</script>
+	</head>
+</html>

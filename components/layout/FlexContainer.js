@@ -46,7 +46,8 @@ define([
 					innerSize = this.get('innerSize'),
 					vertical = this.get('_vertical'),
 					fixedDim = 0,
-					flexChildren = [];
+					flexChildren = [],
+					liveRendering = this._liveRendering;
 
 				// innerSize is null when not inserted in DOM, in which case we use values of "bounds"
 				if (!innerSize.height && !innerSize.width) {
@@ -58,6 +59,13 @@ define([
 					}
 				}
 
+				// check if relayout is needed
+				if (content === this._appliedContent &&
+					innerSize.height === this._appliedInnerSize.height &&
+					innerSize.width === this._appliedInnerSize.width) {
+					return;
+				}
+
 				// - Content reset -
 
 				// clear children
@@ -67,6 +75,8 @@ define([
 					destroy(handler);
 				});
 				this._handlers = [];
+
+				this._appliedChildren = [];
 
 				var children = document.createDocumentFragment();
 				content.forEach(function(childAndOptions) {
@@ -86,7 +96,9 @@ define([
 					childNode.style.MozBoxSizing = 'border-box';
 
 					children.appendChild(childNode);
-				});
+
+					this._appliedChildren.push(child);
+				}.bind(this));
 				// add children in bulk
 				thisNode.appendChild(children);
 
@@ -136,12 +148,48 @@ define([
 						this.updateRendering();
 					}.bind(this)));
 				}.bind(this));
+
+				this._appliedContent = content;
+				this._appliedInnerSize = innerSize;
 			},
 
 			updateRendering: function() {
 				this._applyBounds();
 				Container.prototype.updateRendering.apply(this, arguments);
 				this._applyContent();
+			},
+
+			startLiveRendering: function() {
+				var cancels = [],
+					self = this;
+
+				cancels.push(this.getR('bounds').onValue(function() {
+					self._applyBounds();
+				}));
+
+				var liveChildren = [];
+				var cancelLiveChildren = function() {
+					liveChildren.forEach(function(child) {
+						child.stopLiveRendering && child.stopLiveRendering();
+					});
+					liveChildren = [];
+				};
+				cancels.push(this.getR('content').onValue(function() {
+					cancelLiveChildren();
+					self._applyContent();
+					self._appliedChildren.forEach(function(child) {
+						child.startLiveRendering && child.startLiveRendering();
+						liveChildren.push(child);
+					});
+				}));
+
+				this.stopLiveRendering = function() {
+					cancels.forEach(function(cancel) {
+						cancel();
+					});
+					cancelLiveChildren();
+					delete this.stopLiveRendering;
+				};
 			}
 		}
 	);

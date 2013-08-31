@@ -11,7 +11,6 @@ define([
 				height: rootNode.offsetHeight,
 				width: rootNode.offsetWidth
 			});
-			args.content.updateRendering();
 		};
 
 		rootNode.appendChild(args.content.get('domNode'));

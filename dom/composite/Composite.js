@@ -59,31 +59,29 @@ define([
 			},
 
 			updateRendering: function() {
+				if (!this._domNode) { return; }
+
 				this._applyLayout();
 				this._applyStyle();
-				this._layout.get('tree').topDown(function(cmp) {
-					cmp.updateRendering && cmp.updateRendering();
-				});
+				this._layout.get('root').updateRendering();
 			},
 
 			startLiveRendering: function() {
-				var cancelLiveLayout = this.own(this._layout.on('changed', function() {
-					this.updateRendering();
-					this.stopLiveRendering();
-					this.startLiveRendering();
+				var root = this._layout.get('root');
+				root.startLiveRendering && root.startLiveRendering();
+				var cancelLiveLayout = this.own(this._layout.getR('config').onValue(function() {
+					var liveRendering = this._liveRendering;
+					liveRendering && this.stopLiveRendering();
+					this._applyLayout();
+					liveRendering && this.startLiveRendering();
 				}.bind(this)));
-				var liveCmps = [];
-				this._layout.get('tree').topDown(function(cmp) {
-					cmp.startLiveRendering && cmp.startLiveRendering();
-					liveCmps.push(cmp);
-				});
 				this.stopLiveRendering = function() {
-					destroy(cancelLiveLayout);
-					liveCmps.forEach(function(cmp) {
-						cmp.stopLiveRendering && cmp.stopLiveRendering();
-					});
+					cancelLiveLayout();
+					root.stopLiveRendering && root.stopLiveRendering();
 					this.stopLiveRendering = undefined;
-				}.bind(this);
+					this._liveRendering = false;
+				};
+				this._liveRendering = true;
 			}
 		}
 	);

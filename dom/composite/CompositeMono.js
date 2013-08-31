@@ -45,11 +45,23 @@ define([
 			updateRendering: function() {
 				this._applyStyle();
 			},
+
+			startLiveRendering: function() {
+				if (this._component.startLiveRendering) {
+					this._component.startLiveRendering();
+					this.stopLiveRendering = function() {
+						this._component.stopLiveRendering();
+						delete this.stopLiveRendering;
+					};
+				} else {
+					this.stopLiveRendering = function() {};
+				}
+			},
+
 			destroy: function(){
 				Destroyable.prototype.destroy.call(this);
 				destroy(this._component);
-			},
-
+			}
 		}
 	);
 });

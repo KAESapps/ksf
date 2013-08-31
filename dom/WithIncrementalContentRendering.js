@@ -20,6 +20,7 @@ define([
 			changes.forEach(function(change) {
 				if (change.type === 'add') {
 					domNode.insertBefore(change.value.get('domNode'), domNode.children[change.index]);
+					change.value.updateRendering();
 				} else {
 					domNode.removeChild(change.value.get('domNode'));
 				}

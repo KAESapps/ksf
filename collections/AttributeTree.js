@@ -119,7 +119,7 @@ define([
 
 		getChildren: function(parent) {
 			var children = this._topDown.get(parent);
-			return children && children.keys() || new Set();
+			return children && children.keys() || [];
 		},
 
 		getParents: function(child) {
@@ -219,7 +219,7 @@ define([
 			}
 
 			var children = this.getChildren(node);
-			if (children) {
+			if (children.length) {
 				literal = [literal, children.map(function(child) {
 					return this.toLiteral(child, node);
 				}.bind(this))];

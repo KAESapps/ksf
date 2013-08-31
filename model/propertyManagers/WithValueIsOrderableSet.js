@@ -30,8 +30,11 @@ define([
 			});
 			// order current items and add new items
 			items.forEach(function(item, index){
-				if (collection.get(index) !== item){
-					collection.remove(collection.indexOf(item));
+				if (collection.get(index) !== item) {
+					var currentIndex = collection.indexOf(item);
+					if (currentIndex !== -1) {
+						collection.remove(currentIndex);
+					}
 					collection.add(item, index);
 				}
 			});

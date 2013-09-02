@@ -1,17 +1,18 @@
 define([
-
+	'compose'
 ], function(
-
+	compose
 ){
-	var Evented = {
+	return compose(function() {
+		this._listeners = {};
+	}, {
 		on: function(type, cb){
-			this._listeners || (this._listeners = {});
 			var listeners = this._listeners[type] || (this._listeners[type]= []);
 			listeners.push(cb);
 			return {
 				destroy: function(){
 					listeners.delete(cb);
-					if(!listeners.length){
+					if(!listeners.length) {
 						delete this._listeners[type];
 					}
 				}.bind(this)
@@ -28,8 +29,6 @@ define([
 					listener(event);
 				});
 			}
-		},
-};
-
-	return Evented;
+		}
+	});
 });

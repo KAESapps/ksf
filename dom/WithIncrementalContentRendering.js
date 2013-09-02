@@ -2,7 +2,6 @@ define([
 	'ksf/collections/OrderableSet',
 ], function(
 	OrderableSet
-
 ){
 	// mixin qui implemnte l'API orderedContent pour un HtmlElement
 	// l'API "orderedContent" expose une méthode 'set("content", orderedListOfComponents)'
@@ -20,9 +19,14 @@ define([
 			changes.forEach(function(change) {
 				if (change.type === 'add') {
 					domNode.insertBefore(change.value.get('domNode'), domNode.children[change.index]);
-					change.value.updateRendering();
+					if (this._liveRendering) {
+						change.value.startLiveRendering && change.value.startLiveRendering();
+					}
 				} else {
 					domNode.removeChild(change.value.get('domNode'));
+					if (this._liveRendering) {
+						change.value.stopLiveRendering && change.value.stopLiveRendering();
+					}
 				}
 			});
 		},
@@ -32,6 +36,24 @@ define([
 		_contentGetter: function(){
 			return this._content;
 		},
+		updateRendering: function() {
+			this.get('content').forEach(function(cmp) {
+				cmp.updateRendering && cmp.updateRendering();
+			});
+		},
+		startLiveRendering: function() {
+			this.get('content').forEach(function(cmp) {
+				cmp.startLiveRendering && cmp.startLiveRendering();
+			});
+			this._liveRendering = true;
+			this.stopLiveRendering = function() {
+				this.get('content').forEach(function(cmp) {
+					cmp.startLiveRendering && cmp.startLiveRendering();
+				});
+				this._liveRendering = true;
+				delete this.stopLiveRendering;
+			};
+		}
 	};
 
 	return WithIncrementalContentRendering;

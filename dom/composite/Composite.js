@@ -75,8 +75,13 @@ define([
 					this._applyLayout();
 					liveRendering && this.startLiveRendering();
 				}.bind(this)));
+				var cancelStyle = this._style.asReactive().onValue(this._applyStyle.bind(this));
+				var cancelSize = this.getR('bounds').onValue(this._applyBounds.bind(this));
+
 				this.stopLiveRendering = function() {
 					cancelLiveLayout();
+					cancelStyle();
+					cancelSize();
 					root.stopLiveRendering && root.stopLiveRendering();
 					this.stopLiveRendering = undefined;
 					this._liveRendering = false;

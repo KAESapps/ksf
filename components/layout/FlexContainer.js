@@ -165,6 +165,7 @@ define([
 
 				cancels.push(this.getR('bounds').onValue(function() {
 					self._applyBounds();
+					self._applyContent();
 				}));
 
 				var liveChildren = [];

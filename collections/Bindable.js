@@ -136,8 +136,8 @@ define([
 					changing = true;
 					var oldItem = oldAndCurrentItems.oldItem;
 					var currentItem = oldAndCurrentItems.currentItem;
-					oldItem && oldItem.set(itemProp, false);
-					currentItem && currentItem.set(itemProp, true);
+					oldItem && collection.has(oldItem) && oldItem.set(itemProp, false);
+					currentItem && collection.has(currentItem) && currentItem.set(itemProp, true);
 					changing = false;
 				}
 			});
@@ -152,7 +152,7 @@ define([
 							if (! changing){
 								changing = true;
 								var oldItem = target.get(targetProp);
-								oldItem && oldItem.set(itemProp, false);
+								oldItem && collection.has(oldItem) && oldItem.set(itemProp, false);
 								target.set(targetProp, bool ? item : undefined);
 								changing = false;
 							}

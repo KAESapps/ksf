@@ -23,6 +23,21 @@ define([
 				},
 			});
 			this.bindSelection("activeContentElement", this._component.get("content"), "active");
+
+			// hack for setting 'activeContentElement' when it is created after 'active' is set
+			this.own(this.getR("content").flatMapLatest(function(items) {
+				return items && items.asReactive() || Bacon.never();
+			}).onValue(function(items) {
+				var itemIndex = items.indexOf(this.get('active'));
+				if (itemIndex > -1){
+					var cmp = this._component.get('content').get(itemIndex);
+					if (this.get('activeContentElement') !== cmp){
+						this.set('activeContentElement', cmp);
+					}
+				}
+			}.bind(this)));
+
+
 		}
 	);
 });

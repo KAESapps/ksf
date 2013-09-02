@@ -159,6 +159,18 @@ define([
 			assert.equal(observedSelected, "aur");
 		},
 
+		"add the option after it was selected": function(){
+			s.set('options', collection);
+			s.set('value', 'leo');
+			var otherCollection = new OrderableSet(["aur", "ant", "leo"]);
+			s.set('options', otherCollection);
+			assert.equal(s.get('value'), "leo");
+			assert.equal(s.get('domNode').value, "leo");
+			assert.equal(s.get('domNode').selectedIndex, 2);
+			assert.equal(s.get('domNode').children.length, 3);
+			assert.equal(selectedObserverCalledCount, 2);
+			assert.equal(observedSelected, "leo");
+		},
 	});
 
 	registerSuite({

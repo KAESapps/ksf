@@ -2,8 +2,8 @@ define([], function() {
 	var generator = function(domEvent, targetEvent) {
 		targetEvent = targetEvent || domEvent;
 		return function() {
-			var valueChange = function() {
-				this._emit(targetEvent);
+			var valueChange = function(ev) {
+				this._emit(targetEvent, ev);
 			}.bind(this);
 			var domNode = this.get('domNode');
 			domNode.addEventListener(domEvent, valueChange);

@@ -6,7 +6,6 @@ define([
 	"ksf/components/layout/WindowContainer",
 	'ksf/components/HtmlElement',
 	'../Sizeable',
-	'../WithOuterSize'
 ], function(
 	registerSuite,		assert,
 	compose,
@@ -14,8 +13,7 @@ define([
 	FlexContainer,
 	WindowContainer,
 	HtmlElement,
-	Sizeable,
-	WithOuterSize
+	Sizeable
 ){
 	// create css rules
 	var css = document.createElement("style");
@@ -29,11 +27,10 @@ define([
 	var SizeableElmt = compose(
 		HtmlElement,
 		Sizeable,
-		WithOuterSize,
 		{
 			updateRendering: function() {
 				HtmlElement.prototype.updateRendering.apply(this, arguments);
-				Sizeable.prototype.updateRendering.apply(this, arguments);
+				this._applyBounds();
 			}
 		}
 	);

@@ -2,8 +2,7 @@ define({
 	paths: {
 		ksf: '..',
 		collections: "collections-amd",
-		frb: "frb-amd",
-		bacon: '../utils/Bacon',
+		bacon: '../utils/Bacon'
 	},
 	packages: [
 		{ name: 'compose', location: 'compose', main: 'compose' },

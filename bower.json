@@ -4,12 +4,21 @@
   "dependencies": {
     "dojo": "1.8.3",
     "dijit": "1.8.3",
-    "lodash": "#1.0.1",
-    "put-selector": "kriszyp/put-selector#0.3.2",
-    "compose": "kriszyp/compose#0.2.2",
-    "frb": "montagejs/frb#0.1.25",
+    "compose": "kriszyp/compose#master",
     "collections": "montagejs/collections#0.1.16",
-    "intern": "theintern/intern",
     "bacon.js": "raimohanska/bacon.js"
-  }
+  },
+  "homepage": "https://github.com/KAESapps/ksf",
+  "authors": [
+    "Quentin <quentin.vuilliot@kaes.fr>"
+  ],
+  "description": "KaeS framework",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
 }

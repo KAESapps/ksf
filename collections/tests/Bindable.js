@@ -351,7 +351,6 @@ define([
 			assert.equal(cancelerCalledCount, 0);
 
 			collection.destroy();
-			collection.set("cmp2", cmp2);
 			assert.equal(cbCalledCount, 1);
 			assert.equal(cancelerCalledCount, 1);
 		}

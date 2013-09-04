@@ -64,11 +64,9 @@ define([
 			var observingCanceler = this.getEachR.apply(this, props).onValue(function(propsValues){
 				if (cbCanceler){
 					destroy(cbCanceler);
-					this.unown && this.unown(cbCanceler);
 					cbCanceler = undefined;
 				}
 				cbCanceler = binder.apply(this, propsValues);
-				this.own && this.own(cbCanceler);
 			}.bind(this));
 
 			return this.own(function(){

@@ -25,19 +25,15 @@ define([
 		factory: function (item) {
 			var li = new HtmlElement("li");
 			li.set("innerHTML", item.name);
-			li._activeSetter = function(value){
-				this._active = !!value;
-				if (value){
-					domClass.add(this.get("domNode"), "active");
-				} else {
-					domClass.remove(this.get("domNode"), "active");
-				}
-			};
-			li._activeGetter = function(){
-				return this._active;
-			};
 			li.get("domNode").addEventListener("click", function(){
 				li.set("active", !li.get("active"));
+			});
+			li.whenChanged('active', function(b) {
+				if (b) {
+					li.style.set('active', 'active');
+				} else {
+					li.style.remove('active');
+				}
 			});
 			return li;
 		},

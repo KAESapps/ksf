@@ -33,6 +33,9 @@ define([
 
 				cancels.push(this.getR('bounds').onValue(function() {
 					self._applyBounds();
+					self._currentContent && self._currentContent.forEach(function(cmp) {
+						cmp.updateRendering && cmp.updateRendering();
+					});
 				}));
 
 				var liveContent = [];

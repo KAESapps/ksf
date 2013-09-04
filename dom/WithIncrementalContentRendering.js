@@ -42,17 +42,27 @@ define([
 			});
 		},
 		startLiveRendering: function() {
-			this.get('content').forEach(function(cmp) {
-				cmp.startLiveRendering && cmp.startLiveRendering();
+			var cancel = this.get('content').asChangesStream().onValue(function(changes) {
+				changes.forEach(function(change) {
+					var cmp = change.value;
+					if (change.type === 'add') {
+						cmp.startLiveRendering && cmp.startLiveRendering();
+					} else {
+						cmp.stopLiveRendering && cmp.stopLiveRendering();
+					}
+				});
 			});
-			this._liveRendering = true;
+
 			this.stopLiveRendering = function() {
+				cancel();
 				this.get('content').forEach(function(cmp) {
-					cmp.startLiveRendering && cmp.startLiveRendering();
+					cmp.stopLiveRendering && cmp.stopLiveRendering();
 				});
 				this._liveRendering = true;
 				delete this.stopLiveRendering;
 			};
+
+			this._liveRendering = true;
 		}
 	};
 

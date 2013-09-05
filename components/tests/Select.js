@@ -79,7 +79,7 @@ define([
 		"user selected item": function() {
 			s.set('options', collection);
 			// simulate a user action
-			s.get('domNode').value = "aur";
+			s.get('domNode').selectedIndex = 1;
 			on.emit(s.get('domNode'), "change", {
 				bubbles: true,
 				cancelable: true
@@ -237,7 +237,7 @@ define([
 		"user selected item": function() {
 			s.set('options', collection);
 			// simulate a user action
-			s.get('domNode').value = "Aurélie";
+			s.get('domNode').selectedIndex = 1;
 			on.emit(s.get('domNode'), "change", {
 				bubbles: true,
 				cancelable: true

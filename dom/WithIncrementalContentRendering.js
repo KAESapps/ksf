@@ -18,7 +18,8 @@ define([
 			var domNode = this.get('domNode');
 			changes.forEach(function(change) {
 				if (change.type === 'add') {
-					domNode.insertBefore(change.value.get('domNode'), domNode.children[change.index]);
+					var refNode = domNode.children[change.index] || null;
+					domNode.insertBefore(change.value.get('domNode'), refNode);
 					if (this._liveRendering) {
 						change.value.startLiveRendering && change.value.startLiveRendering();
 					}

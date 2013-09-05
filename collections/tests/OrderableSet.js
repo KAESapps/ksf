@@ -1,12 +1,25 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'./OrderableSet',
+	'../OrderableSet',
 ], function(
 	registerSuite,
 	assert,
 	OrderableSet
 ){
+	function changesHistoryEqual (exp) {
+		assert.equal(changesHistory.length, exp.length);
+		exp.forEach(function(expChanges, changesIndex) {
+			var changes = changesHistory[changesIndex];
+			assert.equal(changes.length, expChanges.length);
+			expChanges.forEach(function(expChange, changeIndex) {
+				assert.equal(changes[changeIndex].type, expChange.type);
+				assert.equal(changes[changeIndex].value, expChange.value);
+				assert.equal(changes[changeIndex].index, expChange.index);
+			});
+		});
+	}
+
 	var list, changesHistory;
 
 	registerSuite({
@@ -21,7 +34,7 @@ define([
 			assert(list.has("a"));
 			assert.equal(list.length, 1);
 			assert.equal(list.get(0), "a");
-			assert.deepEqual(changesHistory, [
+			changesHistoryEqual([
 				[
 					{type: "add", value: "a", index: 0},
 				]
@@ -33,7 +46,7 @@ define([
 			assert(list.has(toto));
 			assert.equal(list.length, 1);
 			assert.equal(list.get(0), toto);
-			assert.deepEqual(changesHistory, [
+			changesHistoryEqual([
 				[
 					{type: "add", value: toto, index: 0},
 				]
@@ -42,7 +55,9 @@ define([
 		"add a value already in collection": function(){
 			var toto = {name: "toto"};
 			list.add(toto);
-			assert.error(list.add(toto));
+			assert.throw(function() {
+				list.add(toto);
+			});
 		},
 
 	});

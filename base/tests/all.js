@@ -1,4 +1,3 @@
 define([
-	'./Component',
-	'./DomComponent'
+	'./Evented',
 ]);

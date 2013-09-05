@@ -6,8 +6,12 @@ define(['./require-config'], function(loaderConfig) {
 
 		// Non-functional test suite(s) to run in each browser
 		suites: [
-			'ksf/component/tests/all',
-			'ksf/utils/tests/all'
+			'ksf/utils/tests/all',
+			'ksf/base/tests/all',
+			'ksf/collections/tests/all',
+			'ksf/components/tests/all',
+			'ksf/dom/tests/all',
+			'ksf/model/demo/resources-manager-demo',
 		]
 	};
 });

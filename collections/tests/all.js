@@ -1,0 +1,5 @@
+define([
+	'./Bindable',
+	'./Observable',
+	'./OrderableSet',
+]);

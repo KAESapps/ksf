@@ -26,7 +26,7 @@ define([
 			o._emit("changed");
 			assert(cbCalled);
 		},
-		"pause and resume emit": function(){
+/*		"pause and resume emit": function(){
 			var cbCalledCount = 0;
 			o.on("changed", function(ev){
 				assert.equal(ev.type, "changed");
@@ -40,6 +40,6 @@ define([
 			o._resumeEmit();
 			assert.equal(cbCalledCount, 2);
 		},
-	});
+*/	});
 
 });

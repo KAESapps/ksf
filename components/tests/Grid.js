@@ -26,6 +26,7 @@ define([
 
 	var grid = window.grid = new Grid({});
 	document.body.appendChild(grid.get('domNode'));
+	grid.startLiveRendering();
 
 	grid.set('content', collection);
 

@@ -41,7 +41,7 @@ define([
 				var cmpNode = cmp.get("domNode");
 
 				if (currentNode !== cmpNode){
-					domNode.insertBefore(cmpNode, currentNode);
+					domNode.insertBefore(cmpNode, currentNode || null);
 				}
 			});
 		}

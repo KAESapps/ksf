@@ -19,7 +19,7 @@ define([
 			},
 
 			updateRendering: function() {
-				HtmlElement.prototype.updateRendering.apply(this);
+				// HtmlElement.prototype.updateRendering.apply(this);
 				this._applyBounds();
 				this._applyContent();
 				this._currentContent.forEach(function(cmp) {

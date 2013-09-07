@@ -14,12 +14,13 @@ define([
 			this.remove('domNode');
 		},
 
-		updateRendering: function() {
+		// si on considère qu'un HtmlElement est forcément réactif, je pense qu'il n'y a pas besoin de 'updateRendering'
+/*		updateRendering: function() {
 			this.forEach(function(value, prop) {
 				this._applyDomAttr(prop, value);
 			}.bind(this));
 		},
-
+*/
 		_applyDomAttr: function(prop, value) {
 			this._domNode[prop] = value;
 			if (prop === 'innerHTML') {

@@ -7,6 +7,8 @@ define([
 	destroy,
 	Map
 ){
+	var identity = function (o) { return o; };
+
 	var Bindable = {
 		// call set(prop) with value from observable at each notification
 		setR: function(prop, observable){
@@ -169,6 +171,33 @@ define([
 				destroy(sourceHandler);
 				itemHandlers.forEach(destroy);
 			});
+		},
+		// create a bidirectionnal binding between this (source) and target where sourceProp has the value corresponding to the truthy property of the target
+		// at init, the source prop is the master
+		bindCase: function(sourceProp, target, map) {
+			var source = this;
+
+			var changing = false;
+			var sourceCanceler = this.getR(sourceProp).onValue(function (sourceValue) {
+				if (!changing) {
+					changing = true;
+					Object.keys(map).forEach(function(key) {
+						var value = map[key];
+						target.set(key, value === sourceValue);
+					});
+					changing = false;
+				}
+			}.bind(this));
+
+			var targetCancelers = [];
+			Object.keys(map).forEach(function(key) {
+				var value = map[key];
+				var canceler = target.getR(key).filter(identity).onValue(function() {
+					source.set(sourceProp, value);
+				});
+				targetCancelers.push(canceler);
+			});
+
 		},
 	};
 	return Bindable;

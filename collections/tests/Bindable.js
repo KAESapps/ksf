@@ -525,5 +525,69 @@ define([
 
 	});
 
+	var observedSourceValue;
+	registerSuite({
+		name: "bindCase",
+		beforeEach: function(){
+			o = new Dict();
+			o.whenChanged('mode', function(mode) {
+				cbCalledCount++;
+				observedSourceValue = mode;
+			});
+			observedSourceValue = undefined;
+			cbCalledCount = 0;
+		},
+		"bind without initial data": function(){
+			o.bindCase("mode", o, {
+				"allMode": "all",
+				"activeMode": "active",
+				"completedMode": "completed",
+			});
+			assert.equal(o.get("mode"), undefined);
+			assert.equal(o.get("allMode"), false);
+			assert.equal(o.get("activeMode"), false);
+			assert.equal(o.get("completedMode"), false);
+			assert.equal(cbCalledCount, 0);
+		},
+		"bind with initial source prop": function(){
+			o.set('mode', 'all');
+			o.bindCase("mode", o, {
+				"allMode": "all",
+				"activeMode": "active",
+				"completedMode": "completed",
+			});
+			assert.equal(o.get("mode"), "all");
+			assert.equal(o.get("allMode"), true);
+			assert.equal(o.get("activeMode"), false);
+			assert.equal(o.get("completedMode"), false);
+			assert.equal(cbCalledCount, 1);
+		},
+		"change one of target prop": function(){
+			o.bindCase("mode", o, {
+				"allMode": "all",
+				"activeMode": "active",
+				"completedMode": "completed",
+			});
+			o.set('allMode', true);
+			assert.equal(o.get("mode"), "all");
+			assert.equal(o.get("allMode"), true);
+			assert.equal(o.get("activeMode"), false);
+			assert.equal(o.get("completedMode"), false);
+			assert.equal(cbCalledCount, 1);
+		},
+		"change source prop": function(){
+			o.bindCase("mode", o, {
+				"allMode": "all",
+				"activeMode": "active",
+				"completedMode": "completed",
+			});
+			o.set('mode', 'all');
+			assert.equal(o.get("mode"), "all");
+			assert.equal(o.get("allMode"), true);
+			assert.equal(o.get("activeMode"), false);
+			assert.equal(o.get("completedMode"), false);
+			assert.equal(cbCalledCount, 1);
+		},
+	});
 
 });

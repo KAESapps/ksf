@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "dependencies": {
     "dojo": "1.8.3",
-    "dijit": "1.8.3",
     "compose": "kriszyp/compose#master",
     "collections": "montagejs/collections#0.1.16",
     "bacon.js": "raimohanska/bacon.js"

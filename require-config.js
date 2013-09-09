@@ -1,8 +1,7 @@
-define({
+require({
 	paths: {
-		ksf: '..',
 		collections: "collections-amd",
-		bacon: '../utils/Bacon'
+		bacon: 'ksf/utils/Bacon'
 	},
 	packages: [
 		{ name: 'compose', location: 'compose', main: 'compose' },

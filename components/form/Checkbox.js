@@ -1,16 +1,17 @@
 define([
-	"dojo/_base/declare",
-	"./Input",
-	"frb/bind",
-], function(declare, Input, bind){
-
-	return declare(Input, {
-		domAttrs: {
-			type: "checkbox",
-		},
-		constructor: function(){
-			this._cancelValueBinding();//cancel binding inherited from Input
-			this._cancelValueBinding = bind(this, "domNode.checked", {"<->": "_presenter.value"});
-		},
-	});
+	"compose",
+	"ksf/dom/composite/CompositeMono",
+	"./HtmlElementWithChanged",
+], function(
+	compose,
+	CompositeMono,
+	HtmlElementWithChanged
+){
+	return compose(
+		CompositeMono,
+		function () {
+			this._component = new HtmlElementWithChanged('input', {type: 'checkbox'});
+			this._component.bind('checked', this, 'value');
+		}
+	);
 });

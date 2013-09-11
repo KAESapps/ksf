@@ -49,7 +49,7 @@
 				todosManager = new TodoListManager();
 				todosManager.set('todoList', todos);
 				document.body.appendChild(todosManager.get("domNode"));
-				//todosManager.updateRendering();
+				todosManager.startLiveRendering();
 			});
 		});
 	</script>

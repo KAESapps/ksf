@@ -44,7 +44,7 @@ define([
 			if (mode === "unidirectional"){
 				return target.setR(targetProp, source.getR(sourceProp));
 			} else if (mode === "bidirectional") {
-				return target.bind(targetProp, source, sourceProp);
+				return target.bind(targetProp, source, sourceProp, options);
 			}
 		};
 	};

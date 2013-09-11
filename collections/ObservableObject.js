@@ -1,6 +1,5 @@
 define([
 	"compose/compose",
-	'collections/dict',
 	"./WithGetSet",
 	"ksf/base/Evented",
 	"./Observable",
@@ -8,7 +7,6 @@ define([
 	"../base/Destroyable"
 ], function(
 	compose,
-	Dict,
 	WithGetSet,
 	Evented,
 	Observable,
@@ -32,7 +30,7 @@ define([
 		WithMapChanges,
 		WithGetSet,
 		function() {
-			this._store = new Dict();
+			this._store = new Map();
 		},
 		{
 			_Getter: function(prop){
@@ -51,7 +49,12 @@ define([
 				return this._store.forEach(cb, scope || this);
 			},
 			map: function(cb) {
-				return this._store.map(cb, this);
+				// return this._store.map(cb, this);
+				var res = new Map();
+				this._store.forEach(function(v, k) {
+					res.set(k, cb(v));
+				});
+				return res;
 			},
 			add: function(value, prop) {
 				this.set(prop, value);

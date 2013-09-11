@@ -1,13 +1,11 @@
 define([
 	'compose',
 	'./List',
-	'collections/map',
 	'ksf/utils/destroy',
 
 ], function(
 	compose,
 	List,
-	Map,
 	destroy
 
 ){

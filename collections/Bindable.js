@@ -1,11 +1,9 @@
 define([
 	"bacon",
 	"../utils/destroy",
-	"collections/map",
 ], function(
 	Bacon,
-	destroy,
-	Map
+	destroy
 ){
 	var identity = function (o) { return o; };
 

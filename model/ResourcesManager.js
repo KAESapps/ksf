@@ -1,7 +1,5 @@
 define([
-	'collections/set',
 ], function(
-	Set
 ){
 	var Manager = function(args){
 		this.resources = new Set();

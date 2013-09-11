@@ -1,5 +1,4 @@
 define([
-	'collections/shim-array'
 ], function(
 
 ){
@@ -30,7 +29,7 @@ define([
 
 			// remove domNode of components that are no longer in content
 			var removed = oldContent && oldContent.filter(function(item){
-				return ! newContent.has(item);
+				return newContent.indexOf(item) <= 0;
 			}) || [];
 			removed.forEach(function(cmp){
 				domNode.removeChild(cmp.get("domNode"));

@@ -1,6 +1,6 @@
 define([
 	'compose',
-	'collections/dict',
+	'ksf/collections/Dict',
 	'ksf/collections/AttributeTree',
 	'ksf/collections/ObservableObject'
 ], function(

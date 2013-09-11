@@ -30,30 +30,32 @@ define([
 		WithMapChanges,
 		WithGetSet,
 		function() {
-			this._store = new Map();
+			this._store = {};
 		},
 		{
 			_Getter: function(prop){
-				return this._store.get(prop);
+				return this._store[prop];
 			},
 			_Setter: function(prop, value){
-				this._store.set(prop, value);
+				this._store[prop] = value;
 			},
 			_Detector: function(prop){
-				return this._store.has(prop);
+				return Object.hasOwnProperty(this._store, prop);
 			},
 			_Remover: function(prop){
-				this._store.delete(prop);
+				delete this._store[prop];
 			},
 			forEach: function(cb, scope) {
-				return this._store.forEach(cb, scope || this);
+				return Object.keys(this._store).forEach(function(k) {
+					cb.call(scope || this, this._store[k], k, this);
+				});
 			},
 			map: function(cb) {
 				// return this._store.map(cb, this);
-				var res = new Map();
-				this._store.forEach(function(v, k) {
-					res.set(k, cb(v));
-				});
+				var res = new this.constructor();
+				this.forEach(function(v, k) {
+					res.set(k, cb(v, k, this));
+				}.bind(this));
 				return res;
 			},
 			add: function(value, prop) {

@@ -197,6 +197,47 @@ define([
 			});
 
 		},
+		// create a bidirectionnal binding with the following logic: targetProp value is true if all the items are true
+		// if targetProp is set to true, all the items are set to true
+		// if targetProp is set to false, all the items are set to false
+		// at init time, the target prop value is the slave
+		bindAll: function(targetProp, collection, itemProp){
+			var changing = false;
+			var target = this;
+			// init time
+			this.set('targetProp', collection.every(function(item){
+				return item.get(itemProp);
+			}));
+
+			var targetHandler = this.getR(targetProp).changes().onValue(function(b){
+				if (! changing){
+					changing = true;
+					collection.forEach(function(item) {
+						item.set(itemProp, b);
+					});
+					changing = false;
+				}
+			});
+
+			var sourceHandler = collection.asReactive().onEach().onValue(function(){
+				if (! changing){
+					var b = collection.every(function(item){
+						return item.get(itemProp);
+					});
+					if (target.get(targetProp) !== b) {
+						changing = true;
+						target.set(targetProp, b);
+						changing = false;
+					}
+				}
+			});
+
+			// return a canceler
+			return this.own(function(){
+				destroy(targetHandler);
+				destroy(sourceHandler);
+			});
+		},
 	};
 	return Bindable;
 });

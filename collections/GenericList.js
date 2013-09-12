@@ -36,6 +36,17 @@ define([
 			}
 			this._stopChanges();
 		},
+		reduce: function(cb, init) {
+			this.forEach(function(v, i) {
+				init = cb(init, v, i);
+			});
+			return init;
+		},
+		every: function(cb) {
+			return this.reduce(function(b, v, i) {
+				return b && cb(v, i);
+			}, true);
+		},
 		// replace the current values by the new ones
 		setContent: function(values){
 			this._startChanges();
@@ -45,7 +56,7 @@ define([
 		},
 		// replace content of this every time a new collection is pushed by the stream
 		setContentR: function(valuesStream){
-			return this.own(this.onValue(this, "setContent"));
+			return this.own(valuesStream.onValue(this, "setContent"));
 		},
 		// apply changes to current content
 		updateContent: function(changes){

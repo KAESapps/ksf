@@ -20,7 +20,7 @@ define([
 			var other = new Set();
 			other.add("deux");
 			var diff = s.difference(other);
-			assert.deepEqual(diff.toArray(), ["un", "trois"]);
+			assert.deepEqual(diff.values(), ["un", "trois"]);
 		}
 	});
 });

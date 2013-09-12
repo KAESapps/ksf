@@ -4,14 +4,16 @@ define([
 	"ksf/base/Evented",
 	"./Observable",
 	"./Bindable",
-	"../base/Destroyable"
+	"../base/Destroyable",
+	'./GenericMap',
 ], function(
 	compose,
 	WithGetSet,
 	Evented,
 	Observable,
 	Bindable,
-	Destroyable
+	Destroyable,
+	GenericMap
 ){
 	function mangle(key) {
 		return "~" + key;
@@ -21,20 +23,12 @@ define([
 	}
 
 
-	var WithMapChanges = {
-		toChanges: function(type){
-			return this.map(function(item, key){
-				return {type: type || "add", value: item, key: key};
-			});
-		},
-	};
-
 	var ObservableObject = compose(
 		Evented,
 		Observable,
 		Bindable,
 		Destroyable,
-		WithMapChanges,
+		GenericMap,
 		WithGetSet,
 		function() {
 			this._store = {};
@@ -57,21 +51,6 @@ define([
 					cb.call(scope || this, this._store[k], unmangle(k), this);
 				}.bind(this));
 			},
-			map: function(cb) {
-				// return this._store.map(cb, this);
-				var res = new this.constructor();
-				this.forEach(function(v, k) {
-					res.set(k, cb(v, k, this));
-				}.bind(this));
-				return res;
-			},
-			add: function(value, prop) {
-				this.set(prop, value);
-			},
-			addEach: function(values) {
-				this.setEach(values);
-			}
-
 		}
 	);
 

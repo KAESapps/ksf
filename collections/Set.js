@@ -1,30 +1,61 @@
 define([
-
+	"compose/compose",
+	"ksf/base/Evented",
+	"./Observable",
+	"./Bindable",
+	"../base/Destroyable",
+	'./GenericMap',
 ], function(
-
+	compose,
+	Evented,
+	Observable,
+	Bindable,
+	Destroyable,
+	GenericMap
 ){
-	var KsfSet = function() {
-		Set.apply(this, arguments);
-	};
-	var proto = KsfSet.prototype = Object.create(Set.prototype);
+	var GenericSet = {
+		difference: function(otherSet) {
+			var res = this.clone();
+			res.removeEach(otherSet);
+			return res;
+		},
 
-	proto.toArray = function() {
-		var res = [];
-		this.forEach(function(v){
-			res.push(v);
-		});
-		return res;
-	};
-	proto.difference = function(otherSet) {
-		var res = new KsfSet();
-		this.forEach(function(v){
-			res.add(v);
-		});
-		otherSet.forEach(function(v) {
-			res.delete(v);
-		});
-		return res;
 	};
 
-	return KsfSet;
+	return compose(
+		Evented,
+		Observable,
+		Bindable,
+		Destroyable,
+		GenericMap,
+		GenericSet,
+		function(values) {
+			this._store = new Set();
+			values && this.addEach(values);
+		}, {
+			add: function(value){
+				this._startChanges();
+				this._store.add(value);
+				this._pushChanges([{type: "add", value: value, key: value}]);
+				this._stopChanges();
+			},
+			set: function(key, value) {
+				return this.add(value);
+			},
+			remove: function(value){
+				this._startChanges();
+				this._store.delete(value);
+				this._pushChanges([{type: "remove", value: value, key: value}]);
+				this._stopChanges();
+			},
+			forEach: function(cb, scope) {
+				return this._store.forEach(function(v, k) {
+					cb.call(scope || this, v, k, this);
+				}.bind(this));
+			},
+		}
+	);
+
+
+
 });

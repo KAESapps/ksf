@@ -1,4 +1,5 @@
 define([
+	'lodash/lodash',
 	'intern!object',
 	'intern/chai!assert',
 	'../ResourcesManager',
@@ -19,11 +20,12 @@ define([
 	"../propertyManagers/WithRelationSerialize",
 	"../propertyManagers/WithUpdateSyncStatus",
 	'ksf/collections/Dict',
-	'collections/listen/property-changes',
+	'ksf/collections/Set',
 	"dojo/store/Memory",
 	"compose/compose",
 	"dojo/Deferred",
 ], function(
+	_,
 	registerSuite,
 	assert,
 	Manager,
@@ -44,7 +46,7 @@ define([
 	WithRelationSerialize,
 	WithUpdateSyncStatus,
 	Dict,
-	propChange,
+	Set,
 	Memory,
 	compose,
 	Deferred
@@ -53,7 +55,7 @@ define([
 	function listContentEqual(a, b){
 		assert.equal(a.length, b.length);
 		a.forEach(function(item, index){
-			assert.equal(item, b.get(index));
+			assert.equal(item, b[index]);
 		});
 	}
 
@@ -73,7 +75,7 @@ define([
 		put: compose.around(function(basePut){
 			return function(item, options){
 				// clone item to have the same behavior as a regular dataSource
-				item = Object.clone(item);
+				item = _.clone(item, true);
 				var results = basePut.call(this, item, options);
 				var dfd = new Deferred();
 				setTimeout(function(){
@@ -151,11 +153,15 @@ define([
 		var create = this.create;
 		this.create = function(){
 			var rsc = create.apply(this, arguments);
-			cancelers.set(rsc, rsc.addRangeChangeListener(function(added, removed){
-				added = added[0]; // on a set, there is only one item
-				added && (args.itemManager.setPropValue(added, args.itemProperty, this.getPropValue(rsc, args.thisProperty)));
-				removed = removed[0]; // on a set, there is only one item
-				removed && (args.itemManager.setPropValue(removed, args.itemProperty, undefined));
+			cancelers.set(rsc, rsc.asStream("changes").onValue(function(changes){
+				changes.forEach(function(change) {
+					if (change.type === "add") {
+						args.itemManager.setPropValue(change.value, args.itemProperty, this.getPropValue(rsc, args.thisProperty));
+					}
+					if (change.type === "remove") {
+						args.itemManager.setPropValue(change.value, args.itemProperty, undefined);
+					}
+				}.bind(this));
 			}.bind(this)));
 			return rsc;
 		};
@@ -347,7 +353,7 @@ define([
 			}
 		]});
 		personManager.getResponse2Data = function(response){
-			response = Object.clone(response);
+			response = _.clone(response, true);
 			delete response.id;
 			return response;
 		};
@@ -715,7 +721,7 @@ define([
 				assert.equal(syv.get('tasks').length, 2);
 				assert.deepEqual(syv.get('tasks').map(function(task){
 					return taskManager.getPropValue(task, "syncId");
-				}), ["1", "2"]);
+				}).toArray(), ["1", "2"]);
 			});
 		},
 		"push resource to dataSource": function(){
@@ -789,7 +795,7 @@ define([
 					return item.id;
 				},
 				item2data: function(item){
-					var data = Object.clone(item);
+					var data = _.clone(item, true);
 					delete data.id;
 					return data;
 				},
@@ -806,7 +812,7 @@ define([
 			syv.get('tasks').add(courses);
 			assert(syv.get('tasks').has(courses));
 			assert.equal(courses.get('assignee'), syv);
-			syv.get('tasks').delete(courses);
+			syv.get('tasks').remove(courses);
 			assert.equal(courses.get('assignee'), undefined);
 		},
 		"create tasks via tasksList": function(){
@@ -827,7 +833,7 @@ define([
 				assert.equal(syv.get('tasks').length, 2);
 				assert.deepEqual(syv.get('tasks').map(function(task){
 					return taskManager.getPropValue(task, "syncId");
-				}), ["1", "2"]);
+				}).toArray(), ["1", "2"]);
 				syv.get('tasks').forEach(function(task){
 					assert(taskManager.has(task));
 					assert.equal(task.get('assignee'), syv);
@@ -839,7 +845,7 @@ define([
 			return syv.get('tasks').pull().then(function(){
 				assert.deepEqual(syv.get('tasks').map(function(task){
 					return task.get('label');
-				}), ["Faire les courses", "Faire le ménage"]);
+				}).toArray(), ["Faire les courses", "Faire le ménage"]);
 			});
 		},
 	});

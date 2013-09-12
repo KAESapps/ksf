@@ -1,7 +1,5 @@
 define([
-	'collections/listen/property-changes',
 ], function(
-	propChange
 ){
 	// mixin for mirroring the value setted here on a property of the resource
 	// and for setting a new value here when it is changed on the resource directly
@@ -9,7 +7,7 @@ define([
 		var install = this.install;
 		var uninstall = this.uninstall;
 		var set = this.set;
-		var activeResources = [];
+		var activeResources = new Set();
 
 		this.install = function(rsc, arg){
 			install.apply(this, arguments);

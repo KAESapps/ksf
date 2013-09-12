@@ -1,7 +1,7 @@
 define([
-	"collections/set",
+	"ksf/collections/Set",
 ], function(
-	Set
+	KsSet
 ){
 	// The value for this property is a Set collection created at installation time
 	// The property is read only : another value cannot be set after installation (but the content of the value can be changed)
@@ -10,7 +10,7 @@ define([
 		var install = this.install;
 		this.install = function(rsc, arg){
 			install.apply(this, arguments);
-			set.call(this, rsc, new Set());
+			set.call(this, rsc, new KsSet());
 			// call this.set at install time to notify "observers" (WithPropertyValueBindedOnResource) of the initial value
 			this.set(rsc, this.get(rsc));
 		};
@@ -18,10 +18,10 @@ define([
 		// it only changes the content of the value (as an helper method)
 		this.set = function(rsc, items){
 			var collection = this.get(rsc);
-			items = new Set(items);
+			items = new KsSet(items);
 			var added = items.difference(collection);
 			var removed = collection.difference(items);
-			collection.deleteEach(removed);
+			collection.removeEach(removed);
 			collection.addEach(added);
 		};
 	};

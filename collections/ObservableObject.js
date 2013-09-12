@@ -15,6 +15,8 @@ define([
 	Destroyable,
 	GenericMap
 ){
+	"use strict";
+
 	function mangle(key) {
 		return "~" + key;
 	}
@@ -41,14 +43,15 @@ define([
 				this._store[mangle(prop)] = value;
 			},
 			_Detector: function(prop){
-				return Object.hasOwnProperty(this._store, mangle(prop));
+				return this._store.hasOwnProperty(mangle(prop));
 			},
 			_Remover: function(prop){
 				delete this._store[mangle(prop)];
 			},
-			forEach: function(cb, scope) {
+			forEach: function(cb) {
+				var scope = arguments.length > 1 ? arguments[1] : null;
 				return Object.keys(this._store).forEach(function(k) {
-					cb.call(scope || this, this._store[k], unmangle(k), this);
+					cb.call(scope, this._store[k], unmangle(k), this);
 				}.bind(this));
 			},
 		}

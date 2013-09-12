@@ -22,7 +22,7 @@ define([
 
 	};
 
-	return compose(
+	var ObservableSet = compose(
 		Evented,
 		Observable,
 		Bindable,
@@ -48,13 +48,25 @@ define([
 				this._pushChanges([{type: "remove", value: value, key: value}]);
 				this._stopChanges();
 			},
-			forEach: function(cb, scope) {
+			has: function(value) {
+				return this._store.has(value);
+			},
+			forEach: function(cb) {
+				var scope = arguments.length > 1 ? arguments[1] : null;
 				return this._store.forEach(function(v, k) {
-					cb.call(scope || this, v, k, this);
+					cb.call(scope, v, k, this);
 				}.bind(this));
 			},
 		}
 	);
+
+	Object.defineProperty(ObservableSet.prototype, "length", {
+		get: function(){
+			return this._store.size;
+		}
+	});
+
+	return ObservableSet;
 
 
 

@@ -218,5 +218,12 @@ define([
 			},
 		}
 	);
+
+	Object.defineProperty(List.prototype, "length", {
+		get: function(){
+			return this._store.length;
+		}
+	});
+
 	return List;
 });

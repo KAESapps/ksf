@@ -37,8 +37,8 @@ define([
 			this._stopChanges();
 		},
 		reduce: function(cb, init) {
-			this.forEach(function(v, i) {
-				init = cb(init, v, i);
+			this.forEach(function(v, i, list) {
+				init = cb(init, v, i, list);
 			});
 			return init;
 		},

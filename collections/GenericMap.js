@@ -4,21 +4,6 @@ define([
 
 ){
 	var GenericMap = {
-		setEach: function(values){
-			this._startChanges();
-			values.forEach(function(value, key){
-				this.set(key, value);
-			}, this);
-			this._stopChanges();
-		},
-		removeEach: function(keys){
-			this._startChanges();
-			keys.forEach(this.remove, this);
-			this._stopChanges();
-		},
-		add: function(value, prop) {
-			this.set(prop, value);
-		},
 		addEach: function(values) {
 			this._startChanges();
 			if (values.forEach) { // for an iterable
@@ -28,6 +13,15 @@ define([
 					this.add(values[key], key);
 				}, this);
 			}
+			this._stopChanges();
+		},
+		// addEach is the default implementation because "add" it is more universal : we can add only a value or a key/value pair
+		setEach: function(values){
+			return this.addEach(values);
+		},
+		removeEach: function(keys){
+			this._startChanges();
+			keys.forEach(this.remove, this);
 			this._stopChanges();
 		},
 		clear: function(){

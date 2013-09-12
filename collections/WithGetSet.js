@@ -17,11 +17,6 @@ define([
 			this._pushChanges([{type: "remove", value: value, key: prop}]);
 			this._stopChanges();
 		},
-		removeEach: function(){
-			Array.prototype.forEach.call(arguments, function(prop){
-				this.remove(prop);
-			}, this);
-		},
 		get: function(prop){
 			if (this["_"+prop+"Getter"]){
 				return this["_"+prop+"Getter"](prop);
@@ -64,13 +59,10 @@ define([
 				return this["_Detector"](prop); // default detector
 			}
 		},
-		setEach: function(values){
-			this._startChanges();
-			Object.keys(values).forEach(function(key){
-				this.set(key, values[key]);
-			}, this);
-			this._stopChanges();
+		add: function(value, prop) {
+			return this.set(prop, value);
 		},
+
 	};
 	return WithGetSet;
 });

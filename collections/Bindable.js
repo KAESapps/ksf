@@ -130,7 +130,7 @@ define([
 			// incremental update
 			var targetHandler = this.getR(targetProp).diff(undefined, function(oldItem, currentItem){
 				return {oldItem: oldItem, currentItem: currentItem};
-			}).skip(1).onValue(function(oldAndCurrentItems){
+			}).changes().onValue(function(oldAndCurrentItems){
 				if (! changing){
 					changing = true;
 					var oldItem = oldAndCurrentItems.oldItem;
@@ -147,7 +147,7 @@ define([
 					var item = change.value;
 					if (change.type === "add"){
 						item.set(itemProp, item === target.get(targetProp));
-						itemHandlers.set(item, item.getR(itemProp).skip(1).onValue(function(bool){
+						itemHandlers.set(item, item.getR(itemProp).changes().onValue(function(bool){
 							if (! changing){
 								changing = true;
 								var oldItem = target.get(targetProp);

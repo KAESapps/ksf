@@ -5,6 +5,7 @@ define([
 	"./Bindable",
 	"../base/Destroyable",
 	'./GenericMap',
+	"es6-shim",
 ], function(
 	compose,
 	Evented,

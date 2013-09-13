@@ -1,6 +1,7 @@
 define([
 	"bacon",
 	"../utils/destroy",
+	"es6-shim",
 ], function(
 	Bacon,
 	destroy

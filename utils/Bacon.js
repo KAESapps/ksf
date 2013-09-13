@@ -1,5 +1,5 @@
 define([
-	'originalBacon',
+	'bacon',
 ], function(
 	Bacon
 ){
@@ -44,5 +44,4 @@ define([
 	};
 
 
-	return Bacon;
 });

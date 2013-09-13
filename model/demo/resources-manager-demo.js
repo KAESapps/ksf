@@ -1,5 +1,5 @@
 define([
-	'lodash',
+	'lodash/objects/cloneDeep',
 	'intern!object',
 	'intern/chai!assert',
 	'../ResourcesManager',
@@ -25,7 +25,7 @@ define([
 	"compose/compose",
 	"dojo/Deferred",
 ], function(
-	_,
+	clone,
 	registerSuite,
 	assert,
 	Manager,
@@ -75,7 +75,7 @@ define([
 		put: compose.around(function(basePut){
 			return function(item, options){
 				// clone item to have the same behavior as a regular dataSource
-				item = _.clone(item, true);
+				item = clone(item, true);
 				var results = basePut.call(this, item, options);
 				var dfd = new Deferred();
 				setTimeout(function(){
@@ -353,7 +353,7 @@ define([
 			}
 		]});
 		personManager.getResponse2Data = function(response){
-			response = _.clone(response, true);
+			response = clone(response, true);
 			delete response.id;
 			return response;
 		};
@@ -795,7 +795,7 @@ define([
 					return item.id;
 				},
 				item2data: function(item){
-					var data = _.clone(item, true);
+					var data = clone(item, true);
 					delete data.id;
 					return data;
 				},

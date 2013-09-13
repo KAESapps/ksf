@@ -1,9 +1,9 @@
 define([
-	'lodash',
+	'lodash/objects/isEqual',
 	'dojo/when',
 	'../collections/Dict'
 ], function(
-	_,
+	isEqual,
 	when,
 	Dict
 ){
@@ -70,7 +70,7 @@ define([
 			var localState = this.serialize(rsc);
 			var remoteState = this.getPropValue(rsc, this.lastSourceDataProperty);
 			remoteState = remoteState && remoteState.data;
-			return _.isEqual(localState, remoteState);
+			return isEqual(localState, remoteState);
 		};
 		this.refreshSyncStatus = function(rsc){
 			if (!this.disableRefreshSyncStatus){

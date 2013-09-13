@@ -1,4 +1,10 @@
-define(['./require-config'], function(loaderConfig) {
+define(['../require-config'], function(loaderConfig) {
+
+	loaderConfig.packages.push({
+		name: 'ksf',
+		location: '..',
+	});
+
 	return {
 		// Configuration options for the module loader; any AMD configuration options supported by the Dojo loader can be
 		// used here

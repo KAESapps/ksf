@@ -27,7 +27,7 @@ define([
 		}
 	});
 
-	var input;
+/*	var input;
 	registerSuite({
 		name: 'focused',
 		beforeEach: function() {
@@ -49,4 +49,4 @@ define([
 			assert(document.activeElement !== input.get('domNode'));
 		},
 	});
-});
+*/});

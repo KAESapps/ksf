@@ -100,14 +100,14 @@ define([
 				var children = this._topDown.get(parent);
 				if (children) {
 					children.delete(child);
-					if (!children.length) {
+					if (!children.size) {
 						this._topDown.delete(parent);
 					}
 				}
 
 				var parents = this._bottomUp.get(child);
 				parents && parents.delete(parent);
-				if (!parents.length) {
+				if (!parents.size) {
 					this._bottomUp.delete(child);
 				}
 			} else {

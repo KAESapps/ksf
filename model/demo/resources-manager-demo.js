@@ -1,5 +1,5 @@
 define([
-	'lodash/lodash',
+	'lodash',
 	'intern!object',
 	'intern/chai!assert',
 	'../ResourcesManager',

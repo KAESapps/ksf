@@ -1,6 +1,6 @@
 define([
-	'lodash/lodash',
-	"dojo/when",
+	'lodash',
+	'dojo/when',
 	'../collections/Dict'
 ], function(
 	_,

@@ -3,8 +3,7 @@ define([
 	'../ContainerBase',
 	'ksf/dom/Sizeable',
 	'ksf/dom/WithInnerSize',
-	'ksf/utils/destroy',
-	'collections/shim-array'
+	'ksf/utils/destroy'
 ], function(
 	compose,
 	Container,
@@ -85,7 +84,7 @@ define([
 					var childNode = child.get('domNode');
 
 					if (options && options.flex) {
-						flexChildren.add(childAndOptions);
+						flexChildren.push(childAndOptions);
 					}
 
 					childNode.style.display = vertical ? 'block' : 'inline-block';

@@ -2,14 +2,12 @@ define([
 	'compose',
 	'ksf/collections/ObservableObject',
 	'ksf/dom/WithHTMLElement',
-	'ksf/dom/WithCssClassStyle',
-	'ksf/dom/WithFocused',
+	'ksf/dom/WithCssClassStyle'
 ], function(
 	compose,
 	ObservableObject,
 	WithHTMLElement,
-	WithCssClassStyle,
-	WithFocused
+	WithCssClassStyle
 ) {
 	return compose(
 		ObservableObject,
@@ -23,7 +21,6 @@ define([
 			}
 			this.style.asReactive().onValue(this._applyStyle.bind(this));
 		},
-		WithFocused, // call it after rendering is done
 		{
 			_Getter: function(prop) {
 				return this._domNode[prop];
@@ -44,7 +41,7 @@ define([
 				return function() {
 					domNode.removeEventListener(eventName, callback);
 				};
-			},
+			}
 		}
 	);
 });

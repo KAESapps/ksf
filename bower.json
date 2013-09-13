@@ -2,15 +2,14 @@
   "name": "ksf",
   "version": "0.1.0",
   "dependencies": {
-    "dojo": "1.8.3",
-    "dijit": "1.8.3",
+    "dojo": "1.9.1",
     "compose": "kriszyp/compose#master",
-    "collections": "montagejs/collections#0.1.16",
     "bacon.js": "raimohanska/bacon.js"
   },
   "homepage": "https://github.com/KAESapps/ksf",
   "authors": [
-    "Quentin <quentin.vuilliot@kaes.fr>"
+    "Quentin Vuilliot <quentin.vuilliot@kaes.fr>",
+    "Sylvain Vuilliot <sylvain.vuilliot@kaes.fr>"
   ],
   "description": "KaeS framework",
   "license": "MIT",

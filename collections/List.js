@@ -26,7 +26,6 @@ define([
 
 		function(values){
 			this._store = [];
-			this.length = 0;
 			values && values.forEach && this.addEach(values);
 		},
 		{

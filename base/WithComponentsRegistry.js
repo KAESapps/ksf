@@ -1,12 +1,10 @@
 define([
 	"compose/compose",
 	"ksf/collections/Dict",
-	"collections/map",
 	'ksf/utils/destroy',
 ], function(
 	compose,
 	Dict,
-	Map,
 	destroy
 ){
 

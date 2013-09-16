@@ -15,173 +15,6 @@ define([
 	var cmp1, cmp2, cmp3;
 	var cbArgs, cb2Args;
 
-	registerSuite({
-		name: "whenDefined",
-		beforeEach: function(){
-			collection = new Dict();
-			cbCalledCount = cb2CalledCount = 0;
-			cancelerCalledCount = canceler2CalledCount = 0;
-			cmp1 = {name: "cmp1"};
-			cmp2 = {name: "cmp2"};
-			cmp3 = {name: "cmp3"};
-		},
-		"only one key": function(){
-			collection.whenDefined("cmp1", function(c1){
-				assert.equal(c1, cmp1);
-				assert.equal(this, collection);
-				cbCalledCount++;
-				return function() {
-					cancelerCalledCount++;
-				};
-			});
-			assert.equal(cbCalledCount, 0);
-			assert.equal(cancelerCalledCount, 0);
-
-			collection.set("cmp1", cmp1);
-			assert.equal(cbCalledCount, 1);
-			assert.equal(cancelerCalledCount, 0);
-
-			collection.remove("cmp1");
-			assert.equal(cbCalledCount, 1);
-			assert.equal(cancelerCalledCount, 1);
-
-		},
-		"two keys": function(){
-			collection.whenDefined("cmp1", "cmp2", function(c1, c2){
-				assert.equal(c1, cmp1);
-				assert.equal(c2, cmp2);
-				assert.equal(this, collection);
-				cbCalledCount++;
-				return function() {
-					cancelerCalledCount++;
-				};
-			});
-			assert.equal(cbCalledCount, 0);
-			assert.equal(cancelerCalledCount, 0);
-
-			collection.set("cmp1", cmp1);
-			assert.equal(cbCalledCount, 0);
-			assert.equal(cancelerCalledCount, 0);
-
-			collection.set("cmp2", cmp2);
-			assert.equal(cbCalledCount, 1);
-			assert.equal(cancelerCalledCount, 0);
-
-			collection.remove("cmp1");
-			assert.equal(cbCalledCount, 1);
-			assert.equal(cancelerCalledCount, 1);
-
-			collection.remove("cmp2");
-			assert.equal(cbCalledCount, 1);
-			assert.equal(cancelerCalledCount, 1);
-		},
-		"canceler": function(){
-			var canceler = collection.whenDefined("cmp1", "cmp2", function(c1, c2){
-				cbCalledCount++;
-			});
-			canceler();
-			collection.setEach({
-				'cmp1': cmp1,
-				'cmp2': cmp2,
-			});
-			assert.equal(cbCalledCount, 0);
-		},
-		"cb called only once on setEach": function() {
-			collection.set("cmp1", "initCmp1");
-			collection.whenDefined("cmp1", "cmp2", function(c1, c2){
-				// console.log(c1, c2);
-				cbCalledCount++;
-			});
-			collection.set('cmp2', 'intiCmp2');
-			assert.equal(cbCalledCount, 1);
-
-			collection.setEach({
-				'cmp1': cmp2,
-				'cmp2': cmp3,
-			});
-			assert.equal(cbCalledCount, 2);
-
-		},
-		"multi cb": function() {
-			collection.whenDefined("cmp1", "cmp2", [
-				function(c1, c2){
-					assert.equal(c1, cmp2);
-					assert.equal(c2, cmp3);
-					cbCalledCount++;
-					return function() {
-						cancelerCalledCount++;
-					};
-				},
-				function(c1, c2){
-					assert.equal(c1, cmp2);
-					assert.equal(c2, cmp3);
-					cb2CalledCount++;
-					return function() {
-						canceler2CalledCount++;
-					};
-				},
-			]);
-
-			collection.setEach({
-				'cmp1': cmp2,
-				'cmp2': cmp3,
-			});
-			assert.equal(cbCalledCount, 1);
-			assert.equal(cb2CalledCount, 1);
-
-			collection.remove("cmp1");
-			assert.equal(cancelerCalledCount, 1);
-			assert.equal(canceler2CalledCount, 1);
-		},
-		"many whenDefined": function(){
-			collection.whenDefined("cmp1", "cmp2", function(c1, c2){
-				assert.equal(c1, cmp1);
-				assert.equal(c2, cmp2);
-				assert.equal(this, collection);
-				cbCalledCount++;
-				return function() {
-					cancelerCalledCount++;
-				};
-			});
-			collection.whenDefined("cmp2", "cmp3", function(c1, c2){
-				assert.equal(c1, cmp2);
-				assert.equal(c2, cmp3);
-				assert.equal(this, collection);
-				cb2CalledCount++;
-				return function() {
-					canceler2CalledCount++;
-				};
-			});
-			assert.equal(cbCalledCount, 0);
-			assert.equal(cancelerCalledCount, 0);
-			assert.equal(cb2CalledCount, 0);
-			assert.equal(canceler2CalledCount, 0);
-
-			collection.setEach({
-				"cmp1": cmp1,
-				'cmp2': cmp2,
-				'cmp3': cmp3,
-			});
-			assert.equal(cbCalledCount, 1);
-			assert.equal(cancelerCalledCount, 0);
-			assert.equal(cb2CalledCount, 1);
-			assert.equal(canceler2CalledCount, 0);
-
-			collection.remove("cmp1");
-			assert.equal(cbCalledCount, 1);
-			assert.equal(cancelerCalledCount, 1);
-			assert.equal(cb2CalledCount, 1);
-			assert.equal(canceler2CalledCount, 0);
-
-			collection.remove("cmp2");
-			assert.equal(cbCalledCount, 1);
-			assert.equal(cancelerCalledCount, 1);
-			assert.equal(cb2CalledCount, 1);
-			assert.equal(canceler2CalledCount, 1);
-		},
-
-
-	});
 
 	registerSuite({
 		name: "whenChanged",
@@ -356,8 +189,176 @@ define([
 		}
 	});
 
-	var o;
+	registerSuite({
+		name: "whenDefined",
+		beforeEach: function(){
+			collection = new Dict();
+			cbCalledCount = cb2CalledCount = 0;
+			cancelerCalledCount = canceler2CalledCount = 0;
+			cmp1 = {name: "cmp1"};
+			cmp2 = {name: "cmp2"};
+			cmp3 = {name: "cmp3"};
+		},
+		"only one key": function(){
+			collection.whenDefined("cmp1", function(c1){
+				assert.equal(c1, cmp1);
+				assert.equal(this, collection);
+				cbCalledCount++;
+				return function() {
+					cancelerCalledCount++;
+				};
+			});
+			assert.equal(cbCalledCount, 0);
+			assert.equal(cancelerCalledCount, 0);
 
+			collection.set("cmp1", cmp1);
+			assert.equal(cbCalledCount, 1);
+			assert.equal(cancelerCalledCount, 0);
+
+			collection.remove("cmp1");
+			assert.equal(cbCalledCount, 1);
+			assert.equal(cancelerCalledCount, 1);
+
+		},
+		"two keys": function(){
+			collection.whenDefined("cmp1", "cmp2", function(c1, c2){
+				assert.equal(c1, cmp1);
+				assert.equal(c2, cmp2);
+				assert.equal(this, collection);
+				cbCalledCount++;
+				return function() {
+					cancelerCalledCount++;
+				};
+			});
+			assert.equal(cbCalledCount, 0);
+			assert.equal(cancelerCalledCount, 0);
+
+			collection.set("cmp1", cmp1);
+			assert.equal(cbCalledCount, 0);
+			assert.equal(cancelerCalledCount, 0);
+
+			collection.set("cmp2", cmp2);
+			assert.equal(cbCalledCount, 1);
+			assert.equal(cancelerCalledCount, 0);
+
+			collection.remove("cmp1");
+			assert.equal(cbCalledCount, 1);
+			assert.equal(cancelerCalledCount, 1);
+
+			collection.remove("cmp2");
+			assert.equal(cbCalledCount, 1);
+			assert.equal(cancelerCalledCount, 1);
+		},
+		"canceler": function(){
+			var canceler = collection.whenDefined("cmp1", "cmp2", function(c1, c2){
+				cbCalledCount++;
+			});
+			canceler();
+			collection.setEach({
+				'cmp1': cmp1,
+				'cmp2': cmp2,
+			});
+			assert.equal(cbCalledCount, 0);
+		},
+		"cb called only once on setEach": function() {
+			collection.set("cmp1", "initCmp1");
+			collection.whenDefined("cmp1", "cmp2", function(c1, c2){
+				// console.log(c1, c2);
+				cbCalledCount++;
+			});
+			collection.set('cmp2', 'intiCmp2');
+			assert.equal(cbCalledCount, 1);
+
+			collection.setEach({
+				'cmp1': cmp2,
+				'cmp2': cmp3,
+			});
+			assert.equal(cbCalledCount, 2);
+
+		},
+		"multi cb": function() {
+			collection.whenDefined("cmp1", "cmp2", [
+				function(c1, c2){
+					assert.equal(c1, cmp2);
+					assert.equal(c2, cmp3);
+					cbCalledCount++;
+					return function() {
+						cancelerCalledCount++;
+					};
+				},
+				function(c1, c2){
+					assert.equal(c1, cmp2);
+					assert.equal(c2, cmp3);
+					cb2CalledCount++;
+					return function() {
+						canceler2CalledCount++;
+					};
+				},
+			]);
+
+			collection.setEach({
+				'cmp1': cmp2,
+				'cmp2': cmp3,
+			});
+			assert.equal(cbCalledCount, 1);
+			assert.equal(cb2CalledCount, 1);
+
+			collection.remove("cmp1");
+			assert.equal(cancelerCalledCount, 1);
+			assert.equal(canceler2CalledCount, 1);
+		},
+		"many whenDefined": function(){
+			collection.whenDefined("cmp1", "cmp2", function(c1, c2){
+				assert.equal(c1, cmp1);
+				assert.equal(c2, cmp2);
+				assert.equal(this, collection);
+				cbCalledCount++;
+				return function() {
+					cancelerCalledCount++;
+				};
+			});
+			collection.whenDefined("cmp2", "cmp3", function(c1, c2){
+				assert.equal(c1, cmp2);
+				assert.equal(c2, cmp3);
+				assert.equal(this, collection);
+				cb2CalledCount++;
+				return function() {
+					canceler2CalledCount++;
+				};
+			});
+			assert.equal(cbCalledCount, 0);
+			assert.equal(cancelerCalledCount, 0);
+			assert.equal(cb2CalledCount, 0);
+			assert.equal(canceler2CalledCount, 0);
+
+			collection.setEach({
+				"cmp1": cmp1,
+				'cmp2': cmp2,
+				'cmp3': cmp3,
+			});
+			assert.equal(cbCalledCount, 1);
+			assert.equal(cancelerCalledCount, 0);
+			assert.equal(cb2CalledCount, 1);
+			assert.equal(canceler2CalledCount, 0);
+
+			collection.remove("cmp1");
+			assert.equal(cbCalledCount, 1);
+			assert.equal(cancelerCalledCount, 1);
+			assert.equal(cb2CalledCount, 1);
+			assert.equal(canceler2CalledCount, 0);
+
+			collection.remove("cmp2");
+			assert.equal(cbCalledCount, 1);
+			assert.equal(cancelerCalledCount, 1);
+			assert.equal(cb2CalledCount, 1);
+			assert.equal(canceler2CalledCount, 1);
+		},
+
+
+	});
+
+
+	var o;
 	registerSuite({
 		name: "bindSelection",
 		beforeEach: function(){
@@ -525,5 +526,69 @@ define([
 
 	});
 
+	var observedSourceValue;
+	registerSuite({
+		name: "bindCase",
+		beforeEach: function(){
+			o = new Dict();
+			o.whenChanged('mode', function(mode) {
+				cbCalledCount++;
+				observedSourceValue = mode;
+			});
+			observedSourceValue = undefined;
+			cbCalledCount = 0;
+		},
+		"bind without initial data": function(){
+			o.bindCase("mode", o, {
+				"allMode": "all",
+				"activeMode": "active",
+				"completedMode": "completed",
+			});
+			assert.equal(o.get("mode"), undefined);
+			assert.equal(o.get("allMode"), false);
+			assert.equal(o.get("activeMode"), false);
+			assert.equal(o.get("completedMode"), false);
+			assert.equal(cbCalledCount, 0);
+		},
+		"bind with initial source prop": function(){
+			o.set('mode', 'all');
+			o.bindCase("mode", o, {
+				"allMode": "all",
+				"activeMode": "active",
+				"completedMode": "completed",
+			});
+			assert.equal(o.get("mode"), "all");
+			assert.equal(o.get("allMode"), true);
+			assert.equal(o.get("activeMode"), false);
+			assert.equal(o.get("completedMode"), false);
+			assert.equal(cbCalledCount, 1);
+		},
+		"change one of target prop": function(){
+			o.bindCase("mode", o, {
+				"allMode": "all",
+				"activeMode": "active",
+				"completedMode": "completed",
+			});
+			o.set('allMode', true);
+			assert.equal(o.get("mode"), "all");
+			assert.equal(o.get("allMode"), true);
+			assert.equal(o.get("activeMode"), false);
+			assert.equal(o.get("completedMode"), false);
+			assert.equal(cbCalledCount, 1);
+		},
+		"change source prop": function(){
+			o.bindCase("mode", o, {
+				"allMode": "all",
+				"activeMode": "active",
+				"completedMode": "completed",
+			});
+			o.set('mode', 'all');
+			assert.equal(o.get("mode"), "all");
+			assert.equal(o.get("allMode"), true);
+			assert.equal(o.get("activeMode"), false);
+			assert.equal(o.get("completedMode"), false);
+			assert.equal(cbCalledCount, 1);
+		},
+	});
 
 });

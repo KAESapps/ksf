@@ -26,4 +26,27 @@ define([
 			assert.equal(div.get('id'), "test");
 		}
 	});
-});
+
+/*	var input;
+	registerSuite({
+		name: 'focused',
+		beforeEach: function() {
+			input = window.input = new HtmlElement('input');
+			document.body.appendChild(input.get('domNode'));
+			// window.focus();
+		},
+		'set focused true': function() {
+			assert.equal(input.get('focused'), false);
+			input.set('focused', true);
+			assert.equal(input.get('focused'), true);
+			// assert(document.hasFocus());
+			assert.equal(document.activeElement, input.get('domNode'));
+		},
+		'set focused false': function() {
+			input.set('focused', true);
+			input.set('focused', false);
+			assert.equal(input.get('focused'), false);
+			assert(document.activeElement !== input.get('domNode'));
+		},
+	});
+*/});

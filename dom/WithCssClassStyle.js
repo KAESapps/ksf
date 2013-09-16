@@ -1,6 +1,6 @@
 define([
 	'compose',
-	'collections/set',
+	'ksf/collections/Set',
 	'ksf/collections/ObservableObject'
 ], function(
 	compose,

@@ -11,7 +11,7 @@ define([
 			listeners.push(cb);
 			return {
 				destroy: function(){
-					listeners.delete(cb);
+					listeners.splice(listeners.indexOf(cb), 1);
 					if(!listeners.length) {
 						delete this._listeners[type];
 					}

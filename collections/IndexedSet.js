@@ -1,11 +1,7 @@
 define([
-	'collections/set',
-	'collections/map',
 	'ksf/utils/proxyFunctions',
 	'../base/Evented',
 ], function(
-	Set,
-	Map,
 	proxy,
 	Evented
 ) {
@@ -128,7 +124,11 @@ define([
 		if (! this._changing) this._emit("changed");
 	};
 	proto.removeAll = proto.clear = function(){
-		this.removeEach(this._values.keys());
+		var keys = [];
+		this._values.forEach(function(v, k) {
+			keys.push(k);
+		});
+		this.removeEach(keys);
 	};
 
 	proto.swap = function(itemsToRemove, itemsToAdd){

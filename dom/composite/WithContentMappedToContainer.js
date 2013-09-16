@@ -1,6 +1,7 @@
 define([
 	'bacon',
 	'ksf/utils/destroy',
+	'ksf/utils/bacon',
 ], function(
 	Bacon,
 	destroy

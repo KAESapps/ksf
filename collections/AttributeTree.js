@@ -1,9 +1,7 @@
 define([
 	'ksf/utils/constructor',
-	'collections/map',	'collections/set'
 ], function(
-	constructor,
-	Map,				Set
+	constructor
 ) {
 	function isLiteralTree(item) {
 		return Array.isArray(item) && item.length === 2 && Array.isArray(item[1]);
@@ -102,14 +100,14 @@ define([
 				var children = this._topDown.get(parent);
 				if (children) {
 					children.delete(child);
-					if (!children.length) {
+					if (!children.size) {
 						this._topDown.delete(parent);
 					}
 				}
 
 				var parents = this._bottomUp.get(child);
 				parents && parents.delete(parent);
-				if (!parents.length) {
+				if (!parents.size) {
 					this._bottomUp.delete(child);
 				}
 			} else {
@@ -119,16 +117,24 @@ define([
 
 		getChildren: function(parent) {
 			var children = this._topDown.get(parent);
-			return children && children.keys() || [];
+			var res = [];
+			children && children.forEach(function(v, k) {
+				res.push(k);
+			});
+			return res;
 		},
 
 		getParents: function(child) {
 			var parents = this._bottomUp.get(child);
-			return parents && parents.toArray();
+			var res = [];
+			parents.forEach(function(v) {
+				res.push(v);
+			});
+			return res;
 		},
 
 		get length() {
-			return this._bottomUp.length + (this._root ? 1 : 0);
+			return this._bottomUp.size + (this._root ? 1 : 0);
 		},
 
 		/*

@@ -8,11 +8,11 @@
 (function () {
 	var ksfRoot = location.pathname.replace(/[^\/]+$/, '') + '../';
 	require({
-		baseUrl: ksfRoot + 'deps/',
+		baseUrl: ksfRoot + 'bower_components/',
 		packages: [
 			{ name: 'intern', location: ksfRoot + 'node_modules/intern' },
 			{ name: 'chai', location: ksfRoot + 'node_modules/intern/node_modules/chai', main: 'chai' },
-			{ name: 'ksf', location: ksfRoot }
+			{ name: 'ksf', location: ksfRoot },
 		],
 		map: { 'intern': { 'dojo': 'intern/node_modules/dojo' } }
 	}, [ 'intern/client' ]);

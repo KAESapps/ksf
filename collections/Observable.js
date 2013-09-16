@@ -16,7 +16,6 @@ define([
 		_stopChanges: function(){
 			this._changing--;
 			if (! this._changing){
-				this.length = this._store.length;
 				this._emit("changes", this._changesQueue || []);
 				delete this._changesQueue;
 				this._emit("changed");
@@ -67,7 +66,7 @@ define([
 			args.forEach(function(prop){
 				reactive = reactive.flatMapLatest(function(value){
 					return value && value.getR && value.getR(prop) || Bacon.constant(undefined);
-				});
+				}).toProperty();
 			});
 
 			return reactive;

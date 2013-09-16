@@ -1,5 +1,5 @@
 define([
-	"collections/set",
+	"ksf/collections/Set",
 ], function(
 	Set
 ){
@@ -21,7 +21,7 @@ define([
 			items = new Set(items);
 			var added = items.difference(collection);
 			var removed = collection.difference(items);
-			collection.deleteEach(removed);
+			collection.removeEach(removed);
 			collection.addEach(added);
 		};
 	};

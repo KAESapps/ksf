@@ -1,7 +1,6 @@
 define([
-
+	'dojo/domReady!'
 ], function(
-
 ){
 	return function(args) {
 		var rootNode = args.rootNode || document.body;

@@ -1,12 +1,13 @@
 define([
 	"bacon",
 	"../utils/destroy",
-	"collections/map",
+	"es6-shim",
 ], function(
 	Bacon,
-	destroy,
-	Map
+	destroy
 ){
+	var identity = function (o) { return o; };
+
 	var Bindable = {
 		// call set(prop) with value from observable at each notification
 		setR: function(prop, observable){
@@ -129,7 +130,7 @@ define([
 			// incremental update
 			var targetHandler = this.getR(targetProp).diff(undefined, function(oldItem, currentItem){
 				return {oldItem: oldItem, currentItem: currentItem};
-			}).skip(1).onValue(function(oldAndCurrentItems){
+			}).changes().onValue(function(oldAndCurrentItems){
 				if (! changing){
 					changing = true;
 					var oldItem = oldAndCurrentItems.oldItem;
@@ -146,7 +147,7 @@ define([
 					var item = change.value;
 					if (change.type === "add"){
 						item.set(itemProp, item === target.get(targetProp));
-						itemHandlers.set(item, item.getR(itemProp).skip(1).onValue(function(bool){
+						itemHandlers.set(item, item.getR(itemProp).changes().onValue(function(bool){
 							if (! changing){
 								changing = true;
 								var oldItem = target.get(targetProp);
@@ -168,6 +169,74 @@ define([
 				destroy(targetHandler);
 				destroy(sourceHandler);
 				itemHandlers.forEach(destroy);
+			});
+		},
+		// create a bidirectionnal binding between this (source) and target where sourceProp has the value corresponding to the truthy property of the target
+		// at init, the source prop is the master
+		bindCase: function(sourceProp, target, map) {
+			var source = this;
+
+			var changing = false;
+			var sourceCanceler = this.getR(sourceProp).onValue(function (sourceValue) {
+				if (!changing) {
+					changing = true;
+					Object.keys(map).forEach(function(key) {
+						var value = map[key];
+						target.set(key, value === sourceValue);
+					});
+					changing = false;
+				}
+			}.bind(this));
+
+			var targetCancelers = [];
+			Object.keys(map).forEach(function(key) {
+				var value = map[key];
+				var canceler = target.getR(key).filter(identity).onValue(function() {
+					source.set(sourceProp, value);
+				});
+				targetCancelers.push(canceler);
+			});
+
+		},
+		// create a bidirectionnal binding with the following logic: targetProp value is true if all the items are true
+		// if targetProp is set to true, all the items are set to true
+		// if targetProp is set to false, all the items are set to false
+		// at init time, the target prop value is the slave
+		bindAll: function(targetProp, collection, itemProp){
+			var changing = false;
+			var target = this;
+			// init time
+			this.set('targetProp', collection.every(function(item){
+				return item.get(itemProp);
+			}));
+
+			var targetHandler = this.getR(targetProp).changes().onValue(function(b){
+				if (! changing){
+					changing = true;
+					collection.forEach(function(item) {
+						item.set(itemProp, b);
+					});
+					changing = false;
+				}
+			});
+
+			var sourceHandler = collection.asReactive().onEach().onValue(function(){
+				if (! changing){
+					var b = collection.every(function(item){
+						return item.get(itemProp);
+					});
+					if (target.get(targetProp) !== b) {
+						changing = true;
+						target.set(targetProp, b);
+						changing = false;
+					}
+				}
+			});
+
+			// return a canceler
+			return this.own(function(){
+				destroy(targetHandler);
+				destroy(sourceHandler);
 			});
 		},
 	};

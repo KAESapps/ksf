@@ -1,7 +1,5 @@
 define([
-	"collections/map",
 ], function(
-	Map
 ){
 	// Property manager that stores the values of resources
 	var PropertyValueStore = function(args){
@@ -22,14 +20,16 @@ define([
 			this.store.set(rsc, value);
 		},
 		getBy: function(valueToFind){
-			var findedRsc;
-			this.store.some(function(value, rsc){
-				if (value === valueToFind){
-					findedRsc = rsc;
-					return true;
+			var iterator = this.store.entries();
+			while (iterator.i.next !== null) {
+				var entry = iterator.next();
+				// rsc found
+				if (entry[1] === valueToFind){
+					return entry[0];
 				}
-			});
-			return findedRsc;
+			}
+			// no resource found
+			return undefined;
 		},
 	};
 	return PropertyValueStore;

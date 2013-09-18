@@ -49,8 +49,12 @@ define([
 							var row = new List({
 								container: new ContainerWithActive('tr'),
 								factory: function(column){
+									var content = column.body.factory(item);
+									if (typeof content === 'string'){
+										return new HtmlElement('td', {textContent: content});
+									}
 									return new HtmlContainer('td', {
-										content: [column.body.factory(item)],
+										content: [content],
 									});
 								},
 							});
@@ -71,9 +75,6 @@ define([
 				bindProps('columns', '<', 'columns').bind(self),
 				bindProps('active', '<<->', 'active').bind(self),
 			]);
-
-
-			// this._style.set('base', 'TodoListManager');
 
 			this._layout.set('config', [
 				new HtmlContainer('table'), [[

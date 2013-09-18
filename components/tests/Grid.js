@@ -71,7 +71,7 @@ define([
 		head: "Genre",
 		body: {
 			factory : function(item) {
-				return new HtmlElement('input', {value: item.get('genre')});
+				return item.get('genre');
 			},
 		}
 	});

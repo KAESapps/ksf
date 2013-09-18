@@ -355,5 +355,48 @@ define([
 			assert.equal(s.get('domNode').children.length, 3);
 		},
 	});
+	registerSuite({
+		name: 'args setting and dom insertion sequence',
+		beforeEach: function() {
+			syv = window.syv = new Dict({id: "syv", name: "Sylvain", age: 31, sexe: "M"});
+			aur = window.aur = new Dict({id: "aur", name: "Aurélie", age: 30, sexe:"F"});
+			ant = window.ant = new Dict({id: "ant", name: "Antonin", age: 2, sexe:"M"});
+			leo = window.leo = new Dict({id: "leo", name: "Léonie", age: 1, sexe:"F"});
+			toto = window.toto = new Dict({id: "toto"});
+			selectedObserverCalledCount = 0;
+			observedSelected = undefined;
+			collection = window.collection = new OrderableSet([syv, aur, ant]);
+		},
+		"all args before dom insertion": function() {
+			s = window.s = new Select({
+				labelProp: 'name',
+				options: collection,
+				value: aur,
+			});
+			s.whenChanged('value', selectedObserver);
+			document.body.appendChild(s.get('domNode'));
+			assert.equal(s.get('value'), aur);
+			assert.equal(s.get('domNode').value, "Aurélie");
+			assert.equal(s.get('domNode').selectedIndex, 1);
+			assert.equal(s.get('domNode').children.length, 3);
+			assert.equal(selectedObserverCalledCount, 1);
+			assert.equal(observedSelected, aur);
+		},
+		"options but no value before dom insertion": function() {
+			s = window.s = new Select({
+				labelProp: 'name',
+				options: collection,
+			});
+			s.whenChanged('value', selectedObserver);
+			document.body.appendChild(s.get('domNode'));
+			s.startLiveRendering(); // needed for chrome
+			assert.equal(s.get('value'), undefined);
+			assert.equal(s.get('domNode').value, "");
+			assert.equal(s.get('domNode').selectedIndex, -1);
+			assert.equal(s.get('domNode').children.length, 3);
+			assert.equal(selectedObserverCalledCount, 1);
+			assert.equal(observedSelected, undefined);
+		},
+	});
 
 });

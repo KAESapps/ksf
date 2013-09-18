@@ -34,15 +34,20 @@ define([
 		function(args){
 			var self = this;
 			this.set('options', args && args.options || new OrderableSet());
+			this.set('value', args && args.value);
 
-			var selectComponent = new HtmlContainerWhichEmitChanged('select');
+			var selectComponent = this._selectComponent = new HtmlContainerWhichEmitChanged('select');
 
 			this._component = new List({
 				container: selectComponent,
 				factory: function(item){
 					var option = new HtmlElement('option');
 					if (args && args.labelProp){
-						option.own(option.setR('text', item.getR(args.labelProp)));
+						if (item.getR){
+							option.own(option.setR('text', item.getR(args.labelProp)));
+						} else {
+							option.set('text', item.get ? item.get(args.labelProp) : item[args.labelProp]);
+						}
 					} else {
 						option.set('text', item);
 					}
@@ -66,6 +71,14 @@ define([
 				selectComponent.set('selectedIndex', self.get('options').indexOf(self.get('value')));
 			});
 
+		}, {
+			// allow for updating dom when 'options' are set before dom insertion and 'value' is undefined
+			// required for chrome only
+			// TODO: triger this only when 'inDom' change to true instead of using 'startLiveRendering' because this component is always live
+			startLiveRendering: function() {
+				CompositeMono.prototype.startLiveRendering.apply(this, arguments);
+				this._selectComponent.set('selectedIndex', this.get('options').indexOf(this.get('value')));
+			}
 		}
 	);
 });

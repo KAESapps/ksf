@@ -33,8 +33,11 @@ define([
 					return new List({
 						container: new HtmlContainerIncremental('tr'),
 						factory: function(column) {
-							return new HtmlElement('th', {
-								innerHTML: column.head.label,
+							if (typeof column.head === 'string') {
+								return new HtmlElement('th', {textContent: column.head});
+							}
+							return new HtmlContainer('th', {
+								content: [column.head],
 							});
 						},
 					});

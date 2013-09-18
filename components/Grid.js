@@ -47,7 +47,7 @@ define([
 							var row = new List({
 								container: new ContainerWithActive('tr'),
 								factory: function(column){
-									var content = column.body.factory(item);
+									var content = column.body(item);
 									if (typeof content === 'string'){
 										return new HtmlElement('td', {textContent: content});
 									}

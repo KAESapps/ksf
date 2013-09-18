@@ -37,30 +37,24 @@ define([
 
 	var columns = window.columns = new OrderableSet([{
 		head: new HtmlElement('button', {textContent: "Nom"}),
-		body: {
-			factory : function(item) {
-				return new HtmlElement('div', {innerHTML: item.get('name')});
-			},
-		}
+		body: function(item) {
+			return new HtmlElement('div', {innerHTML: item.get('name')});
+		},
 	}, {
 		head: "Age",
-		body: {
-			factory : function(item) {
-				return new HtmlElement('input', {value: item.get('age')});
-			},
-		}
+		body: function(item) {
+			return new HtmlElement('input', {value: item.get('age')});
+		},
 	}, {
 		head: "Conjoint",
-		body: {
-			factory : function(item) {
-				var s = new Select({
-					labelProp: 'name',
-					options: collection,
-				});
-				s.bind('value', item, 'conjoint');
-				return s;
-			},
-		}
+		body: function(item) {
+			var s = new Select({
+				labelProp: 'name',
+				options: collection,
+			});
+			s.bind('value', item, 'conjoint');
+			return s;
+		},
 	}]);
 
 	grid.set('columns', columns);
@@ -69,11 +63,9 @@ define([
 	// add column
 	columns.add({
 		head: "Genre",
-		body: {
-			factory : function(item) {
-				return item.get('genre');
-			},
-		}
+		body: function(item) {
+			return item.get('genre');
+		},
 	});
 
 	// add row

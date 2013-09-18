@@ -28,20 +28,18 @@ define([
 		Composite,
 		function() {
 			var self = this;
-			this._components.factories.addEach({
-				head: function() {
-					return new List({
-						container: new HtmlContainerIncremental('tr'),
-						factory: function(column) {
-							if (typeof column.head === 'string') {
-								return new HtmlElement('th', {textContent: column.head});
-							}
-							return new HtmlContainer('th', {
-								content: [column.head],
-							});
-						},
-					});
-				},
+			this._components.addEach({
+				head: new List({
+					container: new HtmlContainerIncremental('tr'),
+					factory: function(column) {
+						if (typeof column.head === 'string') {
+							return new HtmlElement('th', {textContent: column.head});
+						}
+						return new HtmlContainer('th', {
+							content: [column.head],
+						});
+					},
+				}),
 				body: function() {
 					var body = new ActiveList({
 						container: new HtmlContainerIncremental('tbody'),
@@ -64,16 +62,15 @@ define([
 						},
 					});
 					return body;
-				},
+				}(),
 			});
 
-			this._components.whenDefined('head',
-				bindProps('content', '<', 'columns').bind(self)
-			);
-			this._components.whenDefined('body', [
-				bindProps('content', '<', 'content').bind(self),
-				bindProps('columns', '<', 'columns').bind(self),
-				bindProps('active', '<<->', 'active').bind(self),
+			this.own([
+				this._components.get('head').setR('content', self.getR('columns')),
+
+				this._components.get('body').setR('content', self.getR('content')),
+				this._components.get('body').setR('columns', self.getR('columns')),
+				this._components.get('body').bind('active', self, 'active'),
 			]);
 
 			this._layout.set('config', [

@@ -14,7 +14,7 @@ define([
 		WithHTMLElement,
 		WithCssClassStyle,
 		function(tag, attrs) {
-			this._tag = tag;
+			this._tag = tag || 'div';
 			this.createRendering();
 			if (attrs) {
 				this.setEach(attrs);

@@ -1,14 +1,17 @@
 define([
 	'compose',
-	'../HtmlElement',
-	'ksf/dom/proxyEvent'
+	'ksf/dom/composite/CompositeMono',
+	'./HtmlElementWithChanged',
 ], function(
 	compose,
-	HtmlElement,
-	proxyEvent
+	CompositeMono,
+	HtmlElementWithChanged
 ){
 	return compose(
-		HtmlElement,
-		proxyEvent.changed
+		CompositeMono,
+		function(args) {
+			this._component = new HtmlElementWithChanged('input', {type: args && args.type || "text"});
+			this._component.bind('value', this, 'value');
+		}
 	);
 });

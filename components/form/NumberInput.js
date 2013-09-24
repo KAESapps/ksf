@@ -1,16 +1,20 @@
 define([
-	"dojo/_base/declare",
-	"./Input",
-	"frb/bind",
-], function(declare, Input, bind){
-
-	return declare(Input, {
-		domAttrs: {
-			type: "number",
-		},
-		constructor: function(){
-			this._cancelValueBinding();//cancel binding inherited from Input
-			this._cancelValueBinding = bind(this, "domNode.value", {"<->": "+_presenter.value"});//coerce to number
-		},
-	});
+	'compose',
+	'ksf/dom/composite/CompositeMono',
+	'./HtmlElementWithChanged',
+], function(
+	compose,
+	CompositeMono,
+	HtmlElementWithChanged
+){
+	return compose(
+		CompositeMono,
+		function(args) {
+			this._component = new HtmlElementWithChanged('input', {type: "number"});
+			this._component.bind('value', this, 'value', {
+				convert: function(number) { return number; }, // nothing to do
+				revert: function(string) { return parseInt(string, 10); },
+			});
+		}
+	);
 });

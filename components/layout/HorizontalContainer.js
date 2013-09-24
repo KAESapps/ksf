@@ -31,10 +31,6 @@ define([
 				});
 			},
 
-			__verticalGetter: function() {
-				return this.get('orientation') !== 'horizontal';
-			},
-
 			createRendering: function() {
 				Container.prototype.createRendering.apply(this, arguments);
 				this.updateRendering();
@@ -45,26 +41,16 @@ define([
 					bounds = this.get('bounds'),
 					thisNode = this.get('domNode'),
 					innerSize = this.get('innerSize'),
-					vertical = this.get('_vertical'),
-					fixedDim = 0,
-					flexChildren = [],
+					innerHeight,
 					liveRendering = this.stopLiveRendering;
 
 				// innerSize is null when not inserted in DOM, in which case we use values of "bounds"
 				if (!innerSize.height && !innerSize.width) {
 					if (bounds) {
-						innerSize = {
-							height: bounds && bounds.height,
-							width: bounds && bounds.width
-						};
+						innerHeight = bounds && bounds.height;
 					}
-				}
-
-				// check if relayout is needed
-				if (content === this._appliedContent &&
-					innerSize.height === this._appliedInnerSize.height &&
-					innerSize.width === this._appliedInnerSize.width) {
-					return;
+				} else {
+					innerHeight = innerSize.height;
 				}
 
 				// - Content reset -
@@ -85,73 +71,37 @@ define([
 						options = childAndOptions[1];
 					var childNode = child.get('domNode');
 
-					if (options && options.flex) {
-						flexChildren.push(childAndOptions);
-					}
-
-					childNode.style.display = vertical ? 'block' : 'inline-block';
-					childNode.style.verticalAlign = 'top';
+					childNode.style.display = 'inline-block';
+					childNode.style.position = 'relative';
 					childNode.style.boxSizing = 'border-box';
 					childNode.style.MozBoxSizing = 'border-box';
 
 					children.appendChild(childNode);
+					this._handlers.push(child.on('sizechanged', function() {
+						this._applyContent();
+					}.bind(this)));
 
 					this._appliedChildren.add(child);
 				}.bind(this));
 				// add children in bulk
 				thisNode.appendChild(children);
 
-				if (thisNode.parentNode) {
-					// - Sizing of flex children -
-					content.forEach(function(childAndOptions) {
-						var child = childAndOptions[0],
-							options = childAndOptions[1];
+				// align children
+				content.forEach(function(childAndOptions) {
+					var child = childAndOptions[0],
+						options = childAndOptions[1];
+					var childNode = child.get('domNode');
 
-						if (!options || !options.flex) {
-							if (vertical) {
-								child.set('bounds', {
-									width: bounds && bounds.width && innerSize.width
-								});
-								!liveRendering && child.updateRendering && child.updateRendering();
-								fixedDim += child.get('outerSize').height;
-							} else {
-								child.set('bounds', {
-									height: bounds && bounds.height && innerSize.height
-								});
-								!liveRendering && child.updateRendering && child.updateRendering();
-								fixedDim += child.get('outerSize').width;
-							}
+					if (options && options.verticalAlign) {
+						var childHeight = child.get('outerSize').height,
+							margin = innerHeight - childHeight;
+						if (options.verticalAlign === 'middle') {
+							childNode.style.top = margin / 2 + 'px';
+						} else if (options.verticalAlign === 'bottom') {
+							childNode.style.top = margin;
 						}
-					});
-
-					var flexDim = ((vertical ? innerSize.height : innerSize.width) - fixedDim) / flexChildren.length;
-
-					flexChildren.forEach(function(childAndOptions) {
-						var child = childAndOptions[0];
-						if (vertical) {
-							child.set('bounds', {
-								height: flexDim,
-								width: bounds && bounds.width && innerSize.width
-							});
-						} else {
-							child.set('bounds', {
-								height: bounds && bounds.height && innerSize.height,
-								width: flexDim
-							});
-						}
-						!liveRendering && child.updateRendering && child.updateRendering();
-					}.bind(this));
-
-					content.forEach(function(childAndOptions) {
-						var child = childAndOptions[0];
-						this._handlers.push(child.on('sizechanged', function() {
-							this._applyContent();
-						}.bind(this)));
-					}.bind(this));
-
-					this._appliedContent = content;
-					this._appliedInnerSize = innerSize;
-				}
+					}
+				}.bind(this));
 			},
 
 			updateRendering: function() {
@@ -169,6 +119,8 @@ define([
 					self._applyBounds();
 					self._applyContent();
 				}));
+
+				cancels.push(this.style.asReactive().onValue(this._applyStyle.bind(this)));
 
 				this._appliedChildren.forEach(function(child) {
 					child.startLiveRendering && child.startLiveRendering();

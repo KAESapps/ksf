@@ -43,7 +43,6 @@ define([
 
 			_applyLayout: function() {
 				this._layout.apply();
-				this._applyBounds();
 			},
 
 			_applyStyle: function() {
@@ -62,6 +61,7 @@ define([
 				if (!this._domNode) { return; }
 
 				this._applyLayout();
+				this._applyBounds();
 				this._applyStyle();
 				this._layout.get('root').updateRendering();
 			},
@@ -70,10 +70,7 @@ define([
 				var root = this._layout.get('root');
 				root.startLiveRendering && root.startLiveRendering();
 				var cancelLiveLayout = this.own(this._layout.getR('config').onValue(function() {
-					var liveRendering = this._liveRendering;
-					liveRendering && this.stopLiveRendering();
 					this._applyLayout();
-					liveRendering && this.startLiveRendering();
 				}.bind(this)));
 				var cancelStyle = this._style.asReactive().onValue(this._applyStyle.bind(this));
 				var cancelSize = this.getR('bounds').onValue(this._applyBounds.bind(this));

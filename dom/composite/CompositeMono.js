@@ -47,15 +47,13 @@ define([
 			},
 
 			startLiveRendering: function() {
-				if (this._component.startLiveRendering) {
-					this._component.startLiveRendering();
-					this.stopLiveRendering = function() {
-						this._component.stopLiveRendering();
-						delete this.stopLiveRendering;
-					};
-				} else {
-					this.stopLiveRendering = function() {};
-				}
+				this._component.startLiveRendering && this._component.startLiveRendering();
+				var cancelLiveStyle = this._style.asReactive().onValue(this._applyStyle.bind(this));
+				this.stopLiveRendering = function() {
+					this._component.stopLiveRendering && this._component.stopLiveRendering();
+					cancelLiveStyle();
+					delete this.stopLiveRendering;
+				};
 			},
 
 			destroy: function(){

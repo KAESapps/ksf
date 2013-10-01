@@ -26,8 +26,10 @@ define([
 
 	return compose(
 		Composite,
-		function() {
+		function(args) {
 			var self = this;
+			this.setEach(args);
+
 			this._components.addEach({
 				head: new List({
 					container: new HtmlContainerIncremental('tr'),

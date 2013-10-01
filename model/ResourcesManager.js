@@ -1,6 +1,13 @@
 define([
 ], function(
 ){
+	/**
+	L’implémentation ResourceManagerWithProperties délègue l’accès aux données relatives à une resource à des PropertyManager.
+	Le resource manager peut augmenter les resources qu’il crée pour leur ajouter par exemple des méthodes de synchro (pull, push).
+	Les propertyManager peuvent aussi augmenter les resources sur lesquelles ils sont appliqués (installés).
+	On privilégiera d’enrichir la méthode de création du resource manager quand la méthode ajoutée ne dépend pas d’une propriété en particulier.
+
+	*/
 	var Manager = function(args){
 		this.resources = new Set();
 		this.propertyManagers = {};

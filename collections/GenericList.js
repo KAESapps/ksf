@@ -112,6 +112,9 @@ define([
 				return {type: "add", value: item, index: index};
 			});
 		},
+		toJSON: function() {
+			return this.toArray();
+		},
 	};
 	return GenericList;
 });

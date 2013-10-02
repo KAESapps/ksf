@@ -69,6 +69,9 @@ define([
 			});
 			return res;
 		},
+		toJSON: function() {
+			return this.entries();
+		},
 		// replace the current values by the new ones
 		setContent: function(values){
 			this._startChanges();

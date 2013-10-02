@@ -75,12 +75,11 @@ define([
 		get: function(value){
 			return this.getBy(this.getProperty, value);
 		},
-		getOrCreate: function(args){
-			var rsc;
-			if (args && args[this.getProperty]){
-				rsc = this.get(args[this.getProperty]);
-			}
+		getOrCreate: function(id){
+			var rsc = this.get(id);
 			if (!rsc){
+				var args = {};
+				args[this.getProperty] = id;
 				rsc = this.create(args);
 			}
 			return rsc;

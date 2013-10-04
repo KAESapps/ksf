@@ -68,7 +68,7 @@ define([
 				var dfd = new Deferred();
 				setTimeout(function(){
 					dfd.resolve(results);
-				}, 2000);
+				}, 20);
 				return dfd;
 			};
 		}),
@@ -80,7 +80,7 @@ define([
 				var dfd = new Deferred();
 				setTimeout(function(){
 					dfd.resolve(results);
-				}, 2000);
+				}, 20);
 				return dfd;
 			};
 		}),

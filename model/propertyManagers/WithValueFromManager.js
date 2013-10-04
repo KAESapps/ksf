@@ -11,7 +11,7 @@ define([
 	 */
 	var WithValueFromManager = function (args) {
 		var install = this.install;
-		var set = this.set;
+		var setValue = this.setValue;
 		this.install = function(rsc){
 			install.apply(this, arguments);
 			// get resource
@@ -22,11 +22,11 @@ define([
 				options[args.getByProperty] = rsc;
 				value = args.manager.create(options);
 			}
-			set.call(this, rsc, value);
-			// call this.set at install time to notify "observers" (WithPropertyValueBindedOnResource) of the initial value
-			this.set(rsc, this.get(rsc));
+			setValue.call(this, rsc, value);
+			// call this.setValue at install time to notify "observers" (WithPropertyValueBindedOnResource) of the initial value
+			this.setValue(rsc, this.getValue(rsc));
 		};
-		this.set = function(){}; // read only
+		this.setValue = function(){}; // read only
 	};
 
 	return WithValueFromManager;

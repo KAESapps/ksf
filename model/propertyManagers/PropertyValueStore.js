@@ -13,13 +13,14 @@ define([
 		uninstall: function(rsc){
 			this.store.delete(rsc);
 		},
-		get: function(rsc){
+		getValue: function(rsc){
 			return this.store.get(rsc);
 		},
-		set: function(rsc, value){
+		setValue: function(rsc, value){
 			this.store.set(rsc, value);
 		},
-		getBy: function(valueToFind){
+		// return the first resource with this value or undefined
+		getRsc: function(valueToFind){
 			var iterator = this.store.entries();
 			while (iterator.i.next !== null) {
 				var entry = iterator.next();

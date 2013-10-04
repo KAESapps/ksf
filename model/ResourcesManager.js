@@ -36,10 +36,10 @@ define([
 			rsc.destroy && rsc.destroy();
 		},
 		getPropValue: function(rsc, propName){
-			return this.propertyManagers[propName].get(rsc);
+			return this.propertyManagers[propName].getValue(rsc);
 		},
 		setPropValue: function(rsc, propName, value){
-			return this.propertyManagers[propName].set(rsc, value);
+			return this.propertyManagers[propName].setValue(rsc, value);
 		},
 		setEachPropValue: function(rsc, values){
 			Object.keys(values).forEach(function(propName){
@@ -70,7 +70,7 @@ define([
 			return this.resources.has(rsc);
 		},
 		getBy: function(prop, value){
-			return this.propertyManagers[prop].getBy(value);
+			return this.propertyManagers[prop].getRsc(value);
 		},
 		get: function(value){
 			return this.getBy(this.getProperty, value);

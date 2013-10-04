@@ -1,7 +1,7 @@
 define([
-
+	'ksf/utils/compare',
 ], function(
-
+	compare
 ){
 	var GenericList = {
 		addEach: function(values, index){
@@ -19,7 +19,13 @@ define([
 		},
 		removeEach: function(indexes){
 			this._startChanges();
-			indexes.forEach(this.remove, this);
+			var reverseSortedIndexes;
+			if (Array.isArray(indexes)) {
+				reverseSortedIndexes = indexes.sort(compare.descending);
+			} else {
+				reverseSortedIndexes = indexes.sorted(compare.descending);
+			}
+			reverseSortedIndexes.forEach(this.remove, this);
 			this._stopChanges();
 		},
 		removeRange: function(index, length){

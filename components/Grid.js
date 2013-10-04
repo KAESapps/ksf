@@ -34,12 +34,15 @@ define([
 				head: new List({
 					container: new HtmlContainerIncremental('tr'),
 					factory: function(column) {
-						if (typeof column.head === 'string') {
-							return new HtmlElement('th', {textContent: column.head});
+						var head = column.head;
+						// if head is a domComponent
+						if (head && typeof head.get === 'function') {
+							return new HtmlContainer('th', {
+								content: [head],
+							});
 						}
-						return new HtmlContainer('th', {
-							content: [column.head],
-						});
+						// fall back as rendering head as string
+						return new HtmlElement('th', {textContent: head});
 					},
 				}),
 				body: function() {
@@ -50,12 +53,14 @@ define([
 								container: new ContainerWithActive('tr'),
 								factory: function(column){
 									var content = column.body(item);
-									if (typeof content === 'string'){
-										return new HtmlElement('td', {textContent: content});
+									// if content is a domComponent
+									if (content && typeof content.get === 'function') {
+										return new HtmlContainer('td', {
+											content: [content],
+										});
 									}
-									return new HtmlContainer('td', {
-										content: [content],
-									});
+									// fall back as rendering content as string
+									return new HtmlElement('td', {textContent: content});
 								},
 							});
 							row.setR('content', body.getR('columns'));

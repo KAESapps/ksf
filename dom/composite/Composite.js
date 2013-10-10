@@ -67,13 +67,14 @@ define([
 			},
 
 			startLiveRendering: function() {
-				var root = this._layout.get('root');
-				root.startLiveRendering && root.startLiveRendering();
 				var cancelLiveLayout = this.own(this._layout.getR('config').onValue(function() {
 					this._applyLayout();
 				}.bind(this)));
 				var cancelStyle = this._style.asReactive().onValue(this._applyStyle.bind(this));
 				var cancelSize = this.getR('bounds').onValue(this._applyBounds.bind(this));
+
+				var root = this._layout.get('root');
+				root.startLiveRendering && root.startLiveRendering();
 
 				this.stopLiveRendering = function() {
 					cancelLiveLayout();

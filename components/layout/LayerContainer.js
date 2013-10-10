@@ -74,6 +74,7 @@ define([
 
 					if (index === 0) {
 						this.set('bounds', child.get('bounds'));
+						childNode.style.position = 'relative';
 					} else {
 						childNode.style.position = 'absolute';
 						if (options.verticalAlign === 'bottom') {
@@ -102,6 +103,10 @@ define([
 				this._applyContent();
 			},
 
+			_applyBounds: function() {
+				this.get('content').length && this.get('content')[0][0].set('bounds', this.get('bounds'));
+			},
+
 			startLiveRendering: function() {
 				var self = this,
 					cancels = [],
@@ -120,6 +125,7 @@ define([
 				});
 
 				cancels.push(this.getR('content').changes().onValue(function() {
+					self._applyBounds();
 					self._applyContent();
 					self._appliedChildren.difference(liveChildren).forEach(function(child) {
 						child.startLiveRendering && child.startLiveRendering();

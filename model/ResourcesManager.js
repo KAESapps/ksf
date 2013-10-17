@@ -39,7 +39,8 @@ define([
 			return this.propertyManagers[propName].getValue(rsc);
 		},
 		setPropValue: function(rsc, propName, value){
-			return this.propertyManagers[propName].setValue(rsc, value);
+			var propMng = this.propertyManagers[propName];
+			return propMng && propMng.setValue(rsc, value);
 		},
 		setEachPropValue: function(rsc, values){
 			Object.keys(values).forEach(function(propName){

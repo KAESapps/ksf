@@ -1,95 +1,137 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'../ResourcesManager',
-	'../propertyManagers/PropertyValueStore',
-	'../propertyManagers/WithValueIsMap',
 	"compose",
-	'ksf/collections/ObservableObject',
-	'dojo/store/Memory',
+	'lodash/objects/cloneDeep',
 ], function(
 	registerSuite,
 	assert,
-	ResourceManager,
-	PropertyValueStore,
-	WithValueIsMap,
 	compose,
-	ObservableObject,
-	MemoryStore
+	cloneDeep
 ) {
-	var managerProto = {
+	var MemoryStore = compose(function() {
+		this.data = {};
+	}, {
+		get: function(id) {
+			return this.data[id];
+		},
+		put: function(value, id) {
+			if (typeof value === 'object'){
+				value = cloneDeep(value); // comme cela on est sûr de fonctionner comme un datasource hors mémoire
+			}
+			this.data[id] = value;
+		},
+		delete: function(id) {
+			delete this.data[id];
+		},
+	});
 
-	};
-	// pour un type litéral, la valeur de l'objet est directement utilisable et elle est non modifiable
-	var stringMng = {
-		jsonSchema: {
-			type: "string",
+	// class pour créer des "managers" de valeurs finales (c'est à dire qui ne font pas référence à des ressources) à partir d'un Json schema
+	var JsonSchemaTypeMng = compose(function(args) {
+		this.schema = args.schema;
+	}, {
+		serialize: function(instance) {
+			// TODO: si c'est un composite, le cloner ?
+			return instance;
 		},
-		get: function(serializedIdentity) {
-			return serializedIdentity+''; // coerce to string
+		isManagerOf: function(instance) {
+			return typeof instance === this.schema.type;
+			// TODO: return validator.validate(this.serialize(instance), this.schema);
 		},
-		has: function (instance) {
-			return typeof instance === 'string';
+		// cette méthode ne prend pas d'arguments car elle est faite pour créer une instance par défaut
+		// si un constructeur requiert des arguments obligatories, c'est à la factory de les fournir
+		create: function() {
+			// TODO: produire une instance valide à partir du schema, par exemple, un objet avec les propriétés obligatories et les valeurs par défaut
 		},
-		getIdentity: function(instance) {
-			return instance; // l'instance est directement une serialisation de l'identité
-		},
-		release: function() {},
-	};
-	var postalCodeMng = {
-		jsonSchema: {
+	});
+
+	var stringMng = new JsonSchemaTypeMng({
+		schema: {type: 'string'},
+	});
+	var postalCodeMng = new JsonSchemaTypeMng({
+		schema: {
 			type: "string",
 			maxLength: 5,
 		},
-		get: function(serializedIdentity) {
-			if (this.has(serializedIdentity)) {
-				return serializedIdentity;
-			}
-			// sinon on ne retourne rien, c'est à dire 'undefined', donc l'utilisateur devrait l'interpréter comme pas de valeur plutôt que la valeur <undefined>
+	});
+	var integerManager = new JsonSchemaTypeMng({
+		schema: {type: 'number'},
+	});
+
+	// manager pour des objets qui ne sont pas des ressources, c'est à dire qui ne sont pas partageable, n'ont pas de capacité de persistance autonome et dont on ne cherche pas à garantir l'unicité en mémoire
+	// mais qui sont plus complexes que ce qui est possible avec un JSON schema (des méthodes, des bindings, ...)
+	var CompositeManager = compose(function(args) {
+		this.description = args.description;
+		this._factory = args.factory;
+
+	}, {
+		get: function(id) {
+			// ce type produit toujours de nouvelles instances car c'est un type "privé" : ses instances ne sont pas partageables
+			// et même si techniquement, on peut attribuer la même instance à 2 personnes différentes, lors de la sérialisation ce sera perdu
+			var instance = this.create();
+			this.deserialize(instance, id);
+			return instance;
 		},
-		has: function (value) {
-			if (typeof value !== 'string') {return false;}
-			if (value.length > 5) {return false;}
-			// TODO: vérifier que ce sont des chiffres
+		release: function(instance) {
+			Object.keys(this.props).forEach(function(key){
+				if (instance[key]){
+					this.props[key].manager.release(instance[key]);
+				}
+			}.bind(this));
+		},
+		has: function(value){
+			// pour un type plain object, on ne procède pas par identité mémoire mais par la structure des données
+			if (typeof value !== 'object'){ return false; }
+			Object.keys(this.props).forEach(function(key){
+				if (! this.props[key].manager.has(value[key])){
+					return false;
+				}
+			}.bind(this));
 			return true;
 		},
 		getIdentity: function(instance) {
-			return instance; // l'instance est directement une serialisation de l'identité
+			// puisque ce manager n'a pas de persistance propre, il renvoi la sérialisation de ses données comme sérialisation d'identité
+			// comme ça, quand on fera 'get' avec cette sérialisation, on pourra reconstruire une instance (au lieu de rechercher les données dans le data source à partir d'un id)
+			return this.serialize(instance);
 		},
-		release: function() {},
-	};
+		serialize: function(instance) {
+			var ret = {};
+			Object.keys(this.props).forEach(function (key) {
+				ret[key] = this.props[key].manager.getIdentity(instance[key]);
+			}.bind(this));
+			return ret;
+		},
+		// crée systématiquement une nouvelle instance
+		// en fait, c'est une factory spécialisée qui prend en entrée une sérialisation
+		deserialize: function(data) {
+			var instance = this._factory();
+			Object.keys(this.props).forEach(function (key) {
+				if (data[key]){
+					instance[key] = this.props[key].manager.get(data[key]);
+				} else {
+					this.props[key].manager.release(instance[key]);
+					delete instance[key];
+				}
+			}.bind(this));
+			return instance;
+		},
+	});
 
-	var cityMng = {
+	var PersistableResourceManager = compose(function(args) {
+		this.instancesByIdentity = {};
+		this.instancesUserCounter = {};
+		this.description = args.description;
+		this._factory = args.factory;
+		this.dataSource = args.dataSource;
+		this.counter = 0;
+	}, {
 		instancesAreRessources: true, // utile lors de la sérialisation des objets qui font référence à une ville pour savoir s'il faut faire 'getIdentity' ou 'serialize'
-		instancesByIdentity: {},
-		instancesUserCounter: {},
-		prototype: {
-			describe: "Je suis une ville",
-		},
-		jsonSchema: {
-			type: 'object',
-			properties: {
-				code: {$ref: 'postalCodeMng'},
-				name: {type: 'string'},
-			},
-		},
-		props: {
-			code: {
-				manager: postalCodeMng,
-				required: true,
-				serializePropName: "cp",
-			},
-			name: {
-				manager: stringMng,
-			},
-		},
-		// get or create from serializedIdentity
-		// il faut spécialiser cette méthode pour créer une instance à partir du serializedIdentity si besoin
-		get: function(serializedIdentity) {
-			var instance = this.instancesByIdentity[serializedIdentity];
+		// créée une instance correspondant à l'id ou la renvoie si elle existe déjà. Mais n'interroge pas le datasource
+		get: function(id) {
+			var instance = this.instancesByIdentity[id];
 			if (! instance){
-				instance = this.create();
-				this.set(serializedIdentity, instance);
+				instance = this._factory();
+				this.add(instance, id);
 			}
 			this.instancesUserCounter[this.getIdentity(instance)]++;
 			return instance;
@@ -103,9 +145,6 @@ define([
 				delete this.instancesUserCounter[id];
 			}
 		},
-		has: function(instance){
-			return this.getIdentity !== undefined;
-		},
 		getIdentity: function(instance) {
 			var ret;
 			// look for id by instance
@@ -116,42 +155,49 @@ define([
 			}.bind(this));
 			return ret;
 		},
-		// methode privée à priori
-		set: function(identity, instance) {
+		// methode privée
+		add: function(instance, identity) {
+			// ici, on génère un id systématiquement. Mais on pourrait imaginer que ce soit le datasource qui le donne. Dans ce cas, il faudrait utiliser des Maps et pas des dictionnaires pour le compteur d'utilisateurs et autres...
 			identity = identity || this.generateIdentity();
 			this.instancesByIdentity[identity] = instance;
 			this.instancesUserCounter[identity] = 0;
 		},
-		// je considère que create est une méthode interne. En fait, c'est juste une factory pour créer une instance
-		// l'autre implémentation possible serait : return new City(args);
-		create: function(args){
-			var instance = Object.create(this.prototype);
-			if (args){
-				Object.keys(this.props).forEach(function (key) {
-					instance[key] = args[key];
-				});
-			}
-			return instance;
-		},
-		counter: 0,
 		generateIdentity: function() {
 			this.counter++;
 			return this.counter+'';
 		},
 		serialize: function(instance) {
 			var data = {};
-			Object.keys(this.props).forEach(function (key) {
-				data[key] = this.props[key].manager.getIdentity(instance[key]);
+			Object.keys(this.description.props).forEach(function (key) {
+				var propDesc = this.description[key];
+				var serializePropName = propDesc.serializePropName || key;
+				var valueMng = propDesc.manager;
+				if (valueMng.instancesAreRessources) {
+					data[serializePropName] = valueMng.getIdentity(instance[key]);
+				} else {
+					data[serializePropName] = valueMng.serialize(instance[key]);
+				}
 			}.bind(this));
 			return data;
 		},
-		deserialize: function(instance, serializedData) {
-			Object.keys(this.props).forEach(function (key) {
+		deserialize: function(serializedData) {
+			var values = {};
+			Object.keys(this.description.props).forEach(function (key) {
 				if (serializedData[key]){
 					// on met comme valeur de cahque propriété les données qui correspondent à l'id sérialisé de la valeur
-					instance[key] = this.props[key].manager.get(serializedData[key]);
+					values[key] = this.props[key].manager.get(serializedData[key]);
 				}
 			}.bind(this));
+			return values;
+		},
+		load: function(instance) {
+			var data = this.dataSource.get(this.getIdentity(instance));
+			var values = this.deserialize(data);
+			Object.keys(this.description.props).forEach(function (key) {
+				if ()
+				values[key] = this.props[key].manager.deserialize(serializedData[key]);
+			}.bind(this));
+
 		},
 		unload: function(instance) {
 			Object.keys(this.props).forEach(function (key) {
@@ -160,6 +206,46 @@ define([
 					this.props[key].manager.release(instance[key]);
 				}
 			}.bind(this));
+		},
+		merge: function(instance, values) {
+			Object.keys(this.description.props).forEach(function (key) {
+				if (data[key]){
+					instance[key] = this.props[key].manager.get(data[key]);
+				} else {
+					this.props[key].manager.release(instance[key]);
+					delete instance[key];
+				}
+			}.bind(this));
+		},
+	});
+
+	var cityMng = new PersistableResourceManager({
+		dataSource: new MemoryStore(),
+		factory: function() {
+			return Object.create({describe: "Je suis une ville"});
+		},
+		description: {
+			label: 'Ville',
+			comment: 'Milieu physique où se concentre une forte population humaine',
+			props: {
+				code: {
+					label: "Code postal",
+					manager: postalCodeMng,
+					required: true,
+					serializeAs: "postalCode", // nom de la propriété dans la version sérialisée
+				},
+				name: {
+					label: "Nom de la ville",
+					manager: stringMng,
+				},
+				population: {
+					label: 'Population (hab.)',
+					manager: integerManager,
+				},
+			},
+		},
+		has: function(instance){
+			return this.getIdentity !== undefined;
 		},
 	};
 
@@ -189,7 +275,6 @@ define([
 	});
 
 	var addressMng = {
-		prototype: {},
 		description: {
 			label: 'Adresse postale',
 			type: 'object',
@@ -212,64 +297,6 @@ define([
 				manager: cityMng,
 				required: true,
 			},
-		},
-		get: function(serializedIdentity) {
-			// ce type produit toujours de nouvelles instances car c'est un type "privé" : ses instances ne sont pas partageables
-			// et même si techniquement, on peut attribuer la même instance à 2 personnes différentes, lors de la sérialisation ce sera perdu
-			var instance = this.create();
-			this.deserialize(instance, serializedIdentity);
-			return instance;
-		},
-		release: function(instance) {
-			Object.keys(this.props).forEach(function(key){
-				if (instance[key]){
-					this.props[key].manager.release(instance[key]);
-				}
-			}.bind(this));
-		},
-		has: function(value){
-			// pour un type plain object, on ne procède pas par identité mémoire mais par la structure des données
-			if (typeof value !== 'object'){ return false; }
-			Object.keys(this.props).forEach(function(key){
-				if (! this.props[key].manager.has(value[key])){
-					return false;
-				}
-			}.bind(this));
-			return true;
-		},
-		getIdentity: function(instance) {
-			// puisque ce manager n'a pas de persistance propre, il renvoi la sérialisation de ses données comme sérialisation d'identité
-			// comme ça, quand on fera 'get' avec cette sérialisation, on pourra reconstruire une instance (au lieu de rechercher les données dans le data source à partir d'un id)
-			return this.serialize(instance);
-		},
-		create: function(args){
-			var instance = Object.create(this.prototype);
-			if (args){
-				Object.keys(this.props).forEach(function (key) {
-					if (args[key]){
-						instance[key] = args[key]; // ici les données sont déjà des instances de manager donc, contrairement à deserialize, pas besoin de faire un get sur le manager
-					}
-				}.bind(this));
-			}
-			// TODO: faut-il s'assurer de produire une instance avec des données valides ?
-			return instance;
-		},
-		serialize: function(instance) {
-			var ret = {};
-			Object.keys(this.props).forEach(function (key) {
-				ret[key] = this.props[key].manager.getIdentity(instance[key]);
-			}.bind(this));
-			return ret;
-		},
-		deserialize: function(instance, data) {
-			Object.keys(this.props).forEach(function (key) {
-				if (data[key]){
-					instance[key] = this.props[key].manager.get(data[key]);
-				} else {
-					this.props[key].manager.release(instance[key]);
-					delete instance[key];
-				}
-			}.bind(this));
 		},
 	};
 

@@ -87,8 +87,8 @@ define([
 						} else {
 							childNode.style.left = 0;
 						}
-						childNode.style.zIndex = index;
 					}
+					childNode.style.zIndex = index;
 
 					children.appendChild(childNode);
 					this._appliedChildren.add(child);

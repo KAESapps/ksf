@@ -13,7 +13,10 @@ define([
 			this._component = new HtmlElementWithChanged('input', {type: "number"});
 			this._component.bind('value', this, 'value', {
 				convert: function(number) { return number; }, // nothing to do
-				revert: function(string) { return parseInt(string, 10); },
+				revert: function(string) {
+					var number = parseFloat(string, 10);
+					return isNaN(number) ? undefined : number;
+				},
 			});
 		}
 	);

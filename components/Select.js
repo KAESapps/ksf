@@ -76,8 +76,9 @@ define([
 			// required for chrome only
 			// TODO: triger this only when 'inDom' change to true instead of using 'startLiveRendering' because this component is always live
 			startLiveRendering: function() {
+				var initialValue = this.get('value');
 				CompositeMono.prototype.startLiveRendering.apply(this, arguments);
-				this._selectComponent.set('selectedIndex', this.get('options').indexOf(this.get('value')));
+				this._selectComponent.set('selectedIndex', this.get('options').indexOf(initialValue));
 			}
 		}
 	);

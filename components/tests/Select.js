@@ -387,9 +387,9 @@ define([
 				labelProp: 'name',
 				options: collection,
 			});
+			s.whenChanged('value', selectedObserver);
 			document.body.appendChild(s.get('domNode'));
 			s.startLiveRendering(); // needed for chrome
-			s.whenChanged('value', selectedObserver);
 			assert.equal(s.get('value'), undefined);
 			assert.equal(s.get('domNode').value, "");
 			assert.equal(s.get('domNode').selectedIndex, -1);

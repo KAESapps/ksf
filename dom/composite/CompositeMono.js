@@ -56,7 +56,9 @@ define([
 					cancelLiveStyle();
 					cancelLiveBounds();
 					delete this.stopLiveRendering;
+					this._liveRendering = false;
 				};
+				this._liveRendering = true;
 			},
 
 			destroy: function(){

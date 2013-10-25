@@ -60,6 +60,9 @@ define([
 					return self.get('options').indexOf(item);
 				},
 				revert: function(index){
+					if (self.preventValueUpdateDuringDomInsertionInChrome){
+						return self.get('value');
+					}
 					return self.get('options').get(index);
 				},
 			});
@@ -76,8 +79,10 @@ define([
 			// required for chrome only
 			// TODO: triger this only when 'inDom' change to true instead of using 'startLiveRendering' because this component is always live
 			startLiveRendering: function() {
+				this.preventValueUpdateDuringDomInsertionInChrome = true;
 				CompositeMono.prototype.startLiveRendering.apply(this, arguments);
 				this._selectComponent.set('selectedIndex', this.get('options').indexOf(this.get('value')));
+				delete this.preventValueUpdateDuringDomInsertionInChrome;
 			}
 		}
 	);

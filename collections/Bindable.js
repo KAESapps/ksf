@@ -115,7 +115,7 @@ define([
 				});
 			});
 		},
-		// create a bidirectionnal binding with the following logic: targetProp value is the content item from the collection for which itemProp is truthy
+		// create a bidirectionnal binding with the following logic: targetProp value is the item from the collection for which itemProp is truthy
 		// at init time, the target prop value is the winner
 		// TODO: allow a "multi" behavior > the targetProp become a collection (unordered set)
 		bindSelection:function(targetProp, collection, itemProp, multi){

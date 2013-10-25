@@ -1,35 +1,51 @@
 define([
 	'intern!object',	'intern/chai!assert',
-	'../Select',
+	'../MultiSelect',
 	'ksf/collections/OrderableSet',
 	'ksf/collections/Dict',
 	"dojo/on",
 ], function(
 	registerSuite, assert,
-	Select,
+	MultiSelect,
 	OrderableSet,
 	Dict,
 	on
 ){
 	var syv, aur, ant, leo, toto;
 	var collection;
-	var s;
-	var observedSelected;
+	var ms;
+	var observedSelection;
 	var selectedObserverCalledCount;
 	var selectedObserver = function(selected) {
-		observedSelected = selected;
+		observedSelection = selected;
 		selectedObserverCalledCount ++;
 	};
 
-
 	registerSuite({
+		name: 'items of type string',
+		beforeEach: function() {
+			collection = window.collection = new OrderableSet(['syv', 'aur', 'ant']);
+			ms = window.ms = new MultiSelect({
+				options: collection,
+			});
+			ms.get('selection').asStream('changes').onValue(console, "log");
+			document.body.appendChild(ms.get('domNode'));
+		},
+		"add item in selection": function() {
+			ms.get('selection').add('aur');
+			ms._component._component._content.forEach(function(selectable) {
+				assert.equal(selectable.get('selected'), selectable.get('content') === 'aur');
+			});
+		},
+	});
+/*	registerSuite({
 		name: 'items of type string, no args at creation and options set after dom insertion',
 		beforeEach: function() {
 			selectedObserverCalledCount = 0;
 			observedSelected = undefined;
 			collection = window.collection = new OrderableSet(['syv', 'aur', 'ant']);
-			s = window.s = new Select();
-			s.whenChanged('value', selectedObserver);
+			s = window.s = new MultiSelect();
+			s.whenChanged('selection', selectedObserver);
 			document.body.appendChild(s.get('domNode'));
 		},
 		"no options": function(){
@@ -398,5 +414,5 @@ define([
 			assert.equal(observedSelected, undefined);
 		},
 	});
-
+*/
 });

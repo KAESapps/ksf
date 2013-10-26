@@ -239,6 +239,8 @@ define([
 				destroy(sourceHandler);
 			});
 		},
+		// bi-directional binding so that targetProp is true if <item> is in sourceProp (which must be a Set)
+		// so when targetProp is changed,  <item> is either added or removed from sourceProp collection
 		bindIsIn: function(targetProp, source, sourceProp, item) {
 			var init = true;
 			var target = this;

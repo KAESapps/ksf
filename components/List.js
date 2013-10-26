@@ -16,6 +16,7 @@ define([
 		function(args){
 			this._component = args.container;
 			this._factory = args.factory;
+			this.set('content', args.content);
 			WithContentMappedToContainer.call(this);
 		}, {
 			destroy: function() {

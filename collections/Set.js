@@ -58,6 +58,9 @@ define([
 					cb.call(scope, v, k, this);
 				}.bind(this));
 			},
+			toJSON: function() {
+				return this.keys();
+			},
 		}
 	);
 

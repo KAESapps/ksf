@@ -244,13 +244,10 @@ define([
 		bindIsIn: function(targetProp, source, sourceProp, item) {
 			var init = true;
 			var target = this;
-			var sourceValueR = source.getR(sourceProp).flatMapLatest(function(collection) {
-				return collection.asChangesStream();
-			});
+			var sourceValueR = source.getChangesStream(sourceProp);
 			var targetValueR = target.getR(targetProp);
 			// init target prop value
 			target.set(targetProp, source.get(sourceProp).has(item));
-
 			// start observing source collection changes
 			var changing = false;
 			var sourceHandler = sourceValueR.onValue(function(changes){

@@ -1,6 +1,7 @@
 define([
-	"bacon",
-	'ksf/utils/destroy'
+	'bacon',
+	'ksf/utils/destroy',
+	'ksf/utils/bacon',
 ], function(
 	Bacon,
 	destroy
@@ -99,6 +100,14 @@ define([
 */
 			// sampledBy permet de n'émettre la valeur que sur l'événement "changed" de l'objet et pas sur chaque output des getR
 			// mais par contre, cela revient à émettre aussi lorsqu'aucun getR n'a émit, d'où le skipDuplicates qui permet de détecter que la valeur n'a pas changé (un nouveau array n'a pas été créé)
+		},
+		// return a stream of changes for the collection available at this.get('prop')
+		// when a new collection is set, the stream outputs a change event with changes of type 'remove' for the items of the previous collection and changes of type 'add' for the items of the current collection
+		getChangesStream: function(prop) {
+			return this.getR(prop).flatMapLatestDiff(null, function(oldItems, newItems){
+				return newItems && newItems.asChangesStream(oldItems) ||
+					(oldItems ? Bacon.constant(oldItems.toChanges("remove")) : Bacon.never());
+			});
 		},
 
 	};

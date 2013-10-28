@@ -112,11 +112,11 @@ define([
 			if (type === "remove"){
 				return this.map(function(item){
 					return {type: "remove", value: item, index: 0};
-				});
+				}).toArray();
 			}
 			return this.map(function(item, index){
 				return {type: "add", value: item, index: index};
-			});
+			}).toArray();
 		},
 		toJSON: function() {
 			return this.toArray();

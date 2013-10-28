@@ -96,9 +96,11 @@ define([
 			return res;
 		},
 		toChanges: function(type){
-			return this.map(function(item, key){
-				return {type: type || "add", value: item, key: key};
+			var changes = [];
+			this.forEach(function(item, key){
+				changes.push({type: type || "add", value: item, key: key});
 			});
+			return changes;
 		},
 
 	};

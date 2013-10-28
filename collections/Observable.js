@@ -105,7 +105,7 @@ define([
 		// when a new collection is set, the stream outputs a change event with changes of type 'remove' for the items of the previous collection and changes of type 'add' for the items of the current collection
 		getChangesStream: function(prop) {
 			return this.getR(prop).flatMapLatestDiff(null, function(oldItems, newItems){
-				return newItems && newItems.asChangesStream(oldItems) ||
+				return newItems && newItems.asChangesStream && newItems.asChangesStream(oldItems) ||
 					(oldItems ? Bacon.constant(oldItems.toChanges("remove")) : Bacon.never());
 			});
 		},

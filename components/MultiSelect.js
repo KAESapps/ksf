@@ -22,7 +22,7 @@ define([
 		function(args) {
 			this.set('label', args && args.label);
 			this._components.setEach({
-				container: new HtmlContainer('div'),
+				container: new HtmlContainer('label'),
 				selector: new Checkbox(),
 				labelViewer: new HtmlElement('span'),
 			});

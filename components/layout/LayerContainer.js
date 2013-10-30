@@ -20,6 +20,7 @@ define([
 		function(args) {
 			this._handlers = [];
 			args && this.setEach(args);
+			this._style.set('base', 'LayerContainer');
 		},
 		{
 			_contentGetter: function(content) {
@@ -42,16 +43,14 @@ define([
 					bounds = this.get('bounds'),
 					thisNode = this.get('domNode'),
 					innerSize = this.get('innerSize'),
-					innerHeight,
 					liveRendering = this.stopLiveRendering;
 
 				// innerSize is null when not inserted in DOM, in which case we use values of "bounds"
 				if (!innerSize.height && !innerSize.width) {
 					if (bounds) {
-						innerHeight = bounds && bounds.height;
+						innerSize.height = bounds && bounds.height;
+						innerSize.width = bounds && bounds.width;
 					}
-				} else {
-					innerHeight = innerSize.height;
 				}
 
 				// - Content reset -
@@ -70,24 +69,33 @@ define([
 				content.forEach(function(childAndOptions, index) {
 					var child = childAndOptions[0],
 						options = childAndOptions[1] || {};
-					var childNode = child.get('domNode');
+					var childNode = child.get('domNode'),
+						childWBound, childHBound;
 
-					if (index === 0) {
-						this.set('bounds', child.get('bounds'));
-						childNode.style.position = 'relative';
+					childNode.style.position = 'absolute';
+					if (options.verticalAlign === 'bottom') {
+						childNode.style.bottom = 0;
 					} else {
-						childNode.style.position = 'absolute';
-						if (options.verticalAlign === 'bottom') {
-							childNode.style.bottom = 0;
-						} else {
-							childNode.style.top = 0;
+						if (!options.verticalAlign || options.verticalAlign === 'fit') {
+							childHBound = innerSize.height;
 						}
-						if (options.horizontalAlign === 'right') {
-							childNode.style.right = 0;
-						} else {
-							childNode.style.left = 0;
-						}
+						childNode.style.top = 0;
 					}
+					if (options.horizontalAlign === 'right') {
+						childNode.style.right = 0;
+					} else {
+						if (!options.horizontalAlign || options.horizontalAlign === 'fit') {
+							childWBound = innerSize.width;
+						}
+						childNode.style.left = 0;
+					}
+					child.set('bounds', {
+						height: childHBound,
+						width: childWBound,
+						heightMax: innerSize.height,
+						widthMax: innerSize.width
+					});
+
 					childNode.style.zIndex = index;
 
 					children.appendChild(childNode);
@@ -95,16 +103,30 @@ define([
 				}.bind(this));
 				// add children in bulk
 				thisNode.appendChild(children);
+
+				// align children
+				content.forEach(function(childAndOptions) {
+					var child = childAndOptions[0],
+						options = childAndOptions[1];
+					var childNode = child.get('domNode');
+
+					if (options && options.verticalAlign === 'middle') {
+						var childHeight = child.get('outerSize').height,
+							heightMargin = innerSize.height - childHeight;
+						childNode.style.top = heightMargin / 2 + 'px';
+					}
+					if (options && options.horizontalAlign === 'middle') {
+						var childWidth = child.get('outerSize').width,
+							widthMargin = innerSize.width - childWidth;
+						childNode.style.left = widthMargin / 2 + 'px';
+					}
+				}.bind(this));
 			},
 
 			updateRendering: function() {
 				this._applyBounds();
 				Container.prototype.updateRendering.apply(this, arguments);
 				this._applyContent();
-			},
-
-			_applyBounds: function() {
-				this.get('content').length && this.get('content')[0][0].set('bounds', this.get('bounds'));
 			},
 
 			startLiveRendering: function() {

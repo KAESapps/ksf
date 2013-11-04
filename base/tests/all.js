@@ -1,3 +1,4 @@
 define([
 	'./Evented',
+	'./Composite',
 ]);

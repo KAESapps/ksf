@@ -48,11 +48,13 @@ define([
 	var collection = window.collection = new OrderableSet([syv, aur, ant]);
 
 
+	list.getR('active').onValue(function(value) {
+		console.log("active value:", value);
+	});
 	list.set("active", aur);
 	list.set("content", collection);
 
 	list.set("content", new OrderableSet([leo, ant]));
-	console.log("selected", list.get('active'));
 	list.set("content", new OrderableSet([leo, ant, aur]));
 
 });

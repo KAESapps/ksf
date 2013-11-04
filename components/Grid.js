@@ -30,7 +30,7 @@ define([
 			var self = this;
 			this.setEach(args);
 
-			this._components.addEach({
+			this._components.setEach({
 				head: new List({
 					container: new HtmlContainerIncremental('tr'),
 					factory: function(column) {

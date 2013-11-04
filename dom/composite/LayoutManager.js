@@ -66,18 +66,8 @@ define([
 			// create components from factories if needed and store/cache them in regsitry to always use the same instance
 			_resolveNode: function(arg) {
 				var node;
-				var registry = this._registry;
 				if (typeof arg === 'string'){
-					if (registry.has(arg)){
-						node = registry.get(arg);
-					} else {
-						var factory = registry.factories.get(arg);
-						if (typeof factory !== 'function'){
-							throw 'No factory for this id';
-						}
-						node = factory();
-						registry.set(arg, node);
-					}
+					node = this._registry.get(arg);
 				} else {
 					node = arg;
 				}

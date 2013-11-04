@@ -67,7 +67,7 @@ define([
 			_resolveNode: function(arg) {
 				var node;
 				if (typeof arg === 'string'){
-					node = this._registry.get(arg);
+					node = this._registry.getOrCreate(arg);
 				} else {
 					node = arg;
 				}

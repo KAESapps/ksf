@@ -10,7 +10,9 @@ define([
 	return compose(
 		CompositeMono,
 		function(args) {
-			this._component = new HtmlElementWithChanged('input', {type: args && args.type || "text"});
+			args = args || {};
+			args.type = args.type || 'text';
+			this._component = new HtmlElementWithChanged('input', args);
 			this._component.bind('value', this, 'value');
 		}
 	);

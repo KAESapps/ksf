@@ -32,6 +32,10 @@ define([
 				});
 			},
 
+			_alignGetter: function() {
+				return this._Getter('align') || 'top';
+			},
+
 			__verticalGetter: function() {
 				return this.get('orientation') !== 'horizontal';
 			},
@@ -47,6 +51,7 @@ define([
 					thisNode = this.get('domNode'),
 					innerSize = this.get('innerSize'),
 					vertical = this.get('_vertical'),
+					align = this.get('align'),
 					fixedDim = 0,
 					flexChildren = [],
 					liveRendering = this.stopLiveRendering;
@@ -91,7 +96,7 @@ define([
 					}
 
 					childNode.style.display = vertical ? 'block' : 'inline-block';
-					childNode.style.verticalAlign = 'top';
+					childNode.style.verticalAlign = align;
 					childNode.style.boxSizing = 'border-box';
 					childNode.style.MozBoxSizing = 'border-box';
 

@@ -29,11 +29,18 @@ define([
 	syv.set('conjoint', aur);
 	var collection = window.collection = new OrderableSet([syv, aur, ant]);
 
+	console.time("grid creation");
 	var grid = window.grid = new Grid({});
+	console.timeEnd("grid creation");
+
+	console.time("grid dom insertion");
 	document.body.appendChild(grid.get('domNode'));
 	grid.startLiveRendering();
+	console.timeEnd("grid dom insertion");
 
+	console.time("grid content");
 	grid.set('content', collection);
+	console.timeEnd("grid content");
 
 	var columns = window.columns = new OrderableSet([{
 		head: new HtmlElement('button', {textContent: "Nom"}),
@@ -56,8 +63,10 @@ define([
 			return s;
 		},
 	}]);
-
+	console.time("grid columns");
 	grid.set('columns', columns);
+	console.timeEnd("grid columns");
+
 	grid.set('active', ant);
 
 	// add column

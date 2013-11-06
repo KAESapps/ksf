@@ -1,7 +1,7 @@
 define([], function() {
     return {
         hyphenate: function(string) {
-            return string.replace(/([a-z])([A-Z])/g, '$1-$2').replace(' ', '-').toLowerCase();
+            return typeof string === 'string' && string.replace(/([a-z])([A-Z])/g, '$1-$2').replace(' ', '-').toLowerCase();
         }
     };
 });

@@ -6,8 +6,7 @@ define([
 	'./HtmlContainer',
 	'./HtmlContainerIncremental',
 	'ksf/dom/WithActive',
-	'./HtmlElement',
-	'ksf/utils/bindProps',
+	'./HtmlElement'
 ], function(
 	compose,
 	Composite,
@@ -16,8 +15,7 @@ define([
 	HtmlContainer,
 	HtmlContainerIncremental,
 	WithActive,
-	HtmlElement,
-	bindProps
+	HtmlElement
 ){
 	var ContainerWithActive = compose(
 		HtmlContainerIncremental,
@@ -28,7 +26,7 @@ define([
 		Composite,
 		function(args) {
 			var self = this;
-			this.setEach(args);
+			args && this.setEach(args);
 
 			this._components.setEach({
 				head: new List({

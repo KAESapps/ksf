@@ -12,6 +12,7 @@ define([
 		function(args) {
 			args = args || {};
 			args.type = args.type || 'text';
+			this.set('value', args.value || "");
 			this._component = new HtmlElementWithChanged('input', args);
 			this._component.bind('value', this, 'value');
 		}

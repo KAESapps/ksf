@@ -53,8 +53,7 @@ define([
 					vertical = this.get('_vertical'),
 					align = this.get('align'),
 					fixedDim = 0,
-					flexChildren = [],
-					liveRendering = this.stopLiveRendering;
+					flexChildren = [];
 
 				// innerSize is null when not inserted in DOM, in which case we use values of "bounds"
 				if (!innerSize.height && !innerSize.width) {
@@ -117,13 +116,11 @@ define([
 							child.set('bounds', {
 								width: bounds && bounds.width && innerSize.width
 							});
-							!liveRendering && child.updateRendering && child.updateRendering();
 							fixedDim += child.get('outerSize').height;
 						} else {
 							child.set('bounds', {
 								height: bounds && bounds.height && innerSize.height
 							});
-							!liveRendering && child.updateRendering && child.updateRendering();
 							fixedDim += child.get('outerSize').width;
 						}
 					}
@@ -155,7 +152,6 @@ define([
 						}
 					}
 					child.set('bounds', childBounds);
-					!liveRendering && child.updateRendering && child.updateRendering();
 				}.bind(this));
 
 				content.forEach(function(childAndOptions) {
@@ -180,15 +176,14 @@ define([
 					cancels = [],
 					liveChildren = new Set();
 
-				cancels.push(this.getR('bounds').onValue(function() {
-					self._applyBounds();
-					self._applyContent();
-				}));
-
 				this._appliedChildren.forEach(function(child) {
 					child.startLiveRendering && child.startLiveRendering();
 					liveChildren.add(child);
 				});
+				cancels.push(this.getR('bounds').onValue(function() {
+					self._applyBounds();
+					self._applyContent();
+				}));
 
 				cancels.push(this.getR('content').changes().onValue(function() {
 					self._applyContent();

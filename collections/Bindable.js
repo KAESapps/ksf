@@ -143,9 +143,11 @@ define([
 		},
 
 		whenDefinedEach: function() {
+			var cancelers = [];
 			Array.prototype.forEach.call(arguments, function(args) {
-				this.whenDefined.apply(this, args);
+				cancelers.push(this.whenDefined.apply(this, args));
 			}, this);
+			return cancelers;
 		},
 
 		bindEvent: function(source, eventType, target, targetMethod){

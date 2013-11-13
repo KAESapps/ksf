@@ -107,68 +107,66 @@ define([
 				// add children in bulk
 				thisNode.appendChild(children);
 
-				if (thisNode.parentNode) {
-					// - Sizing of flex children -
-					content.forEach(function(childAndOptions) {
-						var child = childAndOptions[0],
-							options = childAndOptions[1];
+				// - Sizing of flex children -
+				content.forEach(function(childAndOptions) {
+					var child = childAndOptions[0],
+						options = childAndOptions[1];
 
-						if (!options || (!options.flex && !options.flexMax)) {
-							if (vertical) {
-								child.set('bounds', {
-									width: bounds && bounds.width && innerSize.width
-								});
-								!liveRendering && child.updateRendering && child.updateRendering();
-								fixedDim += child.get('outerSize').height;
-							} else {
-								child.set('bounds', {
-									height: bounds && bounds.height && innerSize.height
-								});
-								!liveRendering && child.updateRendering && child.updateRendering();
-								fixedDim += child.get('outerSize').width;
-							}
-						}
-					});
-
-					var flexDim = ((vertical ? innerSize.height : innerSize.width) - fixedDim) / flexChildren.length;
-
-					flexChildren.forEach(function(childAndOptions) {
-						var child = childAndOptions[0],
-							options = childAndOptions[1],
-							childBounds;
+					if (!options || (!options.flex && !options.flexMax)) {
 						if (vertical) {
-							childBounds = {
+							child.set('bounds', {
 								width: bounds && bounds.width && innerSize.width
-							};
-							if (options.flexMax) {
-								childBounds['heightMax'] = flexDim;
-							} else {
-								childBounds['height'] = flexDim;
-							}
+							});
+							!liveRendering && child.updateRendering && child.updateRendering();
+							fixedDim += child.get('outerSize').height;
 						} else {
-							childBounds = {
+							child.set('bounds', {
 								height: bounds && bounds.height && innerSize.height
-							};
-							if (options.flexMax) {
-								childBounds['widthMax'] = flexDim;
-							} else {
-								childBounds['width'] = flexDim;
-							}
+							});
+							!liveRendering && child.updateRendering && child.updateRendering();
+							fixedDim += child.get('outerSize').width;
 						}
-						child.set('bounds', childBounds);
-						!liveRendering && child.updateRendering && child.updateRendering();
-					}.bind(this));
+					}
+				});
 
-					content.forEach(function(childAndOptions) {
-						var child = childAndOptions[0];
-						this._handlers.push(child.on('sizechanged', function() {
-							this._applyContent();
-						}.bind(this)));
-					}.bind(this));
+				var flexDim = ((vertical ? innerSize.height : innerSize.width) - fixedDim) / flexChildren.length;
 
-					this._appliedContent = content;
-					this._appliedInnerSize = innerSize;
-				}
+				flexChildren.forEach(function(childAndOptions) {
+					var child = childAndOptions[0],
+						options = childAndOptions[1],
+						childBounds;
+					if (vertical) {
+						childBounds = {
+							width: bounds && bounds.width && innerSize.width
+						};
+						if (options.flexMax) {
+							childBounds['heightMax'] = flexDim;
+						} else {
+							childBounds['height'] = flexDim;
+						}
+					} else {
+						childBounds = {
+							height: bounds && bounds.height && innerSize.height
+						};
+						if (options.flexMax) {
+							childBounds['widthMax'] = flexDim;
+						} else {
+							childBounds['width'] = flexDim;
+						}
+					}
+					child.set('bounds', childBounds);
+					!liveRendering && child.updateRendering && child.updateRendering();
+				}.bind(this));
+
+				content.forEach(function(childAndOptions) {
+					var child = childAndOptions[0];
+					this._handlers.push(child.on('sizechanged', function() {
+						this._applyContent();
+					}.bind(this)));
+				}.bind(this));
+
+				this._appliedContent = content;
+				this._appliedInnerSize = innerSize;
 			},
 
 			updateRendering: function() {

@@ -2,22 +2,26 @@ define([
 	"compose/compose",
 	"ksf/collections/ObservableObject",
 	"./Destroyable",
-	"./WithComponentsRegistry"
+	"../utils/destroy",
+	"../collections/LazyRegistry"
 ], function(
 	compose,
 	ObservableObject,
 	Destroyable,
-	WithComponentsRegistry
+	destroy,
+	LazyRegistry
 
 ){
 	return compose(
 		ObservableObject,
 		Destroyable,
-		WithComponentsRegistry, // no need for customization
+		function() {
+			this._components = new LazyRegistry();
+		},
 		{
 			destroy: function(){
 				Destroyable.prototype.destroy.call(this);
-				WithComponentsRegistry.prototype.destroy.call(this);
+				destroy(this._components.registry);
 			},
 		}
 	);

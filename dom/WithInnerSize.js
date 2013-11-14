@@ -5,10 +5,11 @@ define([
 ){
 	return compose({
 		_innerSizeGetter: function() {
-			var node = this.get('domNode');
+			var node = this.get('domNode'),
+				compStyle = getComputedStyle(node);
 			return {
-				height: node.clientHeight,
-				width: node.clientWidth
+				height: parseFloat(compStyle.getPropertyValue('height')),
+				width: parseFloat(compStyle.getPropertyValue('width'))
 			};
 		}
 	});

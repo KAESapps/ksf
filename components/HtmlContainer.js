@@ -1,18 +1,15 @@
 define([
 	'compose',
 	'ksf/dom/WithOrderedContent',
-	'ksf/dom/Sizeable',
 	'./HtmlElement'
 ], function(
 	compose,
 	WithOrderedContent,
-	Sizeable,
 	HtmlElement
 ){
 	return compose(
 		HtmlElement,
 		WithOrderedContent,
-		Sizeable,
 		{
 			_contentSetter: function(content) {
 				WithOrderedContent.prototype._contentSetter.apply(this, arguments);
@@ -30,13 +27,6 @@ define([
 			startLiveRendering: function() {
 				var cancels = [],
 					self = this;
-
-				cancels.push(this.getR('bounds').onValue(function() {
-					self._applyBounds();
-					self._currentContent && self._currentContent.forEach(function(cmp) {
-						cmp.updateRendering && cmp.updateRendering();
-					});
-				}));
 
 				var liveContent = [];
 				var cancelLiveContent = function() {

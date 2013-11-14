@@ -9,6 +9,7 @@ define([
 	destroy
 
 ){
+	// Collection qui a la même API qu'une liste mais pour laquelle une valeur ne peut être présente qu'une fois. Cela permet de simplifier certaines implémentations comme 'updateContentMapR'
 	var OrderableSet = compose(
 		List,
 		{
@@ -122,7 +123,15 @@ define([
 							target._stopChanges();
 					});
 			},
-
+			difference: function(orderableSet) {
+				var res = this.clone();
+				res.removeEach(orderableSet.filter(function(v) {
+					return this.has(v);
+				}.bind(this)).map(function(v) {
+					return this.indexOf(v);
+				}.bind(this)));
+				return res;
+			},
 		}
 	);
 

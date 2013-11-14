@@ -12,13 +12,13 @@ define([
 		},
 		uninstall: function(rsc){
 		},
-		has: function(rsc){
+		hasRsc: function(rsc){
 			return true;
 		},
-		get: function(rsc){
+		getValue: function(rsc){
 			return rsc;
 		},
-		set: function(rsc, value){
+		setValue: function(rsc, value){
 		},
 	};
 	return PropertyValueIsResource;

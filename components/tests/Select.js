@@ -29,8 +29,8 @@ define([
 			observedSelected = undefined;
 			collection = window.collection = new OrderableSet(['syv', 'aur', 'ant']);
 			s = window.s = new Select();
-			document.body.appendChild(s.get('domNode'));
 			s.whenChanged('value', selectedObserver);
+			document.body.appendChild(s.get('domNode'));
 		},
 		"no options": function(){
 			assert.equal(s.get('value'), undefined);

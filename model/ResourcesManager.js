@@ -1,6 +1,13 @@
 define([
 ], function(
 ){
+	/**
+	L’implémentation ResourceManagerWithProperties délègue l’accès aux données relatives à une resource à des PropertyManager.
+	Le resource manager peut augmenter les resources qu’il crée pour leur ajouter par exemple des méthodes de synchro (pull, push).
+	Les propertyManager peuvent aussi augmenter les resources sur lesquelles ils sont appliqués (installés).
+	On privilégiera d’enrichir la méthode de création du resource manager quand la méthode ajoutée ne dépend pas d’une propriété en particulier.
+
+	*/
 	var Manager = function(args){
 		this.resources = new Set();
 		this.propertyManagers = {};
@@ -29,10 +36,10 @@ define([
 			rsc.destroy && rsc.destroy();
 		},
 		getPropValue: function(rsc, propName){
-			return this.propertyManagers[propName].get(rsc);
+			return this.propertyManagers[propName].getValue(rsc);
 		},
 		setPropValue: function(rsc, propName, value){
-			return this.propertyManagers[propName].set(rsc, value);
+			return this.propertyManagers[propName].setValue(rsc, value);
 		},
 		setEachPropValue: function(rsc, values){
 			Object.keys(values).forEach(function(propName){
@@ -63,17 +70,16 @@ define([
 			return this.resources.has(rsc);
 		},
 		getBy: function(prop, value){
-			return this.propertyManagers[prop].getBy(value);
+			return this.propertyManagers[prop].getRsc(value);
 		},
 		get: function(value){
 			return this.getBy(this.getProperty, value);
 		},
-		getOrCreate: function(args){
-			var rsc;
-			if (args && args[this.getProperty]){
-				rsc = this.get(args[this.getProperty]);
-			}
+		getOrCreate: function(id){
+			var rsc = this.get(id);
 			if (!rsc){
+				var args = {};
+				args[this.getProperty] = id;
 				rsc = this.create(args);
 			}
 			return rsc;

@@ -41,6 +41,46 @@ define([
 			});
 		},
 
+		// create a bidi value binding from each prop of source to each prop of this
+		bindEach: function(source, options){
+			var init = true;
+			var target = this;
+			var sourceProps = Object.keys(options).map(function(key) {
+				return options[key];
+			});
+			var targetProps = Object.keys(options);
+			var sourceValueR = source.getEachR.apply(source, sourceProps);
+			var targetValueR = target.getEachR.apply(target, targetProps);
+			var changing = false;
+			var sourceHandler = sourceValueR.onValue(function(values){
+				if (! changing){
+					changing = true;
+					var valuesAsObject = {};
+					Object.keys(options).forEach(function(key, index) {
+						valuesAsObject[options[key]] = values[index];
+					});
+					target.setEach(valuesAsObject);
+					changing = false;
+				}
+			});
+			var targetHandler = targetValueR.onValue(function(values){
+				if (! changing && ! init){ // prevent calling source.set at init time
+					changing = true;
+					var valuesAsObject = {};
+					Object.keys(options).forEach(function(targetProp, index) {
+						valuesAsObject[targetProp] = values[index];
+					});
+					source.setEach(valuesAsObject);
+					changing = false;
+				}
+			});
+			init = false;
+			return this.own(function(){
+				targetHandler();
+				sourceHandler();
+			});
+		},
+
 		// whenChanged(...props, cb(...props))
 		// called whenever at least one of the props changed (so, only once when many props changed)
 		// if cb returns something, this is owned by this (destroyed when this is destroyed) and destroyed at the next call
@@ -103,9 +143,11 @@ define([
 		},
 
 		whenDefinedEach: function() {
+			var cancelers = [];
 			Array.prototype.forEach.call(arguments, function(args) {
-				this.whenDefined.apply(this, args);
+				cancelers.push(this.whenDefined.apply(this, args));
 			}, this);
+			return cancelers;
 		},
 
 		bindEvent: function(source, eventType, target, targetMethod){
@@ -115,7 +157,7 @@ define([
 				});
 			});
 		},
-		// create a bidirectionnal binding with the following logic: targetProp value is the content item from the collection for which itemProp is truthy
+		// create a bidirectionnal binding with the following logic: targetProp value is the item from the collection for which itemProp is truthy
 		// at init time, the target prop value is the winner
 		// TODO: allow a "multi" behavior > the targetProp become a collection (unordered set)
 		bindSelection:function(targetProp, collection, itemProp, multi){
@@ -239,6 +281,56 @@ define([
 				destroy(sourceHandler);
 			});
 		},
+		// bi-directional binding so that targetProp is true if <item> is in sourceProp (which must be a Set)
+		// so when targetProp is changed,  <item> is either added or removed from sourceProp collection
+		bindIsIn: function(targetProp, source, sourceProp, item) {
+			var init = true;
+			var target = this;
+			var sourceValueR = source.getChangesStream(sourceProp);
+			var targetValueR = target.getR(targetProp);
+			// init target prop value
+			target.set(targetProp, source.get(sourceProp).has(item));
+			// start observing source collection changes
+			var changing = false;
+			var sourceHandler = sourceValueR.onValue(function(changes){
+				if (! changing && ! init){
+					changing = true;
+					changes.forEach(function(change) {
+						if (change.value === item){
+							if (change.type === 'add'){
+								if (target.get(targetProp) !== true) {target.set(targetProp, true);}
+							} else if (change.type === 'remove') {
+								if (target.get(targetProp) !== false) {target.set(targetProp, false);}
+							}
+						}
+					});
+					changing = false;
+				}
+			});
+			// start observing target prop changes
+			var targetHandler = targetValueR.onValue(function(isIn){
+				if (! changing && ! init){ // prevent calling source.set at init time
+					changing = true;
+					var collection = source.get(sourceProp);
+					if (isIn) {
+						if (!collection.has(item)){
+							collection.add(item);
+						}
+					} else {
+						if (collection.has(item)){
+							collection.remove(item);
+						}
+					}
+					changing = false;
+				}
+			});
+			init = false;
+			return this.own(function(){
+				targetHandler();
+				sourceHandler();
+			});
+		},
+
 	};
 	return Bindable;
 });

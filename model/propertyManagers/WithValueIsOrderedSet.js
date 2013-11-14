@@ -6,19 +6,19 @@ define([
 	// The property is read only : another value cannot be set after installation (but the content of the value can be changed)
 	//
 	return function(args){
-		var set = this.set;
+		var setValue = this.setValue;
 		var install = this.install;
 		this.install = function(rsc){
 			install.apply(this, arguments);
-			set.call(this, rsc, []);
-			// call this.set at install time to notify "observers" (WithPropertyValueBindedOnResource) of the initial value
-			this.set(rsc, this.get(rsc));
+			setValue.call(this, rsc, []);
+			// call this.setValue at install time to notify "observers" (WithPropertyValueBindedOnResource) of the initial value
+			this.setValue(rsc, this.getValue(rsc));
 		};
-		// the value is read only, so the set method does not change the value of the property
+		// the value is read only, so the setValue method does not change the value of the property
 		// it only changes the content of the value (it is an helper method)
-		this.set = function(rsc, items){
+		this.setValue = function(rsc, items){
 			if (!items || !items.forEach || items.length === 0){return;}
-			var collection = this.get(rsc);
+			var collection = this.getValue(rsc);
 			// remove items
 			collection.slice().forEach(function(item){
 				if (items.find(item) === -1){

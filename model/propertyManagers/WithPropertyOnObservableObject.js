@@ -6,7 +6,7 @@ define([
 	var WithPropertyValueBindedOnResource = function(args){
 		var install = this.install;
 		var uninstall = this.uninstall;
-		var set = this.set;
+		var setValue = this.setValue;
 		var activeResources = new Set();
 
 		this.install = function(rsc, arg){
@@ -14,22 +14,22 @@ define([
 			// if no initial value was provided and that the resource property is defined, use it's value as the initial value
 			// so if an initial value is provided at creation, the resource property value is overridden otherwise we use the resource initial property value if it is defined
 			if (arguments.length === 1 && (rsc.has(args.name))) {
-				this.set(rsc, rsc.get(args.name));
+				this.setValue(rsc, rsc.get(args.name));
 			}
 			// start observing value changes for this property on resource
 			rsc.getR(args.name).onValue(function(value){
 				if (! activeResources.has(rsc)){
 					activeResources.add(rsc);
-					this.set(rsc, value);
+					this.setValue(rsc, value);
 					activeResources.delete(rsc);
 				}
 			}.bind(this));
 		};
-		this.set = function(rsc, value){
-			set.apply(this, arguments);
+		this.setValue = function(rsc, value){
+			setValue.apply(this, arguments);
 			if (! activeResources.has(rsc)){
 				activeResources.add(rsc);
-				value = this.get(rsc); // use getter
+				value = this.getValue(rsc); // use getter
 				rsc.set(args.name, value);
 				activeResources.delete(rsc);
 			}

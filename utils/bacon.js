@@ -9,8 +9,7 @@ define([
 
 	// log facilty that does not subscribe to a stream (as the native .log do) but only log events and forward them
 	// so it is more transparent than the native Observable#log operand that create a subscription
-	Bacon.Observable.prototype.onEventLog = Bacon.Observable.prototype.log; // rename native log operand that is confusing
-	Bacon.Observable.prototype.log = function(label){
+	Bacon.Observable.prototype.spy = function(label){
 		return this.doAction(console, 'log', label);
 	};
 
@@ -28,7 +27,7 @@ define([
 				return iterable && iterable.map && Bacon.combineAsArray(iterable.map(function(item){
 					return item.asReactive && item.asReactive() || Bacon.constant(item);
 				}).toArray()).map(iterable) || Bacon.constant(iterable);
-			}).toProperty();
+			}).toProperty()
 		;
 	};
 

@@ -14,7 +14,92 @@ define([
 	var cancelerCalledCount, canceler2CalledCount;
 	var cmp1, cmp2, cmp3;
 	var cbArgs, cb2Args;
+	var source, target;
 
+	registerSuite({
+		name: 'bindEach',
+		beforeEach: function() {
+			source = new Dict({
+				prop1: "sourceProp1Value",
+				prop2: "sourceProp2Value",
+				prop3: "sourceProp3Value",
+			});
+			target = new Dict({
+				prop1: "targetProp1Value",
+				prop2: "targetProp2Value",
+				prop3: "targetProp3Value",
+			});
+
+
+			cbCalledCount = 0;
+			source.on('changed', function(ev) {
+				cbCalledCount++;
+			});
+			cb2CalledCount = 0;
+			target.on('changed', function(ev) {
+				cb2CalledCount++;
+			});
+
+			target.bindEach(source, {
+				prop1: 'prop1',
+				prop2: 'prop2',
+			});
+		},
+		"init": function() {
+			assert.equal(cbCalledCount, 0);
+			assert.equal(cb2CalledCount, 1);
+			assert.deepEqual(source.toObject(), {
+				prop1: "sourceProp1Value",
+				prop2: "sourceProp2Value",
+				prop3: "sourceProp3Value",
+			});
+			assert.deepEqual(target.toObject(), {
+				prop1: "sourceProp1Value",
+				prop2: "sourceProp2Value",
+				prop3: "targetProp3Value",
+			});
+		},
+		"only one changed event on setEach from source to target": function() {
+			cbCalledCount = 0;
+			cb2CalledCount = 0;
+			source.setEach({
+				prop1: "newProp1Value",
+				prop2: "newProp2Value",
+			});
+			assert.equal(cbCalledCount, 1);
+			assert.equal(cb2CalledCount, 1);
+			assert.deepEqual(source.toObject(), {
+				prop1: "newProp1Value",
+				prop2: "newProp2Value",
+				prop3: "sourceProp3Value",
+			});
+			assert.deepEqual(target.toObject(), {
+				prop1: "newProp1Value",
+				prop2: "newProp2Value",
+				prop3: "targetProp3Value",
+			});
+		},
+		"only one changed event on setEach from target to source": function() {
+			cbCalledCount = 0;
+			cb2CalledCount = 0;
+			target.setEach({
+				prop1: "newProp1Value",
+				prop2: "newProp2Value",
+			});
+			assert.equal(cbCalledCount, 1);
+			assert.equal(cb2CalledCount, 1);
+			assert.deepEqual(source.toObject(), {
+				prop1: "newProp1Value",
+				prop2: "newProp2Value",
+				prop3: "sourceProp3Value",
+			});
+			assert.deepEqual(target.toObject(), {
+				prop1: "newProp1Value",
+				prop2: "newProp2Value",
+				prop3: "targetProp3Value",
+			});
+		},
+	});
 
 	registerSuite({
 		name: "whenChanged",

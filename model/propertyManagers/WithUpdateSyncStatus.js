@@ -4,9 +4,9 @@ define([
 
 ){
 	var WithUpdateSyncStatus = function(){
-		var set = this.set;
-		this.set = function(rsc){
-			set.apply(this, arguments);
+		var setValue = this.setValue;
+		this.setValue = function(rsc){
+			setValue.apply(this, arguments);
 			this.owner.refreshSyncStatus(rsc);
 		};
 	};

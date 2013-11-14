@@ -54,6 +54,13 @@ define([
 					cb.call(scope, this._store[k], unmangle(k), this);
 				}.bind(this));
 			},
+			toObject: function() {
+				var ret = {};
+				this.forEach(function(v, k) {
+					ret[k] = v;
+				});
+				return ret;
+			},
 		}
 	);
 

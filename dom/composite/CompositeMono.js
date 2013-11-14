@@ -49,11 +49,16 @@ define([
 			startLiveRendering: function() {
 				this._component.startLiveRendering && this._component.startLiveRendering();
 				var cancelLiveStyle = this._style.asReactive().onValue(this._applyStyle.bind(this));
+				var cancelLiveBounds = this.getR('bounds').onValue(this._applyBounds.bind(this));
+
 				this.stopLiveRendering = function() {
 					this._component.stopLiveRendering && this._component.stopLiveRendering();
 					cancelLiveStyle();
+					cancelLiveBounds();
 					delete this.stopLiveRendering;
+					this._liveRendering = false;
 				};
+				this._liveRendering = true;
 			},
 
 			destroy: function(){

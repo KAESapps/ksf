@@ -167,6 +167,7 @@ define([
 						child.stopLiveRendering && child.stopLiveRendering();
 						liveChildren.remove(child);
 					});
+					self._resize();
 				}));
 
 				this.stopLiveRendering = function() {

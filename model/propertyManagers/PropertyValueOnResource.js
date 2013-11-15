@@ -7,6 +7,9 @@ define([
 	};
 	PropertyValue.prototype = {
 		install: function(rsc, arg){
+			rsc.getR(this.propName).onValue(function() {
+				this.owner.refreshSyncStatus(rsc);
+			}.bind(this));
 		},
 		uninstall: function(rsc){
 			rsc.remove(this.propName);

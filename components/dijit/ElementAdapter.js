@@ -38,6 +38,19 @@ define([
 					return ObservableObject.prototype.on.apply(this, arguments);
 				}
 				return this._dijit.on(eventName, callback);
+			},
+
+			startLiveRendering: function() {
+				var self = this;
+
+				var cancelLiveBounds = this.getR('bounds').onValue(function() {
+					self.updateRendering();
+				});
+
+				this.stopLiveRendering = function() {
+					cancelLiveBounds();
+					delete this.stopLiveRendering;
+				};
 			}
 		}
 	);

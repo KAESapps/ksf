@@ -43,6 +43,12 @@ define([
 						liveContent.push(cmp);
 					});
 				}));
+				cancels.push(this.getR('bounds').onValue(function() {
+					self._applyBounds();
+					self._currentContent.forEach(function(cmp) {
+						cmp.set('bounds', {});
+					});
+				}));
 
 				this.stopLiveRendering = function() {
 					cancels.forEach(function(cancel) {

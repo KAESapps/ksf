@@ -83,6 +83,11 @@ define([
 				CompositeMono.prototype.startLiveRendering.apply(this, arguments);
 				this._selectComponent.set('selectedIndex', this.get('options').indexOf(this.get('value')));
 				delete this.preventValueUpdateDuringDomInsertionInChrome;
+			},
+
+			_applyBounds: function() {
+				// seems to have the same pb as described above startLiveRendering when changing size
+				// deactivate sizing via 'bounds' property for now
 			}
 		}
 	);

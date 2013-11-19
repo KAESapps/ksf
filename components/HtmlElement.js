@@ -1,51 +1,58 @@
 define([
 	'compose',
 	'ksf/collections/ObservableObject',
-	'ksf/dom/WithHTMLElement',
+	'ksf/dom/WithDomAttributes',
 	'ksf/dom/WithCssClassStyle',
 	'ksf/dom/Sizeable'
 ], function(
 	compose,
 	ObservableObject,
-	WithHTMLElement,
+	WithDomAttributes,
 	WithCssClassStyle,
 	Sizeable
 ) {
 	return compose(
 		ObservableObject,
-		WithHTMLElement,
+		WithDomAttributes,
 		WithCssClassStyle,
 		Sizeable,
 		function(tag, attrs) {
-			this._tag = tag || 'div';
-			this.createRendering();
+			this.domNode = document.createElement(tag || 'div');
 			if (attrs) {
 				this.setEach(attrs);
 			}
-			this.style.asReactive().onValue(this._applyStyle.bind(this));
-			this.getR('bounds').onValue(this._applyBounds.bind(this));
 		},
 		{
-			_Getter: function(prop) {
-				return this._domNode[prop];
+			set: function(prop, value) {
+				if (! this._notAppliedAttrs.has(prop)) {
+					this._notAppliedAttrs.add(prop);
+				}
+				ObservableObject.prototype.set.apply(this, arguments);
 			},
-			_Setter: function(prop, value) {
-				this._applyDomAttr(prop, value);
+			get: function(prop){
+				return ObservableObject.prototype.has.call(this, prop) ?
+					ObservableObject.prototype.get.apply(this, arguments) :
+					this.domNode[prop];
 			},
-			_Detector: function(prop){
-				return this._domNode.hasOwnProperty(prop);
+			_Detector: function(prop) {
+				return ObservableObject.prototype.has.call(this, prop) || this.domNode.hasOwnProperty(prop);
 			},
-
+			updateDom: function() {
+				this._applyAttrs();
+				this._applyStyle();
+				this._applyBounds();
+			},
 			on: function(eventName, callback) {
 				if (eventName === 'changed') {
 					return ObservableObject.prototype.on.apply(this, arguments);
 				}
-				var domNode = this.get('domNode');
+				var domNode = this.domNode;
 				domNode.addEventListener(eventName, callback);
 				return function() {
 					domNode.removeEventListener(eventName, callback);
 				};
-			}
+			},
+
 		}
 	);
 });

@@ -42,29 +42,6 @@ define([
 				cmp.updateRendering && cmp.updateRendering();
 			});
 		},
-		startLiveRendering: function() {
-			var cancel = this.get('content').asChangesStream().onValue(function(changes) {
-				changes.forEach(function(change) {
-					var cmp = change.value;
-					if (change.type === 'add') {
-						cmp.startLiveRendering && cmp.startLiveRendering();
-					} else {
-						cmp.stopLiveRendering && cmp.stopLiveRendering();
-					}
-				});
-			});
-
-			this.stopLiveRendering = function() {
-				cancel();
-				this.get('content').forEach(function(cmp) {
-					cmp.stopLiveRendering && cmp.stopLiveRendering();
-				});
-				this._liveRendering = true;
-				delete this.stopLiveRendering;
-			};
-
-			this._liveRendering = true;
-		}
 	};
 
 	return WithIncrementalContentRendering;

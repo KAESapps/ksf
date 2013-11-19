@@ -1,60 +1,42 @@
 define([
 	'compose',
 	'ksf/dom/WithOrderedContent',
-	'./HtmlElement'
+	'./HtmlElement',
+	'ksf/collections/Set',
+	'ksf/utils/destroy',
 ], function(
 	compose,
 	WithOrderedContent,
-	HtmlElement
+	HtmlElement,
+	Set,
+	destroy
 ){
 	return compose(
 		HtmlElement,
 		WithOrderedContent,
 		{
-			_contentSetter: function(content) {
-				WithOrderedContent.prototype._contentSetter.apply(this, arguments);
-			},
-
-			updateRendering: function() {
-				// HtmlElement.prototype.updateRendering.apply(this);
-				this._applyBounds();
+			updateDom: function() {
+				HtmlElement.prototype.updateDom.apply(this);
 				this._applyContent();
-				this._currentContent.forEach(function(cmp) {
-					cmp.updateRendering && cmp.updateRendering();
+				this.content.forEach(function(cmp) {
+					cmp.updateDom();
 				});
 			},
 
 			startLiveRendering: function() {
-				var cancels = [],
-					self = this;
+				var self = this,
+					liveCancelers = new Set();
 
-				var liveContent = [];
-				var cancelLiveContent = function() {
-					liveContent.forEach(function(child) {
-						child.stopLiveRendering && child.stopLiveRendering();
-					});
-					liveContent = [];
-				};
-				cancels.push(this.getR('content').onValue(function() {
-					cancelLiveContent();
-					self._applyContent();
-					self._currentContent.forEach(function(cmp) {
-						cmp.startLiveRendering && cmp.startLiveRendering();
-						liveContent.push(cmp);
-					});
-				}));
-				cancels.push(this.getR('bounds').onValue(function() {
-					self._applyBounds();
-					self._currentContent.forEach(function(cmp) {
-						cmp.set('bounds', {});
-					});
-				}));
+				var cancelContentObservation = liveCancelers.updateContentMapR(this.content.asChangesStream(), function(cmp) {
+					cmp.startLiveRendering && cmp.startLiveRendering();
+					return function() {
+						cmp.stopLiveRendering && cmp.stopLiveRendering();
+					};
+				});
 
 				this.stopLiveRendering = function() {
-					cancels.forEach(function(cancel) {
-						cancel();
-					});
-					cancelLiveContent();
+					cancelContentObservation();
+					destroy(liveCancelers);
 					delete this.stopLiveRendering;
 				};
 			}

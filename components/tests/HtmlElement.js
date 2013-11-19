@@ -11,42 +11,22 @@ define([
 		name : "HtmlElement",
 		beforeEach : function() {
 			div = new HtmlElement('div');
-			domNode = div.get('domNode');
+			domNode = div.domNode;
 		},
 		"DOM-node created": function() {
 			assert(domNode instanceof HTMLElement, "domNode is a native HtmlElement");
 			assert.equal(domNode.tagName, 'DIV');
 		},
 
-		"node's attributes proxied": function() {
+		"node properties not set immediately on DOM-node": function() {
 			div.set('innerHTML', "Test");
+			assert.equal(domNode.innerHTML, "");
+			div.updateDom();
 			assert.equal(domNode.innerHTML, "Test");
-
+		},
+		"node's attributes proxied": function() {
 			domNode.id = "test";
 			assert.equal(div.get('id'), "test");
 		}
 	});
-
-/*	var input;
-	registerSuite({
-		name: 'focused',
-		beforeEach: function() {
-			input = window.input = new HtmlElement('input');
-			document.body.appendChild(input.get('domNode'));
-			// window.focus();
-		},
-		'set focused true': function() {
-			assert.equal(input.get('focused'), false);
-			input.set('focused', true);
-			assert.equal(input.get('focused'), true);
-			// assert(document.hasFocus());
-			assert.equal(document.activeElement, input.get('domNode'));
-		},
-		'set focused false': function() {
-			input.set('focused', true);
-			input.set('focused', false);
-			assert.equal(input.get('focused'), false);
-			assert(document.activeElement !== input.get('domNode'));
-		},
-	});
-*/});
+});

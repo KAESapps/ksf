@@ -34,7 +34,7 @@ define([
 					ObservableObject.prototype.get.apply(this, arguments) :
 					this.domNode[prop];
 			},
-			_Detector: function(prop) {
+			has: function(prop) {
 				return ObservableObject.prototype.has.call(this, prop) || this.domNode.hasOwnProperty(prop);
 			},
 			updateDom: function() {
@@ -51,8 +51,7 @@ define([
 				return function() {
 					domNode.removeEventListener(eventName, callback);
 				};
-			},
-
+			}
 		}
 	);
 });

@@ -1,6 +1,6 @@
 define([
 	'compose',
-	'ksf/dom/WithOrderedContent',
+	'ksf/dom/WithOrderedContentIncremental',
 	'./HtmlElement',
 	'ksf/collections/Set',
 	'ksf/utils/destroy',
@@ -14,11 +14,13 @@ define([
 	return compose(
 		HtmlElement,
 		WithOrderedContent,
-		{
+		function() {
+			this.content = this._content;
+		}, {
 			updateDom: function() {
 				HtmlElement.prototype.updateDom.apply(this);
-				this._applyContent();
-				this.content.forEach(function(cmp) {
+				this._applyChanges();
+				this._content.forEach(function(cmp) {
 					cmp.updateDom();
 				});
 			},
@@ -28,16 +30,15 @@ define([
 					liveCancelers = new Set();
 
 				var cancelContentObservation = liveCancelers.updateContentMapR(this.content.asChangesStream(), function(cmp) {
-					cmp.startLiveRendering && cmp.startLiveRendering();
-					return function() {
-						cmp.stopLiveRendering && cmp.stopLiveRendering();
+					var stopLiveRendering = cmp.startLiveRendering && cmp.startLiveRendering();
+					return stopLiveRendering && function() {
+						stopLiveRendering();
 					};
 				});
 
-				this.stopLiveRendering = function() {
+				return function() {
 					cancelContentObservation();
 					destroy(liveCancelers);
-					delete this.stopLiveRendering;
 				};
 			}
 		}

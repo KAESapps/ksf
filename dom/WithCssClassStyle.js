@@ -13,7 +13,7 @@ define([
 		_applyStyle: function() {
 			var style = this.style,
 				newClasses = new Set(),
-				domNode = this.get('domNode');
+				domNode = this.domNode;
 
 			style && style.forEach(function(value) {
 				newClasses.add(value);

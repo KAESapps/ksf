@@ -54,7 +54,7 @@ define([
 			createRendering: function() {
 				this._applyLayout();
 				this._applyStyle();
-				this.set('domNode', this._layout.get('root').get('domNode'));
+				this.set('domNode', this._layout.get('root').domNode);
 			},
 
 			updateRendering: function() {

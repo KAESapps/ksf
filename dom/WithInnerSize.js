@@ -5,7 +5,7 @@ define([
 ){
 	return compose({
 		_innerSizeGetter: function() {
-			var node = this.get('domNode'),
+			var node = this.domNode,
 				compStyle = getComputedStyle(node);
 			return {
 				height: parseFloat(compStyle.getPropertyValue('height')),

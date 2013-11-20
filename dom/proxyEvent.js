@@ -5,7 +5,7 @@ define([], function() {
 			var valueChange = function(ev) {
 				this._emit(targetEvent, ev);
 			}.bind(this);
-			var domNode = this.get('domNode');
+			var domNode = this.domNode;
 			domNode.addEventListener(domEvent, valueChange);
 			this.own(function() {
 				domNode.removeEventListener(domEvent, valueChange);

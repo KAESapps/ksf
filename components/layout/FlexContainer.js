@@ -1,37 +1,17 @@
 define([
 	'compose',
-	'./ContainerBase',
-	'ksf/dom/Sizeable',
-	'ksf/dom/WithInnerSize',
-	'ksf/utils/destroy',
-	'ksf/collections/Set'
+	'ksf/utils/CoupleElementOptions',
+	'./OrderedContainerBase',
 ], function(
 	compose,
-	Container,
-	Sizeable,
-	WithInnerSize,
-	destroy,
-	Set
+	CoupleElementOptions,
+	OrderedContainerBase
 ) {
 	return compose(
-		Container,
-		Sizeable,
-		WithInnerSize,
+		OrderedContainerBase,
 		function(args) {
-			this._handlers = [];
-			args && this.setEach(args);
 			this._style.set('base', 'FlexContainer');
-		},
-		{
-			_contentGetter: function(content) {
-				return this._content || [];
-			},
-			_contentSetter: function(content) {
-				this._content = content.map(function(item) {
-					return (item instanceof Array) ? item : [item];
-				});
-			},
-
+		}, {
 			_alignGetter: function() {
 				return this._Getter('align') || 'top';
 			},
@@ -40,15 +20,8 @@ define([
 				return this.get('orientation') !== 'horizontal';
 			},
 
-			createRendering: function() {
-				Container.prototype.createRendering.apply(this, arguments);
-				this.updateRendering();
-			},
-
-			_applyContent: function() {
-				var content = this.get('content'),
-					bounds = this.get('bounds'),
-					thisNode = this.get('domNode'),
+			_layoutContent: function() {
+				var bounds = this.get('bounds'),
 					innerSize = this.get('innerSize'),
 					vertical = this.get('_vertical'),
 					align = this.get('align'),
@@ -65,30 +38,12 @@ define([
 					}
 				}
 
-				// check if relayout is needed
-				if (content === this._appliedContent &&
-					innerSize.height === this._appliedInnerSize.height &&
-					innerSize.width === this._appliedInnerSize.width) {
-					return;
-				}
+				var content = this.content.map(CoupleElementOptions.fromLiteral);
 
-				// - Content reset -
-
-				// clear children
-				thisNode.innerHTML = "";
-				// cancel listeners
-				this._handlers.forEach(function(handler) {
-					destroy(handler);
-				});
-				this._handlers = [];
-
-				this._appliedChildren = new Set();
-
-				var children = document.createDocumentFragment();
 				content.forEach(function(childAndOptions) {
-					var child = childAndOptions[0],
-						options = childAndOptions[1];
-					var childNode = child.get('domNode');
+					var child = childAndOptions.element,
+						options = childAndOptions.options,
+						childNode = child.domNode;
 
 					if (options && (options.flex || options.flexMax)) {
 						flexChildren.push(childAndOptions);
@@ -98,30 +53,24 @@ define([
 					childNode.style.verticalAlign = align;
 					childNode.style.boxSizing = 'border-box';
 					childNode.style.MozBoxSizing = 'border-box';
-
-					children.appendChild(childNode);
-
-					this._appliedChildren.add(child);
 				}.bind(this));
-				// add children in bulk
-				thisNode.appendChild(children);
 
 				// - Sizing of flex children -
 				content.forEach(function(childAndOptions) {
-					var child = childAndOptions[0],
-						options = childAndOptions[1];
+					var child = childAndOptions.element,
+						options = childAndOptions.options;
 
 					if (!options || (!options.flex && !options.flexMax)) {
 						if (vertical) {
 							child.set('bounds', {
 								width: bounds && bounds.width && innerSize.width
 							});
-							fixedDim += child.get('outerSize').height;
+							fixedDim += child.get('size').height;
 						} else {
 							child.set('bounds', {
 								height: bounds && bounds.height && innerSize.height
 							});
-							fixedDim += child.get('outerSize').width;
+							fixedDim += child.get('size').width;
 						}
 					}
 				});
@@ -129,8 +78,8 @@ define([
 				var flexDim = ((vertical ? innerSize.height : innerSize.width) - fixedDim) / flexChildren.length;
 
 				flexChildren.forEach(function(childAndOptions) {
-					var child = childAndOptions[0],
-						options = childAndOptions[1],
+					var child = childAndOptions.element,
+						options = childAndOptions.options,
 						childBounds;
 					if (vertical) {
 						childBounds = {
@@ -153,59 +102,21 @@ define([
 					}
 					child.set('bounds', childBounds);
 				}.bind(this));
-
-				content.forEach(function(childAndOptions) {
-					var child = childAndOptions[0];
-					this._handlers.push(child.on('sizechanged', function() {
-						this._applyContent();
-					}.bind(this)));
-				}.bind(this));
-
-				this._appliedContent = content;
-				this._appliedInnerSize = innerSize;
-			},
-
-			updateRendering: function() {
-				this._applyBounds();
-				Container.prototype.updateRendering.apply(this, arguments);
-				this._applyContent();
 			},
 
 			startLiveRendering: function() {
-				var self = this,
-					cancels = [],
-					liveChildren = new Set();
-
-				this._appliedChildren.forEach(function(child) {
-					child.startLiveRendering && child.startLiveRendering();
-					liveChildren.add(child);
-				});
-				cancels.push(this.getR('bounds').onValue(function() {
-					self._applyBounds();
-					self._applyContent();
-				}));
-
-				cancels.push(this.getR('content').changes().onValue(function() {
-					self._applyContent();
-					self._appliedChildren.difference(liveChildren).forEach(function(child) {
-						child.startLiveRendering && child.startLiveRendering();
-						liveChildren.add(child);
-					});
-					liveChildren.difference(self._appliedChildren).forEach(function(child) {
-						child.stopLiveRendering && child.stopLiveRendering();
-						liveChildren.remove(child);
-					});
-				}));
-
-				this.stopLiveRendering = function() {
-					cancels.forEach(function(cancel) {
-						cancel();
-					});
-					liveChildren.forEach(function(child) {
-						child.stopLiveRendering && child.stopLiveRendering();
-					});
-					delete this.stopLiveRendering;
-				};
+				var self = this;
+				return [
+					OrderedContainerBase.prototype.startLiveRendering.apply(this),
+					this.getR('bounds').onValue(function() {
+						self._layoutContent();
+					}),
+					// we subscribed to this same stream in the constructor
+					// so the children should be inserted into the DOM before we execute sizeContent()
+					this.content.asStream('changes').onValue(function() {
+						self._layoutContent();
+					})
+				];
 			}
 		}
 	);

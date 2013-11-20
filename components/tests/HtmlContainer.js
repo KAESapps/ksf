@@ -1,9 +1,11 @@
 define([
 	'intern!object',	'intern/chai!assert',
-	'../HtmlContainer',	'../HtmlElement'
+	'../HtmlContainer',	'../HtmlElement',
+	'ksf/utils/destroy'
 ], function(
 	registerSuite,		assert,
-	HtmlContainer,		HtmlElement
+	HtmlContainer,		HtmlElement,
+	destroy
 ) {
 	var container;
 	var domNode;
@@ -27,7 +29,7 @@ define([
 			]);
 			assert.equal(container.content.length, 3);
 			assert.equal(domNode.children.length, 0);
-			container.updateDom();
+			container.startLiveRendering();
 			assert.equal(domNode.children.length, 3);
 		},
 
@@ -39,13 +41,21 @@ define([
 			]);
 			assert.equal(container.content.length, 3);
 			assert.equal(domNode.children.length, 0);
-			container.updateDom();
+
+			var liveRendering = container.startLiveRendering();
+
 			assert.equal(domNode.children.length, 3);
+
+			destroy(liveRendering);
+
 			container.content.add(new HtmlElement('option', { textContent: "Option 0" }), 0);
 			container.content.add(new HtmlElement('option', { textContent: "Option 4" }));
+
 			assert.equal(domNode.children.length, 3);
 			assert.equal(container.content.length, 5);
-			container.updateDom();
+
+			container.startLiveRendering();
+
 			assert.equal(domNode.children.length, 5);
 		}
 	});

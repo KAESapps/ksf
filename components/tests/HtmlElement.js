@@ -21,7 +21,7 @@ define([
 		"node properties not set immediately on DOM-node": function() {
 			div.set('innerHTML', "Test");
 			assert.equal(domNode.innerHTML, "");
-			div.updateDom();
+			div.startLiveRendering();
 			assert.equal(domNode.innerHTML, "Test");
 		},
 		"node's attributes proxied": function() {

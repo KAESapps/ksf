@@ -2,14 +2,12 @@ define([
 	'compose',
 	'ksf/dom/WithOrderedContentIncremental',
 	'./HtmlElement',
-	'ksf/collections/OrderableSet',
-	'ksf/utils/destroy',
+	'ksf/collections/OrderableSet'
 ], function(
 	compose,
 	WithOrderedContentIncremental,
 	HtmlElement,
-	OrderableSet,
-	destroy
+	OrderableSet
 ){
 	return compose(
 		HtmlElement,
@@ -24,30 +22,25 @@ define([
 		}, {
 			startLiveRendering: function() {
 				var self = this,
-					// TODO: liveCancelers could be a simple Set, but there is no updateContentMapR method for the moment.
+					// TODO: liveCancelers could be a simple Set, but there is no updateContentMapR method on a Set for the moment.
 					liveCancelers = new OrderableSet();
 
-				if (this._liveRendering) {
-					throw "Already rendering live";
-				} else {
-					this._liveRendering = true;
-					this._contentChanges.forEach(function(changes) {
+				this._contentChanges.forEach(function(changes) {
+					self._applyContentChanges(changes);
+				});
+				return [
+					HtmlElement.prototype.startLiveRendering.apply(this),
+					liveCancelers.updateContentMapR(this.content.asChangesStream(), function(cmp) {
+						return cmp.startLiveRendering();
+					}),
+					liveCancelers.toArray(),
+					this._content.asStream('changes').onValue(function(changes) {
 						self._applyContentChanges(changes);
-					});
-					return [
-						liveCancelers.updateContentMapR(this.content.asChangesStream(), function(cmp) {
-							return cmp.startLiveRendering();
-						}),
-						liveCancelers.toArray(),
-						this._content.asStream('changes').onValue(function(changes) {
-							self._applyContentChanges(changes);
-						}),
-						function() {
-							self._liveRendering = false;
-							self._contentChanges.clear();
-						}
-					];
-				}
+					}),
+					function() {
+						self._contentChanges.clear();
+					}
+				];
 			}
 		}
 	);

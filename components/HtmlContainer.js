@@ -2,44 +2,52 @@ define([
 	'compose',
 	'ksf/dom/WithOrderedContentIncremental',
 	'./HtmlElement',
-	'ksf/collections/Set',
+	'ksf/collections/OrderableSet',
 	'ksf/utils/destroy',
 ], function(
 	compose,
-	WithOrderedContent,
+	WithOrderedContentIncremental,
 	HtmlElement,
-	Set,
+	OrderableSet,
 	destroy
 ){
 	return compose(
 		HtmlElement,
-		WithOrderedContent,
+		WithOrderedContentIncremental,
 		function() {
-			this.content = this._content;
+			this.content = this._content = new OrderableSet();
+			this._contentChanges = new OrderableSet();
+			// TODO: stop storing changes when liveRendering
+			this._content.asStream('changes').onValue(function(changes) {
+				this._contentChanges.add(changes);
+			}.bind(this));
 		}, {
-			updateDom: function() {
-				HtmlElement.prototype.updateDom.apply(this);
-				this._applyChanges();
-				this._content.forEach(function(cmp) {
-					cmp.updateDom();
-				});
-			},
-
 			startLiveRendering: function() {
 				var self = this,
-					liveCancelers = new Set();
+					// TODO: liveCancelers could be a simple Set, but there is no updateContentMapR method for the moment.
+					liveCancelers = new OrderableSet();
 
-				var cancelContentObservation = liveCancelers.updateContentMapR(this.content.asChangesStream(), function(cmp) {
-					var stopLiveRendering = cmp.startLiveRendering && cmp.startLiveRendering();
-					return stopLiveRendering && function() {
-						stopLiveRendering();
-					};
-				});
-
-				return function() {
-					cancelContentObservation();
-					destroy(liveCancelers);
-				};
+				if (this._liveRendering) {
+					throw "Already rendering live";
+				} else {
+					this._liveRendering = true;
+					this._contentChanges.forEach(function(changes) {
+						self._applyContentChanges(changes);
+					});
+					return [
+						liveCancelers.updateContentMapR(this.content.asChangesStream(), function(cmp) {
+							return cmp.startLiveRendering();
+						}),
+						liveCancelers.toArray(),
+						this._content.asStream('changes').onValue(function(changes) {
+							self._applyContentChanges(changes);
+						}),
+						function() {
+							self._liveRendering = false;
+							self._contentChanges.clear();
+						}
+					];
+				}
 			}
 		}
 	);

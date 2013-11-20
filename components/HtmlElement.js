@@ -37,11 +37,30 @@ define([
 			has: function(prop) {
 				return ObservableObject.prototype.has.call(this, prop) || this.domNode.hasOwnProperty(prop);
 			},
-			updateDom: function() {
-				this._applyAttrs();
-				this._applyStyle();
-				this._applyBounds();
+
+			startLiveRendering: function() {
+				var self = this;
+				if (this._liveRendering) {
+					throw "Already rendering live";
+				} else {
+					this._liveRendering = true;
+					return [
+						this.asReactive().onValue(function() {
+							self._applyAttrs();
+						}),
+						this.getR('bounds').onValue(function() {
+							self._applyBounds();
+						}),
+						this._style.asReactive().onValue(function() {
+							self._applyStyle();
+						}),
+						function() {
+							self._liveRendering = false;
+						}
+					];
+				}
 			},
+
 			on: function(eventName, callback) {
 				if (eventName === 'changed') {
 					return ObservableObject.prototype.on.apply(this, arguments);

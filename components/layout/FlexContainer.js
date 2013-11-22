@@ -21,6 +21,14 @@ define([
 			},
 
 			_layoutContent: function() {
+				// v----rendering log----v
+				var layoutTimer = this.get('name') + " (FlexContainer) layouting";
+				console.group(layoutTimer);
+				if (window.renderingLog) {
+					console.time(layoutTimer);
+				}
+				// ^----rendering log----^
+
 				var bounds = this.get('bounds'),
 					innerSize = this.get('innerSize'),
 					vertical = this.get('_vertical'),
@@ -60,6 +68,13 @@ define([
 					var child = childAndOptions.element,
 						options = childAndOptions.options;
 
+					// v----rendering log----v
+					var childSizingTimer = child.get('name') + " sizing (not flex)";
+					if (window.renderingLog) {
+						console.time(childSizingTimer);
+					}
+					// ^----rendering log----^
+
 					if (!options || (!options.flex && !options.flexMax)) {
 						if (vertical) {
 							child.set('bounds', {
@@ -73,6 +88,11 @@ define([
 							fixedDim += child.get('size').width;
 						}
 					}
+
+					// v----rendering log----v
+					console.timeEnd(childSizingTimer);
+					// ^----rendering log----^
+
 				});
 
 				var flexDim = ((vertical ? innerSize.height : innerSize.width) - fixedDim) / flexChildren.length;
@@ -81,6 +101,15 @@ define([
 					var child = childAndOptions.element,
 						options = childAndOptions.options,
 						childBounds;
+
+					// v----rendering log----v
+					var childSizingTimer = child.get('name') + " sizing (flex)";
+					if (window.renderingLog) {
+						console.time(childSizingTimer);
+					}
+					// ^----rendering log----^
+
+
 					if (vertical) {
 						childBounds = {
 							width: bounds && bounds.width && innerSize.width
@@ -101,7 +130,21 @@ define([
 						}
 					}
 					child.set('bounds', childBounds);
+
+
+					// v----rendering log----v
+					console.timeEnd(childSizingTimer);
+					// ^----rendering log----^
+
+
 				}.bind(this));
+
+				// v----rendering log----v
+				if (window.renderingLog) {
+					console.timeEnd(layoutTimer);
+					console.groupEnd();
+				}
+				// ^----rendering log----^
 			},
 
 			startLiveRendering: function() {

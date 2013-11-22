@@ -1,9 +1,11 @@
 define([
 	'compose',
+	'dojo/has',
 	'ksf/utils/CoupleElementOptions',
 	'./OrderedContainerBase',
 ], function(
 	compose,
+	has,
 	CoupleElementOptions,
 	OrderedContainerBase
 ) {
@@ -11,6 +13,11 @@ define([
 		OrderedContainerBase,
 		function(args) {
 			this._style.set('base', 'FlexContainer');
+			if (has('ksf-monitoring')) {
+				this._monitoring = {
+					name: this.get('name') + ' (FlexContainer)'
+				};
+			}
 		}, {
 			_alignGetter: function() {
 				return this._Getter('align') || 'top';
@@ -22,14 +29,15 @@ define([
 
 			_layoutContent: function() {
 				// v----rendering log----v
-				var layoutTimer = this.get('name') + " (FlexContainer) layouting";
-				console.groupCollapsed(layoutTimer);
-				if (window.renderingLog) {
+				if (has('ksf-monitoring')) {
+					var layoutTimer = this._monitoring.layoutTimer = this._monitoring.name + " layouting";
+					console.groupCollapsed(layoutTimer);
 					console.time(layoutTimer);
 				}
 				// ^----rendering log----^
 
-				var bounds = this.get('bounds'),
+				var self = this,
+					bounds = this.get('bounds'),
 					innerSize = this.get('innerSize'),
 					vertical = this.get('_vertical'),
 					align = this.get('align'),
@@ -69,9 +77,9 @@ define([
 						options = childAndOptions.options;
 
 					// v----rendering log----v
-					var childSizingTimer = child.get('name') + " sizing (not flex)";
-					if (window.renderingLog) {
-						console.time(childSizingTimer);
+					if (has('ksf-monitoring')) {
+						self._monitoring.childSizingTimer = child.get('name') + " sizing (not flex)";
+						console.time(self._monitoring.childSizingTimer);
 					}
 					// ^----rendering log----^
 
@@ -90,9 +98,10 @@ define([
 					}
 
 					// v----rendering log----v
-					console.timeEnd(childSizingTimer);
+					if (has('ksf-monitoring')) {
+						console.timeEnd(self._monitoring.childSizingTimer);
+					}
 					// ^----rendering log----^
-
 				});
 
 				var flexDim = ((vertical ? innerSize.height : innerSize.width) - fixedDim) / flexChildren.length;
@@ -103,9 +112,9 @@ define([
 						childBounds;
 
 					// v----rendering log----v
-					var childSizingTimer = child.get('name') + " sizing (flex)";
-					if (window.renderingLog) {
-						console.time(childSizingTimer);
+					if (has('ksf-monitoring')) {
+						this._monitoring.childSizingTimer = child.get('name') + " sizing (flex)";
+						console.time(self._monitoring.childSizingTimer);
 					}
 					// ^----rendering log----^
 
@@ -133,15 +142,17 @@ define([
 
 
 					// v----rendering log----v
-					console.timeEnd(childSizingTimer);
+					if (has('ksf-monitoring')) {
+						console.timeEnd(self._monitoring.childSizingTimer);
+					}
 					// ^----rendering log----^
 
 
 				}.bind(this));
 
 				// v----rendering log----v
-				if (window.renderingLog) {
-					console.timeEnd(layoutTimer);
+				if (has('ksf-monitoring')) {
+					console.timeEnd(this._monitoring.layoutTimer);
 					console.groupEnd();
 				}
 				// ^----rendering log----^

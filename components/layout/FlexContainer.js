@@ -23,7 +23,7 @@ define([
 			_layoutContent: function() {
 				// v----rendering log----v
 				var layoutTimer = this.get('name') + " (FlexContainer) layouting";
-				console.group(layoutTimer);
+				console.groupCollapsed(layoutTimer);
 				if (window.renderingLog) {
 					console.time(layoutTimer);
 				}

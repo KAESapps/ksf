@@ -27,6 +27,13 @@ define([
 				this._component.set('bounds', this.get('bounds'));
 			},
 
+			_inDomSetter: function(inDom) {
+				this._component.set('inDom', inDom);
+			},
+			_inDomGetter: function() {
+				return this._component.get('inDom');
+			},
+
 			startLiveRendering: function() {
 				return [
 					this._component.startLiveRendering(),

@@ -41,7 +41,13 @@ define([
 						self._contentChanges.clear();
 					}
 				];
-			}
+			},
+			_inDomSetter: function(inDom) {
+				this._Setter('inDom', inDom);
+				this._appliedContent.forEach(function(cmp) {
+					cmp.set('inDom', inDom);
+				});
+			},
 		}
 	);
 });

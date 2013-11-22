@@ -28,6 +28,9 @@ define([
 			},
 
 			_layoutContent: function() {
+				if (! this.get('inDom')) {
+					return;
+				}
 				// v----rendering log----v
 				if (has('ksf-monitoring')) {
 					var layoutTimer = this._monitoring.layoutTimer = this._monitoring.name + " layouting";
@@ -168,7 +171,7 @@ define([
 				var self = this;
 				return [
 					OrderedContainerBase.prototype.startLiveRendering.apply(this),
-					this.getR('bounds').onValue(function() {
+					this.getEachR('inDom', 'bounds').onValue(function() {
 						self._layoutContent();
 					}),
 					// we subscribed to this same stream in the constructor

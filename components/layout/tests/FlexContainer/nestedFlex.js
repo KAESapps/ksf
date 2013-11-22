@@ -47,8 +47,9 @@ define([
 
 	console.group('insertion in dom');
 	console.time('insertion in dom');
-	document.body.appendChild(main.domNode);
 	main.startLiveRendering();
+	document.body.appendChild(main.domNode);
+	main.set('inDom', true);
 	console.timeEnd('insertion in dom');
 	console.groupEnd('insertion in dom');
 

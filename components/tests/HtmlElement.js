@@ -19,14 +19,14 @@ define([
 		},
 
 		"node properties not set immediately on DOM-node": function() {
-			div.set('innerHTML', "Test");
+			div.domAttrs.set('innerHTML', "Test");
 			assert.equal(domNode.innerHTML, "");
 			div.startLiveRendering();
 			assert.equal(domNode.innerHTML, "Test");
 		},
 		"node's attributes proxied": function() {
 			domNode.id = "test";
-			assert.equal(div.get('id'), "test");
+			assert.equal(div.domAttrs.get('id'), "test");
 		}
 	});
 });

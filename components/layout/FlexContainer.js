@@ -15,7 +15,6 @@ define([
 			this._style.set('base', 'FlexContainer');
 			if (has('ksf-monitoring')) {
 				this._monitoring = {
-					name: this.get('name') + ' (FlexContainer)'
 				};
 			}
 		}, {
@@ -31,13 +30,12 @@ define([
 				if (! this.get('inDom')) {
 					return;
 				}
-				// v----rendering log----v
+
 				if (has('ksf-monitoring')) {
-					var layoutTimer = this._monitoring.layoutTimer = this._monitoring.name + " layouting";
+					var layoutTimer = this._monitoring.layoutTimer = this._style.get('name') + ' (FlexContainer)' + " layouting";
 					console.groupCollapsed(layoutTimer);
 					console.time(layoutTimer);
 				}
-				// ^----rendering log----^
 
 				var self = this,
 					bounds = this.get('bounds'),
@@ -81,13 +79,11 @@ define([
 
 					if (!options || (!options.flex && !options.flexMax)) {
 
-						// v----rendering log----v
 						if (has('ksf-monitoring')) {
-							self._monitoring.childSizingTimer = child.get('name') + " sizing (not flex)";
+							self._monitoring.childSizingTimer = child._style.get('name') + " sizing (not flex)";
 							console.groupCollapsed(self._monitoring.childSizingTimer);
 							console.time(self._monitoring.childSizingTimer);
 						}
-						// ^----rendering log----^
 
 						if (vertical) {
 							child.set('bounds', {
@@ -101,12 +97,10 @@ define([
 							fixedDim += child.get('size').width;
 						}
 
-						// v----rendering log----v
 						if (has('ksf-monitoring')) {
 							console.timeEnd(self._monitoring.childSizingTimer);
 							console.groupEnd();
 						}
-						// ^----rendering log----^
 					}
 
 				});
@@ -118,13 +112,11 @@ define([
 						options = childAndOptions.options,
 						childBounds;
 
-					// v----rendering log----v
 					if (has('ksf-monitoring')) {
-						var timer = this._monitoring.childSizingTimer = child.get('name') + " sizing (flex)";
+						var timer = this._monitoring.childSizingTimer = child._style.get('name') + " sizing (flex)";
 						console.groupCollapsed(timer);
 						console.time(timer);
 					}
-					// ^----rendering log----^
 
 
 					if (vertical) {
@@ -149,22 +141,18 @@ define([
 					child.set('bounds', childBounds);
 
 
-					// v----rendering log----v
 					if (has('ksf-monitoring')) {
 						console.timeEnd(self._monitoring.childSizingTimer);
 						console.groupEnd();
 					}
-					// ^----rendering log----^
 
 
 				}.bind(this));
 
-				// v----rendering log----v
 				if (has('ksf-monitoring')) {
 					console.timeEnd(this._monitoring.layoutTimer);
 					console.groupEnd();
 				}
-				// ^----rendering log----^
 			},
 
 			startLiveRendering: function() {

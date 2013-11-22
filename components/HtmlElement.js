@@ -1,10 +1,12 @@
 define([
 	'compose',
+	'dojo/has',
 	'ksf/collections/ObservableObject',
 	'ksf/dom/WithCssClassStyle',
 	'ksf/dom/Sizeable'
 ], function(
 	compose,
+	has,
 	ObservableObject,
 	WithCssClassStyle,
 	Sizeable
@@ -95,18 +97,15 @@ define([
 			},
 
 			_applyAttrs: function() {
-				// v----rendering log----v
-				var timer = "apply attrs";
-				if (window.renderingLog) {
-					console.time(timer);
+				if (has('ksf-monitoring')) {
+					console.time("apply attrs");
 				}
-				// ^----rendering log----^
 
 				this._domProxy.applyAttrs();
 
-				// v----rendering log----v
-				console.timeEnd(timer);
-				// ^----rendering log----^
+				if (has('ksf-monitoring')) {
+					console.timeEnd("apply attrs");
+				}
 
 			},
 

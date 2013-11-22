@@ -1,16 +1,15 @@
 define([
-	'compose'
+	'compose',
+	'dojo/has',
 ], function(
-	compose
+	compose,
+	has
 ){
 	return compose({
 		_sizeGetter: function() {
-			// v----rendering log----v
-			var timer = "get computed size";
-			if (window.renderingLog) {
-				console.time(timer);
+			if (has('ksf-monitoring')) {
+				console.time("get computed size");
 			}
-			// ^----rendering log----^
 
 			var node = this.domNode;
 			var size = {
@@ -18,9 +17,10 @@ define([
 				width: node.offsetWidth
 			};
 
-			// v----rendering log----v
-			console.timeEnd(timer);
-			// ^----rendering log----^
+			if (has('ksf-monitoring')) {
+				console.timeEnd("get computed size");
+			}
+
 			return size;
 		},
 
@@ -29,12 +29,9 @@ define([
 		},
 
 		_applyBounds: function() {
-			// v----rendering log----v
-			var timer = "apply bounds";
-			if (window.renderingLog) {
-				console.time(timer);
+			if (has('ksf-monitoring')) {
+				console.time("apply bounds");
 			}
-			// ^----rendering log----^
 
 			var bounds = this.get('bounds');
 			if (!bounds) { return; }
@@ -50,9 +47,9 @@ define([
 			nodeStyle.maxHeight = heightMax && (heightMax + 'px');
 			nodeStyle.maxWidth = widthMax && (widthMax + 'px');
 
-			// v----rendering log----v
-			console.timeEnd(timer);
-			// ^----rendering log----^
+			if (has('ksf-monitoring')) {
+				console.timeEnd("apply bounds");
+			}
 
 		}
 	});

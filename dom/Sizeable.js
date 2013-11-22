@@ -5,11 +5,23 @@ define([
 ){
 	return compose({
 		_sizeGetter: function() {
+			// v----rendering log----v
+			var timer = "get computed size";
+			if (window.renderingLog) {
+				console.time(timer);
+			}
+			// ^----rendering log----^
+
 			var node = this.domNode;
-			return {
+			var size = {
 				height: node.offsetHeight,
 				width: node.offsetWidth
 			};
+
+			// v----rendering log----v
+			console.timeEnd(timer);
+			// ^----rendering log----^
+			return size;
 		},
 
 		_sizeDetector: function() {
@@ -17,6 +29,13 @@ define([
 		},
 
 		_applyBounds: function() {
+			// v----rendering log----v
+			var timer = "apply bounds";
+			if (window.renderingLog) {
+				console.time(timer);
+			}
+			// ^----rendering log----^
+
 			var bounds = this.get('bounds');
 			if (!bounds) { return; }
 
@@ -30,6 +49,11 @@ define([
 			nodeStyle.height = height && (height + 'px');
 			nodeStyle.maxHeight = heightMax && (heightMax + 'px');
 			nodeStyle.maxWidth = widthMax && (widthMax + 'px');
+
+			// v----rendering log----v
+			console.timeEnd(timer);
+			// ^----rendering log----^
+
 		}
 	});
 });

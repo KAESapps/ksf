@@ -76,14 +76,16 @@ define([
 					var child = childAndOptions.element,
 						options = childAndOptions.options;
 
-					// v----rendering log----v
-					if (has('ksf-monitoring')) {
-						self._monitoring.childSizingTimer = child.get('name') + " sizing (not flex)";
-						console.time(self._monitoring.childSizingTimer);
-					}
-					// ^----rendering log----^
-
 					if (!options || (!options.flex && !options.flexMax)) {
+
+						// v----rendering log----v
+						if (has('ksf-monitoring')) {
+							self._monitoring.childSizingTimer = child.get('name') + " sizing (not flex)";
+							console.groupCollapsed(self._monitoring.childSizingTimer);
+							console.time(self._monitoring.childSizingTimer);
+						}
+						// ^----rendering log----^
+
 						if (vertical) {
 							child.set('bounds', {
 								width: bounds && bounds.width && innerSize.width
@@ -95,13 +97,15 @@ define([
 							});
 							fixedDim += child.get('size').width;
 						}
+
+						// v----rendering log----v
+						if (has('ksf-monitoring')) {
+							console.timeEnd(self._monitoring.childSizingTimer);
+							console.groupEnd();
+						}
+						// ^----rendering log----^
 					}
 
-					// v----rendering log----v
-					if (has('ksf-monitoring')) {
-						console.timeEnd(self._monitoring.childSizingTimer);
-					}
-					// ^----rendering log----^
 				});
 
 				var flexDim = ((vertical ? innerSize.height : innerSize.width) - fixedDim) / flexChildren.length;
@@ -113,8 +117,9 @@ define([
 
 					// v----rendering log----v
 					if (has('ksf-monitoring')) {
-						this._monitoring.childSizingTimer = child.get('name') + " sizing (flex)";
-						console.time(self._monitoring.childSizingTimer);
+						var timer = this._monitoring.childSizingTimer = child.get('name') + " sizing (flex)";
+						console.groupCollapsed(timer);
+						console.time(timer);
 					}
 					// ^----rendering log----^
 
@@ -144,6 +149,7 @@ define([
 					// v----rendering log----v
 					if (has('ksf-monitoring')) {
 						console.timeEnd(self._monitoring.childSizingTimer);
+						console.groupEnd();
 					}
 					// ^----rendering log----^
 

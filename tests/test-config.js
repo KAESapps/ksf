@@ -15,7 +15,6 @@ define(['../require-config'], function() {
 			'ksf/base/tests/all',
 			'ksf/collections/tests/all',
 			'ksf/components/tests/all',
-			'ksf/dom/tests/all',
 			'ksf/model/demo/resources-manager-demo',
 		]
 	};

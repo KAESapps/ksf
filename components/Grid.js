@@ -1,41 +1,47 @@
 define([
 	'compose',
 	'ksf/dom/composite/Composite',
+	'ksf/collections/OrderableSet',
 	'./List',
 	'./ActiveList',
 	'./HtmlContainer',
-	'./HtmlContainerIncremental',
-	'ksf/dom/WithActive',
 	'./HtmlElement'
 ], function(
 	compose,
 	Composite,
+	OrderableSet,
 	List,
 	ActiveList,
 	HtmlContainer,
-	HtmlContainerIncremental,
-	WithActive,
 	HtmlElement
 ){
 	var ContainerWithActive = compose(
-		HtmlContainerIncremental,
-		WithActive
+		HtmlContainer, function() {
+			var self = this;
+
+			this.domNode.addEventListener('click', function(){
+				self.set("active", !self.get("active"));
+			});
+
+			this.getR('active').onValue(function(active) {
+				self.style.set('active', active ? 'active' : 'inactive');
+			});
+		}
 	);
 
 	return compose(
 		Composite,
 		function(args) {
 			var self = this;
-			args && this.setEach(args);
 
 			this._components.setEach({
 				head: new List({
-					container: new HtmlContainerIncremental('tr'),
+					container: new HtmlContainer('tr'),
 					factory: function(column) {
 						var head = column.head;
 						// if head is a domComponent
 						if (head && typeof head.get === 'function') {
-							return new HtmlContainer('th', {
+							return new HtmlContainer('th', {}, {
 								content: [head],
 							});
 						}
@@ -45,7 +51,7 @@ define([
 				}),
 				body: function() {
 					var body = new ActiveList({
-						container: new HtmlContainerIncremental('tbody'),
+						container: new HtmlContainer('tbody'),
 						factory: function(item){
 							var row = new List({
 								container: new ContainerWithActive('tr'),
@@ -53,7 +59,7 @@ define([
 									var content = column.body(item);
 									// if content is a domComponent
 									if (content && typeof content.get === 'function') {
-										return new HtmlContainer('td', {
+										return new HtmlContainer('td', {}, {
 											content: [content],
 										});
 									}
@@ -61,31 +67,45 @@ define([
 									return new HtmlElement('td', {textContent: content});
 								},
 							});
-							row.setR('content', body.getR('columns'));
+							row.content.updateContentR(body.columns.asChangesStream());
 							row._component.bind('active', row, 'active');
 							return row;
 						},
 					});
+					body.columns = new OrderableSet();
 					return body;
 				}(),
 			});
 
+			this.content = this._components.get('body').content;
+			this.columns = this._components.get('body').columns;
 			this.own([
-				this._components.get('head').setR('content', self.getR('columns')),
-
-				this._components.get('body').setR('content', self.getR('content')),
-				this._components.get('body').setR('columns', self.getR('columns')),
+				this._components.get('head').content.updateContentR(this.columns.asChangesStream()),
 				this._components.get('body').bind('active', self, 'active'),
 			]);
-
+			
+			this._root = new HtmlContainer('table');
 			this._layout.set('config', [
-				new HtmlContainer('table'), [[
-					new HtmlContainer('thead'), [
-						'head',
-					]],
-					'body',
-				]
+				[new HtmlContainer('thead'), [
+					'head',
+				]],
+				'body',
 			]);
+
+			args && this.setEach(args);
+		}, {
+			_contentSetter: function(content) {
+				this.content.setContent(content || []);
+			},
+			_contentGetter: function() {
+				return this.content;
+			},
+			_columnsSetter: function(columns) {
+				this.columns.setContent(columns || []);
+			},
+			_columnsGetter: function() {
+				return this.columns;
+			}
 		}
 	);
 });

@@ -19,26 +19,25 @@ define([
 	var showButton = new HtmlElement('button', {
 		textContent: "Show panel",
 	});
-	var layer = new HtmlContainer('div');
-	layer.content.add(showButton);
+	var layer = new HtmlContainer('div', {}, {
+		content: [showButton]
+	});
 	layer.style.set('base', 'layer');
 
 
 	var hideButton = new HtmlElement('button', {
 		textContent: "Hide panel",
 	});
-	var panel = new HtmlContainer('div', {
-		bounds: { height: 200, width: 200 }
+	var panel = new HtmlContainer('div', {}, {
+		bounds: { height: 200, width: 200 },
+		content: [hideButton]
 	});
-	panel.content.add(hideButton);
 	panel.style.set('base', 'panel');
 
 	var container2 = new LayerContainer({
-		bounds: { height: 300, width: 500 }
+		bounds: { height: 300, width: 500 },
+		content: [layer]
 	});
-	container2.content.setContent([
-		layer
-	]);
 
 	showButton.on('click', function() {
 		container2.content.add([panel, { verticalAlign: 'bottom', horizontalAlign: 'right' }]);

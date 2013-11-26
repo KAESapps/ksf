@@ -28,19 +28,17 @@ define([
 		function(args) {
 			this.set('label', args && args.label);
 			this._components.setEach({
-				container: new HtmlContainer('div'),
 				selector: new Checkbox(),
 				labelViewer: new HtmlElement('span'),
 			});
-			this._layout.set('config',
-				['container', [
-					'selector',
-					'labelViewer',
-				]]
-			);
+			this._root = new HtmlContainer('div');
+			this._layout.set('config', [
+				'selector',
+				'labelViewer',
+			]);
 
 			this.own(
-				this._components.get('labelViewer').setR('textContent', this.getR('label')),
+				this._components.get('labelViewer').domAttrs.setR('textContent', this.getR('label')),
 				this._components.get('selector').bind('value', this, 'selected')
 			);
 		}, {
@@ -85,7 +83,7 @@ define([
 			sl.getChangesStream('selection').onValue(selectionObserver);
 			selectionChangesCount = 0;
 
-			document.body.appendChild(sl.get('domNode'));
+			document.body.appendChild(sl.domNode);
 			sl.startLiveRendering();
 			assert.equal(selectionChangesCount, 0);
 			assertContentEqual([]);
@@ -125,7 +123,7 @@ define([
 			sl.getChangesStream('selection').onValue(selectionObserver);
 			selectionChangesCount = 0;
 
-			document.body.appendChild(sl.get('domNode'));
+			document.body.appendChild(sl.domNode);
 			sl.startLiveRendering();
 			assert.equal(selectionChangesCount, 0);
 			assertContentEqual(['syv', 'aur', 'ant']);
@@ -159,7 +157,7 @@ define([
 			sl.getChangesStream('selection').onValue(selectionObserver);
 			selectionChangesCount = 0;
 
-			document.body.appendChild(sl.get('domNode'));
+			document.body.appendChild(sl.domNode);
 			sl.startLiveRendering();
 			assert.equal(selectionChangesCount, 0);
 			assertContentEqual([]);
@@ -190,7 +188,7 @@ define([
 			sl.getChangesStream('selection').onValue(selectionObserver);
 			selectionChangesCount = 0;
 
-			document.body.appendChild(sl.get('domNode'));
+			document.body.appendChild(sl.domNode);
 			sl.startLiveRendering();
 			assert.equal(selectionChangesCount, 0);
 			assertContentEqual(['syv', 'aur', 'ant']);
@@ -216,7 +214,7 @@ define([
 		sl.getChangesStream('selection').onValue(selectionObserver);
 		selectionChangesCount = 0;
 
-		document.body.appendChild(sl.get('domNode'));
+		document.body.appendChild(sl.domNode);
 		sl.startLiveRendering();
 	};
 

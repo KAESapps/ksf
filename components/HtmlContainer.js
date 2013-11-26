@@ -10,8 +10,6 @@ define([
 	OrderableSet
 ){
 	return compose(
-		HtmlElement,
-		WithOrderedContentIncremental,
 		function() {
 			this.content = this._content = new OrderableSet();
 			this._contentChanges = new OrderableSet();
@@ -19,7 +17,10 @@ define([
 			this._content.asStream('changes').onValue(function(changes) {
 				this._contentChanges.add(changes);
 			}.bind(this));
-		}, {
+		},
+		HtmlElement,
+		WithOrderedContentIncremental,
+		{
 			startLiveRendering: function() {
 				var self = this,
 					// TODO: liveCancelers could be a simple Set, but there is no updateContentMapR method on a Set for the moment.
@@ -47,6 +48,12 @@ define([
 				this._appliedContent.forEach(function(cmp) {
 					cmp.set('inDom', inDom);
 				});
+			},
+			_contentSetter: function(content) {
+				this.content.setContent(content || []);
+			},
+			_contentGetter: function() {
+				return this.content;
 			},
 		}
 	);

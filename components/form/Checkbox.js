@@ -11,7 +11,7 @@ define([
 		CompositeMono,
 		function () {
 			this._component = new HtmlElementWithChanged('input', {type: 'checkbox'});
-			this._component.bind('checked', this, 'value');
+			this._component.domAttrs.bind('checked', this, 'value');
 		}
 	);
 });

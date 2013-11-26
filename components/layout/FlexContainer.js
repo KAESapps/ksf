@@ -12,7 +12,7 @@ define([
 	return compose(
 		OrderedContainerBase,
 		function(args) {
-			this._style.set('base', 'FlexContainer');
+			this.style.set('base', 'FlexContainer');
 			if (has('ksf-monitoring')) {
 				this._monitoring = {
 				};
@@ -32,7 +32,7 @@ define([
 				}
 
 				if (has('ksf-monitoring')) {
-					var layoutTimer = this._monitoring.layoutTimer = this._style.get('name') + ' (FlexContainer)' + " layouting";
+					var layoutTimer = this._monitoring.layoutTimer = this.style.get('name') + ' (FlexContainer)' + " layouting";
 					console.groupCollapsed(layoutTimer);
 					console.time(layoutTimer);
 				}
@@ -80,7 +80,7 @@ define([
 					if (!options || (!options.flex && !options.flexMax)) {
 
 						if (has('ksf-monitoring')) {
-							self._monitoring.childSizingTimer = child._style.get('name') + " sizing (not flex)";
+							self._monitoring.childSizingTimer = child.style.get('name') + " sizing (not flex)";
 							console.groupCollapsed(self._monitoring.childSizingTimer);
 							console.time(self._monitoring.childSizingTimer);
 						}
@@ -113,7 +113,7 @@ define([
 						childBounds;
 
 					if (has('ksf-monitoring')) {
-						var timer = this._monitoring.childSizingTimer = child._style.get('name') + " sizing (flex)";
+						var timer = this._monitoring.childSizingTimer = child.style.get('name') + " sizing (flex)";
 						console.groupCollapsed(timer);
 						console.time(timer);
 					}

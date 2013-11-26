@@ -34,7 +34,7 @@ define([
 	console.timeEnd("grid creation");
 
 	console.time("grid dom insertion");
-	document.body.appendChild(grid.get('domNode'));
+	document.body.appendChild(grid.domNode);
 	grid.startLiveRendering();
 	console.timeEnd("grid dom insertion");
 
@@ -70,7 +70,7 @@ define([
 	grid.set('active', ant);
 
 	// add column
-	columns.add({
+	grid.columns.add({
 		head: "Genre",
 		body: function(item) {
 			return item.get('genre');
@@ -78,7 +78,7 @@ define([
 	});
 
 	// add row
-	collection.add(leo);
+	grid.content.add(leo);
 
 	// sort collection
 	// collection.reverse();

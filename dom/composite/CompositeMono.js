@@ -15,54 +15,62 @@ define([
 	// on peut ainsi manipuler ce composant selon l'API KSF au lieu de manipuler directement un domNode natif
 	// par contre,
 
-	var CompositeMono = compose(
-		ObservableObject,
-		Destroyable,
-		{
-			_sizeGetter: function() {
-				return this._component.get('size');
-			},
+	var generator = function(args) {
+		var MAIN_COMPONENT = args.mainComponentPropName;
 
-			_applyBounds: function() {
-				this._component.set('bounds', this.get('bounds'));
-			},
+		var CompositeMono = compose(
+			ObservableObject,
+			Destroyable,
+			{
+				_sizeGetter: function() {
+					return this[MAIN_COMPONENT].get('size');
+				},
 
-			_inDomSetter: function(inDom) {
-				this._component.set('inDom', inDom);
-			},
-			_inDomGetter: function() {
-				return this._component.get('inDom');
-			},
+				_applyBounds: function() {
+					this[MAIN_COMPONENT].set('bounds', this.get('bounds'));
+				},
 
-			startLiveRendering: function() {
-				return [
-					this._component.startLiveRendering(),
-					this.getR('bounds').onValue(this._applyBounds.bind(this))
-				];
-			},
+				_inDomSetter: function(inDom) {
+					this[MAIN_COMPONENT].set('inDom', inDom);
+				},
+				_inDomGetter: function() {
+					return this[MAIN_COMPONENT].get('inDom');
+				},
 
-			destroy: function(){
-				Destroyable.prototype.destroy.call(this);
-				destroy(this._component);
+				startLiveRendering: function() {
+					return [
+						this[MAIN_COMPONENT].startLiveRendering(),
+						this.getR('bounds').onValue(this._applyBounds.bind(this))
+					];
+				},
+
+				destroy: function(){
+					Destroyable.prototype.destroy.call(this);
+					destroy(this[MAIN_COMPONENT]);
+				}
 			}
-		}
-	);
+		);
 
-	Object.defineProperty(CompositeMono.prototype, 'domNode', {
-		get: function() {
-			return this._component.domNode;
-		}
-	});
-	Object.defineProperty(CompositeMono.prototype, '_style', {
-		get: function() {
-			return this._component.style;
-		}
-	});
-	Object.defineProperty(CompositeMono.prototype, 'style', {
-		get: function() {
-			return this._component.style;
-		}
-	});
+		Object.defineProperty(CompositeMono.prototype, 'domNode', {
+			get: function() {
+				return this[MAIN_COMPONENT].domNode;
+			}
+		});
+		Object.defineProperty(CompositeMono.prototype, '_style', {
+			get: function() {
+				return this[MAIN_COMPONENT].style;
+			}
+		});
+		Object.defineProperty(CompositeMono.prototype, 'style', {
+			get: function() {
+				return this[MAIN_COMPONENT].style;
+			}
+		});
+		return CompositeMono;
+	};
+
+	var CompositeMono = generator({ mainComponentPropName: '_component' });
+	CompositeMono.custom = generator;
 
 	return CompositeMono;
 });

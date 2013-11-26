@@ -2,16 +2,12 @@ define([
 	'intern!object',	'intern/chai!assert',
 	"../ActiveList",
 	"../HtmlElement",
-	'../HtmlContainerIncremental',
-	"dojo/dom-class",
-	"ksf/collections/OrderableSet",
+	'../HtmlContainer'
 ], function(
 	registerSuite, assert,
 	ActiveList,
 	HtmlElement,
-	HtmlContainerIncremental,
-	domClass,
-	OrderableSet
+	HtmlContainer
 ){
 	// create css rules
 	var css = document.createElement("style");
@@ -23,12 +19,12 @@ define([
 
 
 	var list = window.list = new ActiveList({
-		container: new HtmlContainerIncremental('ul'),
+		container: new HtmlContainer('ul'),
 		factory: function (item) {
 			var li = new HtmlElement("li", {draggable: true});
-			li.set("innerHTML", item.name);
+			li.domAttrs.set("innerHTML", item.name);
 			li.style.set('movable', 'movable');
-			li.get("domNode").addEventListener("click", function(){
+			li.domNode.addEventListener("click", function(){
 				li.set("active", !li.get("active"));
 			});
 			li.whenChanged('active', function(b) {
@@ -38,30 +34,29 @@ define([
 					li.style.remove('active');
 				}
 			});
-			li.get("domNode").addEventListener('dragstart', function(ev) {
-				ev.dataTransfer.setData('text/plain', list.get('content').indexOf(item));
+			li.domNode.addEventListener('dragstart', function(ev) {
+				ev.dataTransfer.setData('text/plain', list.content.indexOf(item));
 			});
-			li.get("domNode").addEventListener('dragover', function(ev) {
+			li.domNode.addEventListener('dragover', function(ev) {
 				ev.preventDefault();
 			});
-			li.get("domNode").addEventListener('drop', function(ev) {
+			li.domNode.addEventListener('drop', function(ev) {
 				ev.preventDefault();
 				var fromIndex = parseInt(ev.dataTransfer.getData('text/plain'), 10);
-				var items = list.get('content');
+				var items = list.content;
 				items.move(fromIndex, items.indexOf(item));
 			});
 			return li;
 		},
 	});
 
-	document.body.appendChild(list.get("domNode"));
+	document.body.appendChild(list.domNode);
 	list.startLiveRendering();
 
 	var syv = window.syv = {name: "Sylvain", age: 31, sexe: "M"};
 	var aur = window.aur = {name: "Aurélie", age: 30, sexe:"F"};
 	var ant = window.ant = {name: "Antonin", age: 2, sexe:"M"};
 	var leo = window.leo = {name: "Léonie", age: 1, sexe:"F"};
-	var collection = window.collection = new OrderableSet([syv, aur, ant]);
 
 
 	list.getR('active').onValue(function(value) {
@@ -70,17 +65,17 @@ define([
 	list.set("active", aur);
 
 	console.time('set collection');
-	list.set("content", collection);
+	list.content.setContent([syv, aur, ant]);
 	console.timeEnd('set collection');
 
 	setTimeout(function() {
 		console.time('set OrderableSet1');
-		list.set("content", new OrderableSet([leo, ant]));
-		console.log(list.get('domNode').offsetHeight);
+		list.content.setContent([leo, ant]);
+		console.log(list.domNode.offsetHeight);
 		console.timeEnd('set OrderableSet1');
 		console.time('set OrderableSet2');
-		list.set("content", new OrderableSet([leo, ant, aur]));
-		console.log(list.get('domNode').offsetHeight);
+		list.content.setContent([leo, ant, aur]);
+		console.log(list.domNode.offsetHeight);
 		console.timeEnd('set OrderableSet2');
 	}, 1000);
 

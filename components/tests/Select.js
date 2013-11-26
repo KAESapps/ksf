@@ -29,23 +29,25 @@ define([
 			observedSelected = undefined;
 			collection = window.collection = new OrderableSet(['syv', 'aur', 'ant']);
 			s = window.s = new Select();
+			s.startLiveRendering();
 			s.whenChanged('value', selectedObserver);
-			document.body.appendChild(s.get('domNode'));
+			document.body.appendChild(s.domNode);
+			s.set('inDom', true);
 		},
 		"no options": function(){
 			assert.equal(s.get('value'), undefined);
-			assert.equal(s.get('domNode').value, "");
-			assert.equal(s.get('domNode').selectedIndex, -1);
-			assert.equal(s.get('domNode').children.length, 0);
+			assert.equal(s.domNode.value, "");
+			assert.equal(s.domNode.selectedIndex, -1);
+			assert.equal(s.domNode.children.length, 0);
 			assert.equal(selectedObserverCalledCount, 1);
 			assert.equal(observedSelected, undefined);
 		},
 		"set options": function() {
 			s.set('options', collection);
 			assert.equal(s.get('value'), undefined);
-			assert.equal(s.get('domNode').value, "");
-			assert.equal(s.get('domNode').selectedIndex, -1);
-			assert.equal(s.get('domNode').children.length, 3);
+			assert.equal(s.domNode.value, "");
+			assert.equal(s.domNode.selectedIndex, -1);
+			assert.equal(s.domNode.children.length, 3);
 			assert.equal(selectedObserverCalledCount, 1);
 			assert.equal(observedSelected, undefined);
 		},
@@ -53,74 +55,74 @@ define([
 			s.set('options', collection);
 			s.set('value', 'aur');
 			assert.equal(s.get('value'), 'aur');
-			assert.equal(s.get('domNode').value, "aur");
-			assert.equal(s.get('domNode').selectedIndex, 1);
-			assert.equal(s.get('domNode').children.length, 3);
+			assert.equal(s.domNode.value, "aur");
+			assert.equal(s.domNode.selectedIndex, 1);
+			assert.equal(s.domNode.children.length, 3);
 			assert.equal(selectedObserverCalledCount, 2);
 			assert.equal(observedSelected, 'aur');
 		},
 		"select an item before options": function() {
 			s.set('value', 'aur');
 			assert.equal(s.get('value'), 'aur');
-			assert.equal(s.get('domNode').value, "");
-			assert.equal(s.get('domNode').selectedIndex, -1);
-			assert.equal(s.get('domNode').children.length, 0);
+			assert.equal(s.domNode.value, "");
+			assert.equal(s.domNode.selectedIndex, -1);
+			assert.equal(s.domNode.children.length, 0);
 			assert.equal(selectedObserverCalledCount, 2);
 			assert.equal(observedSelected, 'aur');
 
 			s.set('options', collection);
 			assert.equal(s.get('value'), 'aur');
-			assert.equal(s.get('domNode').value, "aur");
-			assert.equal(s.get('domNode').selectedIndex, 1);
-			assert.equal(s.get('domNode').children.length, 3);
+			assert.equal(s.domNode.value, "aur");
+			assert.equal(s.domNode.selectedIndex, 1);
+			assert.equal(s.domNode.children.length, 3);
 			assert.equal(selectedObserverCalledCount, 2); // no change
 			assert.equal(observedSelected, 'aur');
 		},
 		"user selected item": function() {
 			s.set('options', collection);
 			// simulate a user action
-			s.get('domNode').selectedIndex = 1;
-			on.emit(s.get('domNode'), "change", {
+			s.domNode.selectedIndex = 1;
+			on.emit(s.domNode, "change", {
 				bubbles: true,
 				cancelable: true
 			});
 			assert.equal(s.get('value'), 'aur');
-			assert.equal(s.get('domNode').value, "aur");
-			assert.equal(s.get('domNode').selectedIndex, 1);
-			assert.equal(s.get('domNode').children.length, 3);
+			assert.equal(s.domNode.value, "aur");
+			assert.equal(s.domNode.selectedIndex, 1);
+			assert.equal(s.domNode.children.length, 3);
 			assert.equal(selectedObserverCalledCount, 2);
 			assert.equal(observedSelected, 'aur');
 		},
 		"remove an item before the selected item": function() {
 			s.set('options', collection);
 			s.set('value', 'aur');
-			collection.remove(0);
+			s.options.remove(0);
 			assert.equal(s.get('value'), 'aur');
-			assert.equal(s.get('domNode').value, "aur");
-			assert.equal(s.get('domNode').selectedIndex, 0);
-			assert.equal(s.get('domNode').children.length, 2);
+			assert.equal(s.domNode.value, "aur");
+			assert.equal(s.domNode.selectedIndex, 0);
+			assert.equal(s.domNode.children.length, 2);
 			assert.equal(selectedObserverCalledCount, 2); // no change
 			assert.equal(observedSelected, 'aur');
 		},
 		"remove an item after the selected item": function() {
 			s.set('options', collection);
 			s.set('value', 'aur');
-			collection.remove(2);
+			s.options.remove(2);
 			assert.equal(s.get('value'), 'aur');
-			assert.equal(s.get('domNode').value, "aur");
-			assert.equal(s.get('domNode').selectedIndex, 1);
-			assert.equal(s.get('domNode').children.length, 2);
+			assert.equal(s.domNode.value, "aur");
+			assert.equal(s.domNode.selectedIndex, 1);
+			assert.equal(s.domNode.children.length, 2);
 			assert.equal(selectedObserverCalledCount, 2); // no change
 			assert.equal(observedSelected, 'aur');
 		},
 		"remove the selected item": function() {
 			s.set('options', collection);
 			s.set('value', 'aur');
-			collection.remove(1);
+			s.options.remove(1);
 			assert.equal(s.get('value'), undefined);
-			assert.equal(s.get('domNode').value, "");
-			assert.equal(s.get('domNode').selectedIndex, -1);
-			assert.equal(s.get('domNode').children.length, 2);
+			assert.equal(s.domNode.value, "");
+			assert.equal(s.domNode.selectedIndex, -1);
+			assert.equal(s.domNode.children.length, 2);
 			assert.equal(selectedObserverCalledCount, 3);
 			assert.equal(observedSelected, undefined);
 		},
@@ -128,9 +130,9 @@ define([
 			s.set('options', collection);
 			s.set('value', 'bidon');
 			assert.equal(s.get('value'), 'bidon');
-			assert.equal(s.get('domNode').value, "");
-			assert.equal(s.get('domNode').selectedIndex, -1);
-			assert.equal(s.get('domNode').children.length, 3);
+			assert.equal(s.domNode.value, "");
+			assert.equal(s.domNode.selectedIndex, -1);
+			assert.equal(s.domNode.children.length, 3);
 			assert.equal(selectedObserverCalledCount, 2);
 			assert.equal(observedSelected, 'bidon');
 		},
@@ -139,9 +141,9 @@ define([
 			var otherCollection = new OrderableSet(["syv", "aur", "ant", "leo"]);
 			s.set('options', otherCollection);
 			assert.equal(s.get('value'), undefined);
-			assert.equal(s.get('domNode').value, "");
-			assert.equal(s.get('domNode').selectedIndex, -1);
-			assert.equal(s.get('domNode').children.length, 4);
+			assert.equal(s.domNode.value, "");
+			assert.equal(s.domNode.selectedIndex, -1);
+			assert.equal(s.domNode.children.length, 4);
 			assert.equal(selectedObserverCalledCount, 1);
 			assert.equal(observedSelected, undefined);
 		},
@@ -152,9 +154,9 @@ define([
 			var otherCollection = new OrderableSet(["aur", "ant", "leo"]);
 			s.set('options', otherCollection);
 			assert.equal(s.get('value'), "aur");
-			assert.equal(s.get('domNode').value, "aur");
-			assert.equal(s.get('domNode').selectedIndex, 0);
-			assert.equal(s.get('domNode').children.length, 3);
+			assert.equal(s.domNode.value, "aur");
+			assert.equal(s.domNode.selectedIndex, 0);
+			assert.equal(s.domNode.children.length, 3);
 			assert.equal(selectedObserverCalledCount, 2);
 			assert.equal(observedSelected, "aur");
 		},
@@ -165,9 +167,9 @@ define([
 			var otherCollection = new OrderableSet(["aur", "ant", "leo"]);
 			s.set('options', otherCollection);
 			assert.equal(s.get('value'), "leo");
-			assert.equal(s.get('domNode').value, "leo");
-			assert.equal(s.get('domNode').selectedIndex, 2);
-			assert.equal(s.get('domNode').children.length, 3);
+			assert.equal(s.domNode.value, "leo");
+			assert.equal(s.domNode.selectedIndex, 2);
+			assert.equal(s.domNode.children.length, 3);
 			assert.equal(selectedObserverCalledCount, 2);
 			assert.equal(observedSelected, "leo");
 		},
@@ -187,23 +189,24 @@ define([
 			s = window.s = new Select({
 				labelProp: 'name',
 			});
-			document.body.appendChild(s.get('domNode'));
+			s.startLiveRendering();
+			document.body.appendChild(s.domNode);
 			s.whenChanged('value', selectedObserver);
 		},
 		"no options": function(){
 			assert.equal(s.get('value'), undefined);
-			assert.equal(s.get('domNode').value, "");
-			assert.equal(s.get('domNode').selectedIndex, -1);
-			assert.equal(s.get('domNode').children.length, 0);
+			assert.equal(s.domNode.value, "");
+			assert.equal(s.domNode.selectedIndex, -1);
+			assert.equal(s.domNode.children.length, 0);
 			assert.equal(selectedObserverCalledCount, 1);
 			assert.equal(observedSelected, undefined);
 		},
 		"set options": function() {
 			s.set('options', collection);
 			assert.equal(s.get('value'), undefined);
-			assert.equal(s.get('domNode').value, "");
-			assert.equal(s.get('domNode').selectedIndex, -1);
-			assert.equal(s.get('domNode').children.length, 3);
+			assert.equal(s.domNode.value, "");
+			assert.equal(s.domNode.selectedIndex, -1);
+			assert.equal(s.domNode.children.length, 3);
 			assert.equal(selectedObserverCalledCount, 1);
 			assert.equal(observedSelected, undefined);
 		},
@@ -211,74 +214,74 @@ define([
 			s.set('options', collection);
 			s.set('value', aur);
 			assert.equal(s.get('value'), aur);
-			assert.equal(s.get('domNode').value, "Aurélie");
-			assert.equal(s.get('domNode').selectedIndex, 1);
-			assert.equal(s.get('domNode').children.length, 3);
+			assert.equal(s.domNode.value, "Aurélie");
+			assert.equal(s.domNode.selectedIndex, 1);
+			assert.equal(s.domNode.children.length, 3);
 			assert.equal(selectedObserverCalledCount, 2);
 			assert.equal(observedSelected, aur);
 		},
 		"select an item before options": function() {
 			s.set('value', aur);
 			assert.equal(s.get('value'), aur);
-			assert.equal(s.get('domNode').value, "");
-			assert.equal(s.get('domNode').selectedIndex, -1);
-			assert.equal(s.get('domNode').children.length, 0);
+			assert.equal(s.domNode.value, "");
+			assert.equal(s.domNode.selectedIndex, -1);
+			assert.equal(s.domNode.children.length, 0);
 			assert.equal(selectedObserverCalledCount, 2);
 			assert.equal(observedSelected, aur);
 
 			s.set('options', collection);
 			assert.equal(s.get('value'), aur);
-			assert.equal(s.get('domNode').value, "Aurélie");
-			assert.equal(s.get('domNode').selectedIndex, 1);
-			assert.equal(s.get('domNode').children.length, 3);
+			assert.equal(s.domNode.value, "Aurélie");
+			assert.equal(s.domNode.selectedIndex, 1);
+			assert.equal(s.domNode.children.length, 3);
 			assert.equal(selectedObserverCalledCount, 2); // no change
 			assert.equal(observedSelected, aur);
 		},
 		"user selected item": function() {
 			s.set('options', collection);
 			// simulate a user action
-			s.get('domNode').selectedIndex = 1;
-			on.emit(s.get('domNode'), "change", {
+			s.domNode.selectedIndex = 1;
+			on.emit(s.domNode, "change", {
 				bubbles: true,
 				cancelable: true
 			});
 			assert.equal(s.get('value'), aur);
-			assert.equal(s.get('domNode').value, "Aurélie");
-			assert.equal(s.get('domNode').selectedIndex, 1);
-			assert.equal(s.get('domNode').children.length, 3);
+			assert.equal(s.domNode.value, "Aurélie");
+			assert.equal(s.domNode.selectedIndex, 1);
+			assert.equal(s.domNode.children.length, 3);
 			assert.equal(selectedObserverCalledCount, 2);
 			assert.equal(observedSelected, aur);
 		},
 		"remove an item before the selected item": function() {
 			s.set('options', collection);
 			s.set('value', aur);
-			collection.remove(0);
+			s.options.remove(0);
 			assert.equal(s.get('value'), aur);
-			assert.equal(s.get('domNode').value, "Aurélie");
-			assert.equal(s.get('domNode').selectedIndex, 0);
-			assert.equal(s.get('domNode').children.length, 2);
+			assert.equal(s.domNode.value, "Aurélie");
+			assert.equal(s.domNode.selectedIndex, 0);
+			assert.equal(s.domNode.children.length, 2);
 			assert.equal(selectedObserverCalledCount, 2); // no change
 			assert.equal(observedSelected, aur);
 		},
 		"remove an item after the selected item": function() {
 			s.set('options', collection);
 			s.set('value', aur);
-			collection.remove(2);
+			s.options.remove(2);
 			assert.equal(s.get('value'), aur);
-			assert.equal(s.get('domNode').value, "Aurélie");
-			assert.equal(s.get('domNode').selectedIndex, 1);
-			assert.equal(s.get('domNode').children.length, 2);
+			assert.equal(s.domNode.value, "Aurélie");
+			assert.equal(s.domNode.selectedIndex, 1);
+			assert.equal(s.domNode.children.length, 2);
 			assert.equal(selectedObserverCalledCount, 2); // no change
 			assert.equal(observedSelected, aur);
 		},
 		"remove the selected item": function() {
 			s.set('options', collection);
 			s.set('value', aur);
-			collection.remove(1);
+			s.options.remove(1);
 			assert.equal(s.get('value'), undefined);
-			assert.equal(s.get('domNode').value, "");
-			assert.equal(s.get('domNode').selectedIndex, -1);
-			assert.equal(s.get('domNode').children.length, 2);
+			assert.equal(s.domNode.value, "");
+			assert.equal(s.domNode.selectedIndex, -1);
+			assert.equal(s.domNode.children.length, 2);
 			assert.equal(selectedObserverCalledCount, 3);
 			assert.equal(observedSelected, undefined);
 		},
@@ -286,9 +289,9 @@ define([
 			s.set('options', collection);
 			s.set('value', toto);
 			assert.equal(s.get('value'), toto);
-			assert.equal(s.get('domNode').value, "");
-			assert.equal(s.get('domNode').selectedIndex, -1);
-			assert.equal(s.get('domNode').children.length, 3);
+			assert.equal(s.domNode.value, "");
+			assert.equal(s.domNode.selectedIndex, -1);
+			assert.equal(s.domNode.children.length, 3);
 			assert.equal(selectedObserverCalledCount, 2);
 			assert.equal(observedSelected, toto);
 		},
@@ -297,9 +300,9 @@ define([
 			var otherCollection = new OrderableSet([syv, aur, ant, leo]);
 			s.set('options', otherCollection);
 			assert.equal(s.get('value'), undefined);
-			assert.equal(s.get('domNode').value, "");
-			assert.equal(s.get('domNode').selectedIndex, -1);
-			assert.equal(s.get('domNode').children.length, 4);
+			assert.equal(s.domNode.value, "");
+			assert.equal(s.domNode.selectedIndex, -1);
+			assert.equal(s.domNode.children.length, 4);
 			assert.equal(selectedObserverCalledCount, 1);
 			assert.equal(observedSelected, undefined);
 		},
@@ -309,9 +312,9 @@ define([
 			var otherCollection = new OrderableSet([aur, ant, leo]);
 			s.set('options', otherCollection);
 			assert.equal(s.get('value'), aur);
-			assert.equal(s.get('domNode').value, "Aurélie");
-			assert.equal(s.get('domNode').selectedIndex, 0);
-			assert.equal(s.get('domNode').children.length, 3);
+			assert.equal(s.domNode.value, "Aurélie");
+			assert.equal(s.domNode.selectedIndex, 0);
+			assert.equal(s.domNode.children.length, 3);
 			assert.equal(selectedObserverCalledCount, 2);
 			assert.equal(observedSelected, aur);
 		},
@@ -320,39 +323,39 @@ define([
 			s.set('value', aur);
 			ant.set('name', "Antonin Vuilliot");
 			assert.equal(s.get('value'), aur);
-			assert.equal(s.get('domNode').value, "Aurélie");
-			assert.equal(s.get('domNode').selectedIndex, 1);
-			assert.equal(s.get('domNode').children.length, 3);
+			assert.equal(s.domNode.value, "Aurélie");
+			assert.equal(s.domNode.selectedIndex, 1);
+			assert.equal(s.domNode.children.length, 3);
 			assert.equal(selectedObserverCalledCount, 2);
 			assert.equal(observedSelected, aur);
-			assert.equal(s.get('domNode').children[2].text, "Antonin Vuilliot");
+			assert.equal(s.domNode.children[2].text, "Antonin Vuilliot");
 		},
 		"change label of selected item": function() {
 			s.set('options', collection);
 			s.set('value', ant);
 			ant.set('name', "Antonin Vuilliot");
 			assert.equal(s.get('value'), ant);
-			assert.equal(s.get('domNode').value, "Antonin Vuilliot");
-			assert.equal(s.get('domNode').selectedIndex, 2);
-			assert.equal(s.get('domNode').children.length, 3);
+			assert.equal(s.domNode.value, "Antonin Vuilliot");
+			assert.equal(s.domNode.selectedIndex, 2);
+			assert.equal(s.domNode.children.length, 3);
 			assert.equal(selectedObserverCalledCount, 2);
 			assert.equal(observedSelected, ant);
 		},
 		"stop observing item removed from collection": function() {
 			s.set('options', collection);
-			var antOption = s.get('domNode').children[2];
-			collection.remove(2);
+			var antOption = s.domNode.children[2];
+			s.options.remove(2);
 			ant.set('name', "Antonin Vuilliot");
 			assert.equal(antOption.text, "Antonin");
 		},
 		"stop observing items after destroy": function() {
 			s.set('options', collection);
-			var antOption = s.get('domNode').children[2];
+			var antOption = s.domNode.children[2];
 			s.destroy();
 			ant.set('name', "Antonin Vuilliot");
 			assert.equal(antOption.text, "Antonin");
-			collection.remove(0);
-			assert.equal(s.get('domNode').children.length, 3);
+			s.options.remove(0);
+			assert.equal(s.domNode.children.length, 3);
 		},
 	});
 	registerSuite({
@@ -374,11 +377,13 @@ define([
 				value: aur,
 			});
 			s.whenChanged('value', selectedObserver);
-			document.body.appendChild(s.get('domNode'));
+			s.startLiveRendering();
+			document.body.appendChild(s.domNode);
+			s.set('inDom', true);
 			assert.equal(s.get('value'), aur);
-			assert.equal(s.get('domNode').value, "Aurélie");
-			assert.equal(s.get('domNode').selectedIndex, 1);
-			assert.equal(s.get('domNode').children.length, 3);
+			assert.equal(s.domNode.value, "Aurélie");
+			assert.equal(s.domNode.selectedIndex, 1);
+			assert.equal(s.domNode.children.length, 3);
 			assert.equal(selectedObserverCalledCount, 1);
 			assert.equal(observedSelected, aur);
 		},
@@ -388,12 +393,13 @@ define([
 				options: collection,
 			});
 			s.whenChanged('value', selectedObserver);
-			document.body.appendChild(s.get('domNode'));
-			s.startLiveRendering(); // needed for chrome
+			s.startLiveRendering();
+			document.body.appendChild(s.domNode);
+			s.set('inDom', true); // needed for chrome
 			assert.equal(s.get('value'), undefined);
-			assert.equal(s.get('domNode').value, "");
-			assert.equal(s.get('domNode').selectedIndex, -1);
-			assert.equal(s.get('domNode').children.length, 3);
+			assert.equal(s.domNode.value, "");
+			assert.equal(s.domNode.selectedIndex, -1);
+			assert.equal(s.domNode.children.length, 3);
 			assert.equal(selectedObserverCalledCount, 1);
 			assert.equal(observedSelected, undefined);
 		},

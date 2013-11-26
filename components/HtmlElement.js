@@ -75,7 +75,7 @@ define([
 						this.getR('bounds').onValue(function() {
 							self._applyBounds();
 						}),
-						this._style.asReactive().onValue(function() {
+						this.style.asReactive().onValue(function() {
 							self._applyStyle();
 						}),
 						function() {

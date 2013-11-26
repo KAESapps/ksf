@@ -12,9 +12,9 @@ define([
 			});
 		};
 
-		rootNode.appendChild(args.content.domNode);
-
 		size();
+		rootNode.appendChild(args.content.domNode);
+		args.content.set('inDom', true);
 		args.content.startLiveRendering();
 		window.onresize = size;
 	};

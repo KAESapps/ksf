@@ -7,7 +7,7 @@ define([
 	'ksf/collections/OrderableSet',
 	'./List',
 	'./HtmlElement',
-	'./HtmlContainerIncremental',
+	'./HtmlContainer',
 ], function(
 	compose,
 	CompositeMono,
@@ -21,8 +21,19 @@ define([
 ){
 
 	var HtmlContainerWhichEmitChanged = compose(
-		HtmlContainer,
-		proxyEvent.changed
+		HtmlContainer, function() {
+			var domNode = this.domNode;
+			var valueChange = function(ev) {
+				this.domAttrs.setEach({
+					value: domNode.value,
+					selectedIndex: domNode.selectedIndex
+				});
+			}.bind(this);
+			domNode.addEventListener('change', valueChange);
+			this.own(function() {
+				domNode.removeEventListener('change', valueChange);
+			});
+		}
 	);
 
 	/**
@@ -33,61 +44,59 @@ define([
 		CompositeMono,
 		function(args){
 			var self = this;
-			this.set('options', args && args.options || new OrderableSet());
-			this.set('value', args && args.value);
 
 			var selectComponent = this._selectComponent = new HtmlContainerWhichEmitChanged('select');
-
 			this._component = new List({
 				container: selectComponent,
 				factory: function(item){
 					var option = new HtmlElement('option');
 					if (args && args.labelProp){
 						if (item.getR){
-							option.own(option.setR('text', item.getR(args.labelProp)));
+							option.own(option.domAttrs.setR('text', item.getR(args.labelProp)));
 						} else {
-							option.set('text', item.get ? item.get(args.labelProp) : item[args.labelProp]);
+							option.domAttrs.set('text', item.get ? item.get(args.labelProp) : item[args.labelProp]);
 						}
 					} else {
-						option.set('text', item);
+						option.domAttrs.set('text', item);
 					}
 					return option;
 				},
 			});
-			this._component.setR('content', this.getR('options'));
-			selectComponent.bind('selectedIndex', this, 'value', {
+
+			this.options = this._component.content;
+			args && args.options && this.set('options', args.options);
+			this.set('value', args && args.value);
+
+			selectComponent.domAttrs.bind('selectedIndex', this, 'value', {
 				convert: function(item){
-					return self.get('options').indexOf(item);
+					return self.options.indexOf(item);
 				},
 				revert: function(index){
 					if (self.preventValueUpdateDuringDomInsertionInChrome){
 						return self.get('value');
 					}
-					return self.get('options').get(index);
+					return self.options.get(index);
 				},
 			});
 
 			// hack for keeping view in sync when options are changed
-			this.getR('options').flatMapLatest(function(options) {
-				return options.asReactive();
-			}).onValue(function() {
-				selectComponent.set('selectedIndex', self.get('options').indexOf(self.get('value')));
+			this.options.asReactive().onValue(function() {
+				selectComponent.domAttrs.set('selectedIndex', self.options.indexOf(self.get('value')));
 			});
 
+			this.getR('inDom').onValue(function(inDom) {
+				if (inDom) {
+					self.preventValueUpdateDuringDomInsertionInChrome = true;
+					self._selectComponent.domAttrs.set('selectedIndex', self.options.indexOf(self.get('value')));
+					delete self.preventValueUpdateDuringDomInsertionInChrome;
+				}
+			});
 		}, {
-			// allow for updating dom when 'options' are set before dom insertion and 'value' is undefined
-			// required for chrome only
-			// TODO: triger this only when 'inDom' change to true instead of using 'startLiveRendering' because this component is always live
-			startLiveRendering: function() {
-				this.preventValueUpdateDuringDomInsertionInChrome = true;
-				CompositeMono.prototype.startLiveRendering.apply(this, arguments);
-				this._selectComponent.set('selectedIndex', this.get('options').indexOf(this.get('value')));
-				delete this.preventValueUpdateDuringDomInsertionInChrome;
+			_optionsSetter: function(options) {
+				this.options.setContent(options);
 			},
-
-			_applyBounds: function() {
-				// seems to have the same pb as described above startLiveRendering when changing size
-				// deactivate sizing via 'bounds' property for now
+			_optionsGetter: function() {
+				return this.options;
 			}
 		}
 	);

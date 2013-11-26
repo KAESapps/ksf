@@ -24,6 +24,13 @@ define([
 			});
 
 			args && this.setEach(args);
+		}, {
+			_contentSetter: function(content) {
+				this.content.setContent(content || []);
+			},
+			_contentGetter: function() {
+				return this.content;
+			},
 		}
 	);
 });

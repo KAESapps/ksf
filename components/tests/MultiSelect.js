@@ -8,7 +8,7 @@ define([
 	"dojo/on",
 	'compose',
 	'ksf/dom/composite/Composite',
-	'../HtmlContainerIncremental',
+	'../HtmlContainer',
 	'../form/Checkbox',
 	'../HtmlElement',
 ], function(
@@ -34,10 +34,10 @@ define([
 	};
 
 	var ms = window.ms = new MultiSelect({
-		options: new OrderableSet(['syv', 'aur', 'ant']),
-		selection: new Set(['aur']),
+		options: ['syv', 'aur', 'ant'],
+		selection: ['aur'],
 	});
-	document.body.appendChild(ms.get('domNode'));
+	document.body.appendChild(ms.domNode);
 	ms.startLiveRendering();
 
 	var l = window.l = new List({
@@ -49,18 +49,18 @@ define([
 			});
 		},
 	});
-	document.body.appendChild(l.get('domNode'));
+	document.body.appendChild(l.domNode);
 	l.startLiveRendering();
 
-	l.get('content').updateContentR(ms.get('selection').asChangesStream().map(function(changes) {
+	l.content.updateContentR(ms.selection.asChangesStream().map(function(changes) {
 		return changes.map(function(change) {
 			if (change.type === 'remove'){
-				change.index = l.get('content').indexOf(change.value);
+				change.index = l.content.indexOf(change.value);
 			}
 			return change;
 		});
 	}));
 
-	ms.get('selection').add('leo');
-	ms.get('options').add('leo');
+	ms.selection.add('leo');
+	ms.options.add('leo');
 });

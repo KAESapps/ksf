@@ -17,11 +17,8 @@ define([
 		{
 			apply: function() {
 				var config = this.get('config');
-				if (config === this._appliedConfig) {
-					return;
-				}
 
-				var tree = new Tree(config);
+				var tree = new Tree([this.get('root'), config]);
 
 				// map tree of ids to tree of components
 				var cmpTree = tree.map(function(node) {
@@ -29,8 +26,6 @@ define([
 				}, this);
 
 				this._applyTree(cmpTree);
-
-				this._appliedConfig = config;
 			},
 
 			_configSetter: function(config) {
@@ -38,10 +33,6 @@ define([
 					config = this.configs.get(config);
 				}
 				this._Setter('config', config);
-			},
-
-			_rootGetter: function() {
-				return this._currentTree.root;
 			},
 
 			_applyTree: function(tree) {

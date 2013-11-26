@@ -11,7 +11,7 @@ define([
 		OrderedContainerBase,
 		function(args) {
 			this.domNode.style.position = 'relative';
-			this._style.set('base', 'LayerContainer');
+			this.style.set('base', 'LayerContainer');
 		}, {
 			_layoutContent: function() {
 				var content = this.content.map(CoupleElementOptions.fromLiteral),

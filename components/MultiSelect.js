@@ -6,7 +6,7 @@ define([
 	'ksf/collections/Set',
 	'./SelectableList',
 	'./HtmlElement',
-	'./HtmlContainerIncremental',
+	'./HtmlContainer',
 	'./form/Checkbox',
 ], function(
 	compose,
@@ -24,16 +24,14 @@ define([
 		function(args) {
 			this.set('label', args && args.label);
 			this._components.setEach({
-				container: new HtmlContainer('label'),
 				selector: new Checkbox(),
 				labelViewer: new HtmlElement('span'),
 			});
-			this._layout.set('config',
-				['container', [
-					'selector',
-					'labelViewer',
-				]]
-			);
+			this._root = new HtmlContainer('label');
+			this._layout.set('config',[
+				'selector',
+				'labelViewer',
+			]);
 
 			this.own(
 				this._components.get('labelViewer').setR('textContent', this.getR('label')),
@@ -47,8 +45,6 @@ define([
 		CompositeMono,
 		function(args){
 			var self = this;
-			this.set('options', args && args.options || new OrderableSet());
-			this.set('selection', args && args.selection || new Set());
 
 			this._component = new SelectableList({
 				container: new HtmlContainer('div'),
@@ -66,9 +62,24 @@ define([
 					return selectable;
 				},
 			});
-			this._component.setR('content', this.getR('options'));
-			this._component.setR('selection', this.getR('selection'));
+			this.options = this._component.content;
+			this.selection = this._component.selection;
 
+			args && args.options && this.set('options', args.options);
+			args && args.selection && this.set('selection', args.selection);
+		}, {
+			_optionsSetter: function(options) {
+				this.options.setContent(options || []);
+			},
+			_optionsGetter: function() {
+				return this.options;
+			},
+			_selectionSetter: function(selection) {
+				this.selection.setContent(selection || []);
+			},
+			_selectionGetter: function() {
+				return this.selection;
+			}
 		}
 	);
 });

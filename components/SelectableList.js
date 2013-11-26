@@ -6,7 +6,7 @@ define([
 	'ksf/collections/Set',
 	'./List',
 	'./HtmlElement',
-	'./HtmlContainerIncremental',
+	'./HtmlContainer',
 	'./form/Checkbox',
 ], function(
 	compose,
@@ -19,14 +19,11 @@ define([
 	HtmlContainer,
 	Checkbox
 ){
-
-
 	return compose(
 		CompositeMono,
 		function(args){
 			var self = this;
-			this.set('content', args && args.content || new OrderableSet());
-			this.set('selection', args && args.selection || new Set());
+			this.selection = new Set();
 
 			this._component = new List({
 				container: args.container || new HtmlContainer('div'),
@@ -35,9 +32,25 @@ define([
 					// bind selected
 					cmp.bindIsIn('selected', self, 'selection', item);
 					return cmp;
-				},
+				}
 			});
-			this._component.setR('content', this.getR('content'));
+			this.content = this._component.content;
+
+			args && args.content && this.set('content', args.content);
+			args && args.selection && this.set('selection', args.selection);
+		}, {
+			_contentSetter: function(content) {
+				this.content.setContent(content || []);
+			},
+			_contentGetter: function() {
+				return this.content;
+			},
+			_selectionSetter: function(selection) {
+				this.selection.setContent(selection || []);
+			},
+			_selectionGetter: function() {
+				return this.selection;
+			}
 		}
 	);
 });

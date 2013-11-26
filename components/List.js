@@ -1,10 +1,12 @@
 define([
 	'compose',
 	'ksf/dom/composite/CompositeMono',
+	'ksf/collections/OrderableSet',
 	'ksf/utils/destroy',
 ], function(
 	compose,
 	CompositeMono,
+	OrderableSet,
 	destroy
 ){
 	/*
@@ -14,16 +16,25 @@ define([
 	return compose(
 		CompositeMono,
 		function(args){
+			this.content = new OrderableSet();
+
 			this._component = args.container;
 			this._factory = args.factory;
-			this.set('content', args.content);
-			this.own(this._component.get("content").updateContentMapR(this.getChangesStream('content'), this._factory));
+			args.content && this.set('content', args.content);
+
+			this.own(this._component.content.updateContentMapR(this.content.asChangesStream(), this._factory));
 		}, {
 			destroy: function() {
 				CompositeMono.prototype.destroy.call(this);
 				// destroy all mapped items
-				this._component.get("content").forEach(destroy);
+				this._component.content.forEach(destroy);
 			},
+			_contentSetter: function(content) {
+				this.content.setContent(content || []);
+			},
+			_contentGetter: function() {
+				return this.content;
+			}
 		}
 	);
 });

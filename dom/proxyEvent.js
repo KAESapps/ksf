@@ -3,7 +3,7 @@ define([], function() {
 		targetEvent = targetEvent || domEvent;
 		return function() {
 			var valueChange = function(ev) {
-				this._emit(targetEvent, ev);
+				this.domAttrs._emit(targetEvent, ev);
 			}.bind(this);
 			var domNode = this.domNode;
 			domNode.addEventListener(domEvent, valueChange);

@@ -8,7 +8,7 @@ define([
 	ObservableObject
 ){
 	return compose(function() {
-		this.style = this._style = new ObservableObject();
+		this.style = new ObservableObject();
 	}, {
 		_applyStyle: function() {
 			var style = this.style,

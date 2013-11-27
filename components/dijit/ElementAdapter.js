@@ -1,27 +1,25 @@
 define([
 	'compose',
 	'ksf/collections/ObservableObject',
-	'ksf/dom/WithDomNode',
+	'ksf/dom/Sizeable',
 	'ksf/dom/WithCssClassStyle'
 ], function(
 	compose,
 	ObservableObject,
-	WithDomNode,
+	Sizeable,
 	WithCssClassStyle
 ) {
 	return compose(
 		ObservableObject,
-		WithDomNode,
+		Sizeable,
 		WithCssClassStyle,
 		function(dijit, attrs) {
 			this._dijit = dijit;
-			this.set('domNode', this._dijit.domNode);
+			this.domNode = this._dijit.domNode;
 			if (attrs) {
 				this.setEach(attrs);
 			}
-			this.style.asReactive().onValue(this._applyStyle.bind(this));
-		},
-		{
+		}, {
 			_Getter: function(prop) {
 				return this._dijit.get(prop);
 			},
@@ -29,7 +27,7 @@ define([
 				this._dijit.set(prop, value);
 			},
 
-			updateRendering: function() {
+			_dijitResize: function() {
 				this._dijit.resize();
 			},
 
@@ -42,15 +40,13 @@ define([
 
 			startLiveRendering: function() {
 				var self = this;
-
-				var cancelLiveBounds = this.getR('bounds').onValue(function() {
-					self.updateRendering();
-				});
-
-				this.stopLiveRendering = function() {
-					cancelLiveBounds();
-					delete this.stopLiveRendering;
-				};
+				return [
+					this.style.asReactive().onValue(this._applyStyle.bind(this)),
+					this.getEachR('inDom', 'bounds').onValue(function() {
+						self._applyBounds();
+						self._dijitResize();
+					})
+				];
 			}
 		}
 	);

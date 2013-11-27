@@ -56,11 +56,6 @@ define([
 				return this[MAIN_COMPONENT].domNode;
 			}
 		});
-		Object.defineProperty(CompositeMono.prototype, '_style', {
-			get: function() {
-				return this[MAIN_COMPONENT].style;
-			}
-		});
 		Object.defineProperty(CompositeMono.prototype, 'style', {
 			get: function() {
 				return this[MAIN_COMPONENT].style;

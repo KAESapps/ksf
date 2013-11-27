@@ -31,11 +31,12 @@ define([
 
 	console.time("grid creation");
 	var grid = window.grid = new Grid({});
+	grid.startLiveRendering();
 	console.timeEnd("grid creation");
 
 	console.time("grid dom insertion");
 	document.body.appendChild(grid.domNode);
-	grid.startLiveRendering();
+	grid.set('inDom', true);
 	console.timeEnd("grid dom insertion");
 
 	console.time("grid content");

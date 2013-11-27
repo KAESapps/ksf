@@ -1,10 +1,12 @@
 define([
 	'compose',
+	'lodash/objects/defaults',
 	'./List',
 	'ksf/utils/destroy',
 
 ], function(
 	compose,
+	defaults,
 	List,
 	destroy
 
@@ -24,8 +26,9 @@ define([
 			// same as "updateContentR" but map values of changes events with "mapFunction"
 			// destroy created mapped values when the corresponding value is removed
 			// dont't create a new mappedValue if the same value is removed and added in the same changes event (and don't destroy it)
-			updateContentMapR: function(changesStream, mapFunction){
+			updateContentMapR: function(changesStream, mapFunction, options){
 				var target = this;
+				options = defaults(options || {}, { destroy: true });
 				var mapChanges = function(changes){
 					var mappedValues = new Map();
 					var offset = 0;
@@ -53,8 +56,10 @@ define([
 							value: mappedValue,
 						};
 					});
-					// destroy all mappedValues that are no more in target
-					mappedValues.forEach(destroy);
+					if (options.destroy) {
+						// destroy all mappedValues that are no more in target
+						mappedValues.forEach(destroy);
+					}
 
 					return mappedChanges;
 				};

@@ -21,7 +21,7 @@ define([
 			this.content = new OrderableSet();
 			this._component.content.updateContentMapR(this.content.asStream('changes'), function(contentItem) {
 				return CoupleElementOptions.fromLiteral(contentItem).element;
-			});
+			}, { destroy: false });
 
 			args && this.setEach(args);
 		}, {

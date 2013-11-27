@@ -3,12 +3,14 @@ define([
 	'dojo/has',
 	'ksf/collections/ObservableObject',
 	'ksf/dom/WithCssClassStyle',
+	'ksf/dom/WithSize',
 	'ksf/dom/Sizeable'
 ], function(
 	compose,
 	has,
 	ObservableObject,
 	WithCssClassStyle,
+	WithSize,
 	Sizeable
 ) {
 	//
@@ -41,7 +43,6 @@ define([
 				this._notAppliedAttrs.clear();
 			},
 		}
-
 	);
 
 	var updateDomAttrs = function(htmlElement, attr) {
@@ -64,6 +65,7 @@ define([
 	return compose(
 		ObservableObject,
 		WithCssClassStyle,
+		WithSize,
 		Sizeable,
 		function(tag, domAttrs, props, domEvents) {
 			var self = this;
@@ -134,9 +136,7 @@ define([
 				if (has('ksf-monitoring')) {
 					console.timeEnd("apply attrs");
 				}
-
-			},
-
+			}
 		}
 	);
 });

@@ -2,12 +2,14 @@ define([
 	'compose',
 	'ksf/dom/WithOrderedContentIncremental',
 	'./HtmlElement',
-	'ksf/collections/OrderableSet'
+	'ksf/collections/OrderableSet',
+	'ksf/utils/destroy'
 ], function(
 	compose,
 	WithOrderedContentIncremental,
 	HtmlElement,
-	OrderableSet
+	OrderableSet,
+	destroy
 ){
 	return compose(
 		function() {
@@ -34,7 +36,9 @@ define([
 					liveCancelers.updateContentMapR(this.content.asChangesStream(), function(cmp) {
 						return cmp.startLiveRendering();
 					}),
-					liveCancelers.toArray(),
+					function() {
+						destroy(liveCancelers.toArray());
+					},
 					this._content.asStream('changes').onValue(function(changes) {
 						self._applyContentChanges(changes);
 					}),

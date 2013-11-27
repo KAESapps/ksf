@@ -44,12 +44,30 @@ define([
 
 	);
 
+	var updateDomAttrs = function(htmlElement, attr) {
+		if (Array.isArray(attr)) {
+			var attrs = attr;
+			return function() {
+				var domValues = {};
+				attrs.forEach(function(attr) {
+					domValues[attr] = htmlElement.domNode[attr];
+				});
+				htmlElement.domAttrs.setEach(domValues);
+			};
+		} else {
+			return function() {
+				htmlElement.domAttrs.set(attr, htmlElement.domNode[attr]);
+			};
+		}
+	};
+
 	return compose(
 		ObservableObject,
 		WithCssClassStyle,
 		Sizeable,
-		function(tag, domAttrs, props) {
-			this.domNode = document.createElement(tag || 'div');
+		function(tag, domAttrs, props, domEvents) {
+			var self = this;
+			var domNode = this.domNode = document.createElement(tag || 'div');
 			// ideally, we would only expose DomNodeProxy's methods that should be part of the API (.domAttrs.get/set/setEach)
 			this.domAttrs = this._domProxy = new DomNodeProxy(this.domNode);
 
@@ -59,6 +77,16 @@ define([
 			if (props) {
 				this.setEach(props);
 			}
+			if (domEvents) {
+				Object.keys(domEvents).forEach(function(eventName) {
+					var cb = updateDomAttrs(self, domEvents[eventName]);
+					domNode.addEventListener(eventName, cb);
+					self.own(function() {
+						domNode.removeEventListener(eventName, cb);
+					});
+				});
+			}
+
 		},
 		{
 

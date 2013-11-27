@@ -20,22 +20,6 @@ define([
 	HtmlContainer
 ){
 
-	var HtmlContainerWhichEmitChanged = compose(
-		HtmlContainer, function() {
-			var domNode = this.domNode;
-			var valueChange = function(ev) {
-				this.domAttrs.setEach({
-					value: domNode.value,
-					selectedIndex: domNode.selectedIndex
-				});
-			}.bind(this);
-			domNode.addEventListener('change', valueChange);
-			this.own(function() {
-				domNode.removeEventListener('change', valueChange);
-			});
-		}
-	);
-
 	/**
 	Component that uses native <select> html element for displaying a list of items as text and selecting one item
 	Known bug: in chrome, the native <select> element automatically select the first item when inserted in dom without emiting a 'change' event. So we have to ensure to insert this Select component in dom before to set the 'options'
@@ -45,7 +29,9 @@ define([
 		function(args){
 			var self = this;
 
-			var selectComponent = this._selectComponent = new HtmlContainerWhichEmitChanged('select');
+			var selectComponent = this._selectComponent = new HtmlContainer('select', null, null, {
+				change: 'selectedIndex',
+			});
 			this._component = new List({
 				container: selectComponent,
 				factory: function(item){

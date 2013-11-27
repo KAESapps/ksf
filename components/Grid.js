@@ -41,7 +41,7 @@ define([
 						var head = column.head;
 						// if head is a domComponent
 						if (head && typeof head.get === 'function') {
-							return new HtmlContainer('th', {}, {
+							return new HtmlContainer('th', null, {
 								content: [head],
 							});
 						}
@@ -59,7 +59,7 @@ define([
 									var content = column.body(item);
 									// if content is a domComponent
 									if (content && typeof content.get === 'function') {
-										return new HtmlContainer('td', {}, {
+										return new HtmlContainer('td', null, {
 											content: [content],
 										});
 									}
@@ -83,7 +83,7 @@ define([
 				this._components.get('head').content.updateContentR(this.columns.asChangesStream()),
 				this._components.get('body').bind('active', self, 'active'),
 			]);
-			
+
 			this._root = new HtmlContainer('table');
 			this._layout.set('config', [
 				[new HtmlContainer('thead'), [

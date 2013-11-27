@@ -30,14 +30,8 @@ define([
 	return compose(
 		CompositeMono,
 		function (args) {
-			this._component = new HtmlElementWithValueBinded('input', {type: 'number'}, {updateFrequently: args && args.updateFrequently});
-			this._component.domAttrs.bind('value', this, 'value', {
-				convert: function(number) { return number; }, // nothing to do
-				revert: function(string) {
-					var number = parseFloat(string, 10);
-					return isNaN(number) ? undefined : number;
-				},
-			});
+			this._component = new HtmlElementWithValueBinded('input', {type: 'text'}, {updateFrequently: args && args.updateFrequently});
+			this._component.domAttrs.bind('value', this, 'value');
 		}
 	);
 });

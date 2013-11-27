@@ -34,7 +34,7 @@ define([
 			]);
 
 			this.own(
-				this._components.get('labelViewer').setR('textContent', this.getR('label')),
+				this._components.get('labelViewer').domAttrs.setR('textContent', this.getR('label')),
 				this._components.get('selector').bind('value', this, 'selected')
 			);
 		}, {

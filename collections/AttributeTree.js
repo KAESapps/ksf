@@ -49,7 +49,7 @@ define([
 			if (tree !== undefined){
 				if (isLiteralTree(tree)){
 					parseLiteralTree(tree, function(node, parent, attr){
-						parent && this.set(node, parent, attr);
+						this.set(node, parent, attr);
 					}.bind(this));
 				} else if (tree instanceof Tree){
 					this.addTree(tree);

@@ -34,6 +34,9 @@ define([
 				}
 				this._Setter('config', config);
 			},
+			_configGetter: function() {
+				return this._Getter('config') || [];
+			},
 
 			_applyTree: function(tree) {
 				// empty all containers no more present in new config

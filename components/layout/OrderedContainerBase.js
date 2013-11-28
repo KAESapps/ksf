@@ -15,15 +15,15 @@ define([
 ) {
 	return compose(
 		CompositeMono,
-		WithInnerSize, function(args) {
-			this._component = new HtmlContainer('div');
+		WithInnerSize, function(props, args) {
+			this._component = new HtmlContainer(args && args.tag);
 
 			this.content = new OrderableSet();
 			this._component.content.updateContentMapR(this.content.asStream('changes'), function(contentItem) {
 				return CoupleElementOptions.fromLiteral(contentItem).element;
 			}, { destroy: false });
 
-			args && this.setEach(args);
+			props && this.setEach(props);
 		}, {
 			_contentSetter: function(content) {
 				this.content.setContent(content || []);

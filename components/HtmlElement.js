@@ -42,25 +42,18 @@ define([
 				}.bind(this));
 				this._notAppliedAttrs.clear();
 			},
+			readDomAttrs: function() {
+				this.readingDom = true;
+				var domNode = this._domNode;
+				var domValues = {};
+				Array.prototype.forEach.call(arguments, function(attr) {
+					domValues[attr] = domNode[attr];
+				});
+				this.setEach(domValues);
+				this.readingDom = false;
+			},
 		}
 	);
-
-	var updateDomAttrs = function(htmlElement, attr) {
-		if (Array.isArray(attr)) {
-			var attrs = attr;
-			return function() {
-				var domValues = {};
-				attrs.forEach(function(attr) {
-					domValues[attr] = htmlElement.domNode[attr];
-				});
-				htmlElement.domAttrs.setEach(domValues);
-			};
-		} else {
-			return function() {
-				htmlElement.domAttrs.set(attr, htmlElement.domNode[attr]);
-			};
-		}
-	};
 
 	return compose(
 		ObservableObject,
@@ -71,7 +64,7 @@ define([
 			var self = this;
 			var domNode = this.domNode = document.createElement(tag || 'div');
 			// ideally, we would only expose DomNodeProxy's methods that should be part of the API (.domAttrs.get/set/setEach)
-			this.domAttrs = this._domProxy = new DomNodeProxy(this.domNode);
+			var domProxy = this.domAttrs = this._domProxy = new DomNodeProxy(this.domNode);
 
 			if (domAttrs) {
 				this.domAttrs.setEach(domAttrs);
@@ -81,7 +74,9 @@ define([
 			}
 			if (domEvents) {
 				Object.keys(domEvents).forEach(function(eventName) {
-					var cb = updateDomAttrs(self, domEvents[eventName]);
+					var cb = function() {
+						domProxy.readDomAttrs(domEvents[eventName]);
+					};
 					domNode.addEventListener(eventName, cb);
 					self.own(function() {
 						domNode.removeEventListener(eventName, cb);
@@ -100,7 +95,9 @@ define([
 					this._liveRendering = true;
 					return [
 						this._domProxy.asReactive().onValue(function() {
-							self._applyAttrs();
+							if (! self._domProxy.readingDom) {
+								self._applyAttrs();
+							}
 						}),
 						this.getR('bounds').onValue(function() {
 							self._applyBounds();
@@ -136,7 +133,11 @@ define([
 				if (has('ksf-monitoring')) {
 					console.timeEnd("apply attrs");
 				}
-			}
+			},
+
+			readDomAttrs: function(attrs) {
+				return this._domProxy.readDomAttrs(attrs);
+			},
 		}
 	);
 });

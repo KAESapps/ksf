@@ -44,6 +44,10 @@ define([
 					];
 				},
 
+				readDomAttrs: function(attrs) {
+					return this[MAIN_COMPONENT].readDomAttrs(attrs);
+				},
+
 				destroy: function(){
 					Destroyable.prototype.destroy.call(this);
 					destroy(this[MAIN_COMPONENT]);

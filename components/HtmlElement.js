@@ -2,6 +2,7 @@ define([
 	'compose',
 	'dojo/has',
 	'ksf/collections/ObservableObject',
+	'ksf/collections/Set',
 	'ksf/dom/WithCssClassStyle',
 	'ksf/dom/WithSize',
 	'ksf/dom/Sizeable'
@@ -9,6 +10,7 @@ define([
 	compose,
 	has,
 	ObservableObject,
+	Set,
 	WithCssClassStyle,
 	WithSize,
 	Sizeable
@@ -43,14 +45,13 @@ define([
 				this._notAppliedAttrs.clear();
 			},
 			readDomAttrs: function() {
-				this.readingDom = true;
 				var domNode = this._domNode;
 				var domValues = {};
+				this._startChanges();
 				Array.prototype.forEach.call(arguments, function(attr) {
-					domValues[attr] = domNode[attr];
-				});
-				this.setEach(domValues);
-				this.readingDom = false;
+					this.set(attr, domNode[attr]);
+				}, this);
+				this._stopChanges(this);
 			},
 		}
 	);
@@ -94,8 +95,8 @@ define([
 				} else {
 					this._liveRendering = true;
 					return [
-						this._domProxy.asReactive().onValue(function() {
-							if (! self._domProxy.readingDom) {
+						this._domProxy.asStream("changed").toProperty({}).onValue(function(ev) {
+							if (ev.origin !== self._domProxy) {
 								self._applyAttrs();
 							}
 						}),

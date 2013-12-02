@@ -14,12 +14,12 @@ define([
 		_startChanges: function(){
 			this._changing++;
 		},
-		_stopChanges: function(){
+		_stopChanges: function(origin){
 			this._changing--;
 			if (! this._changing){
 				this._emit("changes", this._changesQueue || []);
 				delete this._changesQueue;
-				this._emit("changed");
+				this._emit("changed", {origin: origin});
 			}
 		},
 		_pushChanges: function(changes){

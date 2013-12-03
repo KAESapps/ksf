@@ -45,16 +45,6 @@ define([
 					fixedDim = 0,
 					flexChildren = [];
 
-				// innerSize is null when not inserted in DOM, in which case we use values of "bounds"
-				if (!innerSize.height && !innerSize.width) {
-					if (bounds) {
-						innerSize = {
-							height: bounds && bounds.height,
-							width: bounds && bounds.width
-						};
-					}
-				}
-
 				var content = this.content.map(CoupleElementOptions.fromLiteral);
 
 				content.forEach(function(childAndOptions) {

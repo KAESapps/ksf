@@ -11,10 +11,6 @@ define([
 			this.style.set('base', 'FlowContainer');
 		}, {
 			_layoutContent: function() {
-				if (!this.get('inDom')) {
-					return;
-				}
-
 				this.content.forEach(function(child) {
 					child.set('bounds', {});
 				}.bind(this));
@@ -25,7 +21,9 @@ define([
 				return [
 					OrderedContainerBase.prototype.startLiveRendering.apply(this),
 					this.getEachR('inDom', 'bounds').onValue(function() {
-						self._layoutContent();
+						if (self.get('inDom')) {
+							self._layoutContent();
+						}
 					}),
 					// we subscribed to this same stream in the constructor
 					// so the children should be inserted into the DOM before we execute sizeContent()

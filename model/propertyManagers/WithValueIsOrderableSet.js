@@ -25,7 +25,7 @@ define([
 			// remove items
 			collection.clone().forEach(function(item){
 				if (items.indexOf(item) === -1){
-					collection.remove(item);
+					collection.remove(collection.indexOf(item));
 				}
 			});
 			// order current items and add new items

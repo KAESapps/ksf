@@ -445,7 +445,7 @@ define([
 
 	var o;
 	registerSuite({
-		name: "bindSelection",
+		name: "bindSelected",
 		beforeEach: function(){
 			o = new Dict();
 			collection = new OrderableSet();
@@ -456,14 +456,14 @@ define([
 			cmp3 = new Dict({name: "cmp3"});
 		},
 		"bind without content": function(){
-			o.bindSelection("activeItem", collection, "active");
+			o.bindSelected("activeItem", collection, "active");
 			assert.equal(o.get("activeItem"), undefined);
 		},
 		"bind with existing content but no activeItem": function(){
 			assert.equal(o.get("activeItem"), undefined);
 			collection.addEach([cmp1, cmp2, cmp3]);
 			cmp1.set("active", true);
-			o.bindSelection("activeItem", collection, "active");
+			o.bindSelected("activeItem", collection, "active");
 			assert.equal(o.get("activeItem"), undefined);
 			assert.equal(cmp1.get("active"), false);
 			assert.equal(cmp2.get("active"), false);
@@ -472,7 +472,7 @@ define([
 		"bind with existing content and one activeItem": function(){
 			o.set("activeItem", cmp1);
 			collection.addEach([cmp1, cmp2, cmp3]);
-			o.bindSelection("activeItem", collection, "active");
+			o.bindSelected("activeItem", collection, "active");
 			assert.equal(o.get("activeItem"), cmp1);
 			assert.equal(cmp1.get("active"), true);
 			assert.equal(cmp2.get("active"), false);
@@ -480,7 +480,7 @@ define([
 		},
 		"bind without content and one activeItem": function(){
 			o.set("activeItem", cmp1);
-			o.bindSelection("activeItem", collection, "active");
+			o.bindSelected("activeItem", collection, "active");
 			assert.equal(o.get("activeItem"), cmp1);
 			collection.addEach([cmp2, cmp3]);
 			assert.equal(o.get("activeItem"), cmp1);
@@ -495,7 +495,7 @@ define([
 		"change activeItem": function() {
 			o.set("activeItem", cmp1);
 			collection.addEach([cmp1, cmp2, cmp3]);
-			o.bindSelection("activeItem", collection, "active");
+			o.bindSelected("activeItem", collection, "active");
 			assert.equal(o.get("activeItem"), cmp1);
 			assert.equal(cmp1.get("active"), true);
 			assert.equal(cmp2.get("active"), false);
@@ -509,7 +509,7 @@ define([
 		"set an activeItem not in collection": function() {
 			o.set("activeItem", cmp1);
 			collection.addEach([cmp1, cmp2, cmp3]);
-			o.bindSelection("activeItem", collection, "active");
+			o.bindSelected("activeItem", collection, "active");
 			o.set("activeItem", null);
 			assert.equal(o.get("activeItem"), null);
 			assert.equal(cmp1.get("active"), false);
@@ -518,7 +518,7 @@ define([
 		},
 		"change one item": function() {
 			collection.addEach([cmp1, cmp2, cmp3]);
-			o.bindSelection("activeItem", collection, "active");
+			o.bindSelected("activeItem", collection, "active");
 			cmp1.set("active", true);
 			assert.equal(o.get("activeItem"), cmp1);
 			assert.equal(cmp1.get("active"), true);
@@ -533,7 +533,7 @@ define([
 		"change all items to false": function() {
 			o.set("activeItem", cmp1);
 			collection.addEach([cmp1, cmp2, cmp3]);
-			o.bindSelection("activeItem", collection, "active");
+			o.bindSelected("activeItem", collection, "active");
 			cmp1.set("active", false);
 			assert.equal(o.get("activeItem"), undefined);
 			assert.equal(cmp1.get("active"), false);
@@ -542,7 +542,7 @@ define([
 		},
 		"add an item": function() {
 			collection.addEach([cmp1, cmp2]);
-			o.bindSelection("activeItem", collection, "active");
+			o.bindSelected("activeItem", collection, "active");
 			assert.equal(o.get("activeItem"), undefined);
 			assert.equal(cmp1.get("active"), false);
 			assert.equal(cmp2.get("active"), false);
@@ -560,7 +560,7 @@ define([
 		},
 		"remove an item": function(){
 			collection.addEach([cmp1, cmp2, cmp3]);
-			o.bindSelection("activeItem", collection, "active");
+			o.bindSelected("activeItem", collection, "active");
 			cmp1.set("active", true);
 			collection.remove(2);
 			cmp3.set("active", true); // should have no impact on activeItem
@@ -570,7 +570,7 @@ define([
 		},
 		"remove active item": function(){
 			collection.addEach([cmp1, cmp2, cmp3]);
-			o.bindSelection("activeItem", collection, "active");
+			o.bindSelected("activeItem", collection, "active");
 			cmp1.set("active", true);
 			collection.remove(0);
 			assert.equal(o.get("activeItem"), cmp1);
@@ -582,7 +582,7 @@ define([
 		},
 		"remove active item and add it latter": function(){
 			collection.addEach([cmp1, cmp2, cmp3]);
-			o.bindSelection("activeItem", collection, "active");
+			o.bindSelected("activeItem", collection, "active");
 			cmp1.set("active", true);
 			collection.remove(0);
 			assert.equal(o.get("activeItem"), cmp1);
@@ -599,11 +599,44 @@ define([
 		},
 		"cancel binding": function(){
 			collection.addEach([cmp1, cmp2, cmp3]);
-			var canceler = o.bindSelection("activeItem", collection, "active");
+			var canceler = o.bindSelected("activeItem", collection, "active");
 			cmp1.set("active", true);
 			canceler();
 			o.set("activeItem", cmp3);
 			assert.equal(o.get("activeItem"), cmp3);
+			assert.equal(cmp1.get("active"), true);
+			assert.equal(cmp2.get("active"), false);
+			assert.equal(cmp3.get("active"), false);
+		},
+	});
+
+	registerSuite({
+		name: "bindSelected with inCollection",
+		beforeEach: function(){
+			o = new Dict();
+			collection = new OrderableSet();
+			cbCalledCount = cb2CalledCount = 0;
+			cancelerCalledCount = canceler2CalledCount = 0;
+			cmp1 = new Dict({name: "cmp1"});
+			cmp2 = new Dict({name: "cmp2"});
+			cmp3 = new Dict({name: "cmp3"});
+		},
+		"remove selected item": function() {
+			collection.addEach([cmp1, cmp2, cmp3]);
+			var canceler = o.bindSelected("activeItem", collection, "active", true);
+			cmp1.set("active", true);
+			collection.remove(0);
+			assert.equal(o.get("activeItem"), undefined);
+			assert.equal(cmp1.get("active"), true);
+			assert.equal(cmp2.get("active"), false);
+			assert.equal(cmp3.get("active"), false);
+		},
+		"remove non selected item": function() {
+			collection.addEach([cmp1, cmp2, cmp3]);
+			var canceler = o.bindSelected("activeItem", collection, "active", true);
+			cmp1.set("active", true);
+			collection.remove(1);
+			assert.equal(o.get("activeItem"), cmp1);
 			assert.equal(cmp1.get("active"), true);
 			assert.equal(cmp2.get("active"), false);
 			assert.equal(cmp3.get("active"), false);

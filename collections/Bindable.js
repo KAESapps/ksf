@@ -159,25 +159,36 @@ define([
 		},
 		// create a bidirectionnal binding with the following logic: targetProp value is the item from the collection for which itemProp is truthy
 		// at init time, the target prop value is the winner
-		// TODO: allow a "multi" behavior > the targetProp become a collection (unordered set)
-		bindSelection:function(targetProp, collection, itemProp, multi){
+		// if inCollection is true, the selected item is garanted to be in collection or undefined
+		bindSelected:function(targetProp, collection, itemProp, inCollection){
 			var changing = false;
 			var target = this;
 			var currentItem = this.get(targetProp);
 			// init time
+			if (inCollection) {
+				if (! collection.has(currentItem)) {
+					target.set(targetProp, undefined);
+					currentItem = undefined;
+				}
+			}
 			collection.forEach(function(item){
 				item.set(itemProp, item === currentItem);
 			});
 
 			// incremental update
-			var targetHandler = this.getR(targetProp).diff(undefined, function(oldItem, currentItem){
-				return {oldItem: oldItem, currentItem: currentItem};
-			}).changes().onValue(function(oldAndCurrentItems){
+			var targetHandler = this.getR(targetProp).slidingWindow(2, 2).onValues(function(oldItem, currentItem){
 				if (! changing){
 					changing = true;
-					var oldItem = oldAndCurrentItems.oldItem;
-					var currentItem = oldAndCurrentItems.currentItem;
 					oldItem && collection.has(oldItem) && oldItem.set(itemProp, false);
+					// TODO: empêcher de pouvoir mettre sur targetProp une valeur qui n'est pas dans collection
+					// peut-on modifier targetProp alors que l'on est déjà en train de réagir à un changement de targetProp ?
+/*					if (inCollection) {
+						if (! collection.has(currentItem)) {
+							target.set(targetProp, undefined);
+							currentItem = undefined;
+						}
+					}
+*/
 					currentItem && collection.has(currentItem) && currentItem.set(itemProp, true);
 					changing = false;
 				}
@@ -202,6 +213,11 @@ define([
 					if (change.type === "remove"){
 						destroy(itemHandlers.get(item));
 						itemHandlers.delete(item);
+						if (inCollection) {
+							if (target.get(targetProp) === item) {
+								target.set(targetProp, undefined);
+							}
+						}
 					}
 				});
 			});

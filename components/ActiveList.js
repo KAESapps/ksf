@@ -9,7 +9,7 @@ define([
 ){
 	return compose(
 		List,
-		function(){
+		function(args){
 			this.bind("activeContentElement", this, 'active', {
 				convert: function(item){
 					var items = this.content;
@@ -22,7 +22,7 @@ define([
 					return index > -1 ? this.content.get(index) : undefined;
 				},
 			});
-			this.bindSelection("activeContentElement", this._component.content, "active");
+			this.bindSelected("activeContentElement", this._component.content, "active", args.inList);
 
 			// hack for setting 'activeContentElement' when it is created after 'active' is set
 			this.content.asReactive().onValue(function(items) {

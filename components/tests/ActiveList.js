@@ -48,6 +48,7 @@ define([
 			});
 			return li;
 		},
+		inList: true,
 	});
 
 	document.body.appendChild(list.domNode);

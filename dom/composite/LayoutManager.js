@@ -42,7 +42,7 @@ define([
 				// empty all containers no more present in new config
 				this._currentTree && this._currentTree.forEachParent(function(parent, children) {
 					if (!tree.has(parent)) {
-						parent.remove('content');
+						parent.set('content', []);
 					}
 				}.bind(this));
 

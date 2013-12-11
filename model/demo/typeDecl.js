@@ -252,26 +252,27 @@ define([
 		},
 	};
 
-	var Serializer = compose(function(description, factory){
-		this._description = desccription;
+	var EntitySerializer = compose(function(serializeDesc, factory){
+		this._serializeDesc = serializeDesc;
 		this._factory = factory;
 	}, {
 		serialize: function(v){
-			var args = {};
-			Object.keys(this._description.properties).forEach(function(propName){
+			var data = {};
+			Object.keys(this._serializeDesc.properties).forEach(function(propName){
 				args[propName] = this._description.properties[propName](v.get(propName));
 			});
-			return this._factory(args);
+			return data;
+		},
+		deserialize: function(data) {
+
 		},
 	});
 
 	var mesureSerializer = new Serializer({
-		properties: {
-			mesure: positiveIntegerSerializer,
-			location: locationSerializer,
-			parcelle: parcelleEntitySerializer,
-			inventaire: inventaireEntitySerializer,
-		},
+		mesure: positiveIntegerSerializer,
+		location: locationSerializer,
+		parcelle: parcelleEntitySerializer,
+		inventaire: inventaireEntitySerializer,
 	}, function(args){
 		return args;
 	});

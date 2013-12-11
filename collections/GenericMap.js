@@ -29,7 +29,7 @@ define([
 			this.keys().forEach(this.remove, this);
 			this._stopChanges();
 		},
-		map: function(cb) {
+		map: function(cb, scope) {
 			var res = new this.constructor();
 			this.forEach(function(v, k) {
 				res.set(k, cb(v, k, this));

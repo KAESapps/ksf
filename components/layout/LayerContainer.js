@@ -34,31 +34,33 @@ define([
 						childWBound, childHBound;
 
 					childStyle.position = 'absolute';
+					childStyle.zIndex = index;
+
 					if (options.verticalAlign === 'bottom') {
 						childStyle.bottom = 0;
-						childHBound = childBounds.height;
 					} else {
 						childStyle.top = 0;
-						if (!options.verticalAlign || options.verticalAlign === 'fit') {
-							childHBound = innerSize.height;
-						}
 					}
+					if (!options.verticalAlign || options.verticalAlign === 'fit') {
+						childHBound = innerSize.height;
+					} else {
+						childHBound = childBounds.height;
+					}
+
 					if (options.horizontalAlign === 'right') {
 						childStyle.right = 0;
-						childWBound = childBounds.width;
 					} else {
 						childStyle.left = 0;
-						if (!options.horizontalAlign || options.horizontalAlign === 'fit') {
-							childWBound = innerSize.width;
-						}
 					}
-					childStyle.zIndex = index;
+					if (!options.horizontalAlign || options.horizontalAlign === 'fit') {
+						childWBound = innerSize.width;
+					} else {
+						childWBound = childBounds.width;
+					}
 
 					child.set('bounds', {
 						height: childHBound,
-						width: childWBound,
-						heightMax: innerSize.height,
-						widthMax: innerSize.width
+						width: childWBound
 					});
 				}.bind(this));
 

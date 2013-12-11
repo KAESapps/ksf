@@ -20,10 +20,10 @@ define([
 			var widthMax = bounds.widthMax || null;
 
 			var nodeStyle = this.domNode.style;
-			nodeStyle.width = width && (width + 'px');
-			nodeStyle.height = height && (height + 'px');
-			nodeStyle.maxHeight = heightMax && (heightMax + 'px');
-			nodeStyle.maxWidth = widthMax && (widthMax + 'px');
+			nodeStyle.width = isNaN(width) ? width : width && (width + 'px');
+			nodeStyle.height = isNaN(height) ? height : height && (height + 'px');
+			nodeStyle.maxHeight = isNaN(heightMax) ? heightMax : heightMax && (heightMax + 'px');
+			nodeStyle.maxWidth = isNaN(widthMax) ? widthMax : widthMax && (widthMax + 'px');
 
 			if (has('ksf-monitoring')) {
 				console.timeEnd("apply bounds");

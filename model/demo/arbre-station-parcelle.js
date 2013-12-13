@@ -70,15 +70,16 @@ define([
 				// il n'y a pas d'id connu, c'est que c'est une création, il faut donc l'enregistrer dans le registre
 				id = this._dataSource.add(data);
 				this._registry[id] = rsc;
+				return id;
 			} else {
-				this._dataSource.put(data, id);
+				return this._dataSource.put(data, id);
 			}
 		},
 		pull: function(rsc) {
 			var id = this.getIdentity(rsc);
 			var data = this._dataSource.get(id);
 			var rscState = this._serializer.deserialize(data);
-			rsc._setContent(rsc, rscState); // c'est bien le rôle du repository de faire le merge pour avoir des instances uniques et pas au deserializer
+			rsc.setContent(rscState); // c'est bien le rôle du repository de faire le merge pour avoir des instances uniques et pas au deserializer
 		},
 	});
 
@@ -211,7 +212,7 @@ define([
 				Object.keys(schema.properties).forEach(function(propName){
 					var value = data[propName];
 					object[propName] = this.serializers[schema.properties[propName]].deserialize(value);
-				});
+				}, this);
 				return object;
 			}
 			if (type === 'set') {
@@ -250,8 +251,8 @@ define([
 			repository: 'localRepository',
 		}),
 		persistableGenerator({
-			save: 'pull',
-			load: 'push',
+			save: 'push',
+			load: 'pull',
 			repository: 'remoteRepository',
 		})
 	);
@@ -507,23 +508,28 @@ define([
 		return new LocalStorage(this._nameSpace+'/'+typeId);
 	};
 
-	var JsonRestServiceProvider = function(baseUrl) {
+	var LocalJsonRestService = function(service, baseUrl) {
+		this._service = service;
 		this._baseUrl = baseUrl;
 	};
-	JsonRestServiceProvider.prototype.get = function(typeId) {
-		return new JsonRestStore(this._baseUrl+'/'+typeId);
+	LocalJsonRestService.prototype = {
+		get: function(id) {
+			return this._service.get(this._baseUrl+'/'+id);
+		},
+		put: function(data, id) {
+			return this._service.put(this._baseUrl+'/'+id, data);
+		},
+		add: function(data) {
+			return this._service.post(this._baseUrl, data);
+		},
 	};
 
-
-	var clientApp =	new LocalRemoteApp({
-		entities: modelDeclaration.entities,
-		relations: modelDeclaration.relations,
-		types: modelDeclaration.types,
-		localDataSourcesProvider: new LocalStorageProvider('client'),
-		remoteDataSourcesProvider: new LocalStorageProvider('server'),
-	});
-
-
+	var LocalJsonRestServiceProvider = function(service) {
+		this._service = service;
+	};
+	LocalJsonRestServiceProvider.prototype.get = function(typeId) {
+		return new LocalJsonRestService(this._service, typeId);
+	};
 
 
 	// server
@@ -534,59 +540,79 @@ define([
 		dataSourcesProvider: new LocalStorageProvider('server'),
 	});
 
-/*
+	var RestView = compose(function(args) {
+		this._modelApp = args.app;
+	}, {
+		get: function(url) {
+			var typeId = url.split('/')[0];
+			var id = url.split('/')[1];
+			var repo = this._modelApp.repositories[typeId];
+			var instance = repo.get(id);
+			// ici on utilise la même sérialisation que pour le dataSource... mais c'est un gros raccourci
+			var data = repo._serializer.serialize(instance);
+			return data;
+		},
+		put: function(url, data) {
+			var typeId = url.split('/')[0];
+			var id = url.split('/')[1];
+			var repo = this._modelApp.repositories[typeId];
+			var instance = repo.get(id);
+			// ici on utilise la même désérialisation que pour le dataSource... mais c'est un gros raccourci
+			var newInstanceState = repo._serializer.deserialize(data);
+			instance.setContent(newInstanceState);
+			return "ok"; // faudrait-il retourner this.get(url) ?
+		},
+		post: function(url, data) {
+			// ici on ne traite que le cas de la création
+			var typeId = url;
+			var repo = this._modelApp.repositories[typeId];
+			var factory = this._modelApp.factories[typeId];
+			var instance = factory();
+			var newInstanceState = repo._serializer.deserialize(data);
+			instance.setContent(newInstanceState);
+			instance.save();
+			var id = repo.getIdentity(instance);
+			return id;
+
+		},
+		delete: function(url) {},
+	});
+
 	var serverView = new RestView({
 		app: serverApp,
-		port: 8080,
-
 	});
-	serverView.start();
 
-	var serverParcelle2 = serverApp.parcelle.create({
-		name: 'Parcelle 2',
+	// client
+	var clientApp =	new LocalRemoteApp({
+		entities: modelDeclaration.entities,
+		relations: modelDeclaration.relations,
+		types: modelDeclaration.types,
+		localDataSourcesProvider: new LocalStorageProvider('client'),
+		remoteDataSourcesProvider: new LocalJsonRestServiceProvider(serverView),
 	});
-	serverParcelle2.save();
-
-	// intéraction entre client et server
-	parcelle1.push();
-	var queryResult = clientApp.parcelle.repositories.remote.query({
-		name: 'Parcelle 2',
-	});
-	// cache management
-	var clientParcelle2 = queryResult[0];
-	clientApp.parcelle.use(clientParcelle2);
-	queryResult.destroy();
-
-	clientParcelle2.pull();
-	assert.equal(clientParcelle2.get('name'), 'Parcelle 2');
-
-	clientParcelle2.set('name', 'nouveau nom pour la parcelle 2');
-	clientParcelle2.push();
-
-	assert.equal(serverParcelle2.get('name'), 'nouveau nom pour la parcelle 2');
-*/
 
 
+
+
+	var clientParcelle1;
 
 	registerSuite({
 		name: 'clientApp data creation',
 		'parcelle': function() {
-			var parcelle1 = clientApp.create('parcelle', {
+			clientParcelle1 = clientApp.create('parcelle', {
 				name: 'Parcelle 1',
 			});
-			parcelle1.save();
+			clientParcelle1.save();
 
 			var localRepo = clientApp.localRepositories['parcelle'];
-			var id = localRepo.getIdentity(parcelle1);
+			var id = localRepo.getIdentity(clientParcelle1);
 			assert.deepEqual(localRepo._dataSource.get(id), {
 				name: 'Parcelle 1',
 			});
 		},
 		'parcelle-station': function() {
-			var parcelle1 = clientApp.localRepositories['parcelle'].get('1');
-
 			var stationP1S1 = clientApp.create('station', {
-				parcelle: parcelle1,
+				parcelle: clientParcelle1,
 				name: 'P1S1',
 				mesures: clientApp.create('mesures', [
 					clientApp.create('mesure', {essence: 'Chêne', diametre: 30}),
@@ -617,47 +643,49 @@ define([
 		},
 	});
 
+	var serverParcelle2;
+
 	registerSuite({
 		name: 'serverApp data creation',
 		'parcelle': function() {
-			var parcelle1 = serverApp.create('parcelle', {
-				name: 'Parcelle 1',
+			serverParcelle2 = serverApp.create('parcelle', {
+				name: 'Parcelle 2',
 			});
-			parcelle1.save();
+			serverParcelle2.save();
 
 			var repo = serverApp.repositories['parcelle'];
-			var id = repo.getIdentity(parcelle1);
+			var id = repo.getIdentity(serverParcelle2);
 			assert.deepEqual(repo._dataSource.get(id), {
-				name: 'Parcelle 1',
+				name: 'Parcelle 2',
 			});
 		},
 		'parcelle-station': function() {
-			var parcelle1 = serverApp.repositories['parcelle'].get('1');
+			var serverParcelle2 = serverApp.repositories['parcelle'].get('1');
 
-			var stationP1S1 = serverApp.create('station', {
-				parcelle: parcelle1,
-				name: 'P1S1',
+			var stationP2S1 = serverApp.create('station', {
+				parcelle: serverParcelle2,
+				name: 'P2S1',
 				mesures: serverApp.create('mesures', [
-					serverApp.create('mesure', {essence: 'Chêne', diametre: 30}),
+					serverApp.create('mesure', {essence: 'Hêtre', diametre: 35}),
 				]),
 				location: serverApp.create('point', {
-					longitude: 12.3,
-					latitude: 17.5,
+					longitude: 15.3,
+					latitude: 23.5,
 				}),
 			});
 
-			stationP1S1.save();
+			stationP2S1.save();
 
 			var repo = serverApp.repositories['station'];
-			var id = repo.getIdentity(stationP1S1);
+			var id = repo.getIdentity(stationP2S1);
 			assert.deepEqual(repo._dataSource.get(id), {
-				name: 'P1S1',
+				name: 'P2S1',
 				parcelle: '1',
-				location: {x: 12.3, y: 17.5},
+				location: {x: 15.3, y: 23.5},
 				mesures: [
 					{
-						essence: 'Chêne',
-						diametre: 30,
+						essence: 'Hêtre',
+						diametre: 35,
 					}
 				],
 			});
@@ -666,6 +694,32 @@ define([
 		},
 	});
 
+	var clientParcelle2;
 
+	registerSuite({
+		name: 'client server exchanges',
+		'client get remote data by id': function() {
+			clientParcelle2 = clientApp.remoteRepositories['parcelle'].get('1');
+			clientParcelle2.pull();
+			assert.equal(clientParcelle2.get('name'), 'Parcelle 2');
+
+		},
+		'client update data on remote source': function() {
+
+			clientParcelle2.set('name', 'nouveau nom pour la parcelle 2');
+			clientParcelle2.push();
+
+			assert.equal(serverParcelle2.get('name'), 'nouveau nom pour la parcelle 2');
+
+		},
+		'client create data on remote source': function() {
+
+			var remoteId = clientParcelle1.push();
+
+			var serverParcelle1 = serverApp.repositories.parcelle.get(remoteId);
+			assert.equal(serverParcelle1.get('name'), 'Parcelle 1');
+
+		},
+	});
 
 });

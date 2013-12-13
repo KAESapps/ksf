@@ -21,90 +21,6 @@ define([
 ) {
 	var identity = function(v) { return v; };
 
-	var nativeTypeSerializer = {
-		serialize: identity,
-		deserialize: identity,
-	};
-
-	var stringDesc = {
-		type: 'string',
-		serializer: nativeTypeSerializer,
-	};
-
-
-	var numberDesc = {
-		type: 'number',
-		serializer: nativeTypeSerializer,
-	};
-
-
-	var ValueObjectSerializer = compose(function(desc, options) {
-		this._desc = desc;
-		this._options = options || {};
-	}, {
-		serialize: function(instance) {
-			var desc = this._desc;
-			var options = this._options;
-			var data = {};
-			Object.keys(desc.properties).forEach(function(propName){
-				if (options[propName] !== false) {
-					var serializedPropName = options[propName] && options[propName].propName || propName;
-					var value = instance.get(propName);
-					if (value !== undefined) { // on ne sérialise pas les propriétés qui ont une valeur undefined... mais ce n'est peut-être pas une bonne idée
-						data[propName] = desc.properties[propName].serializer.serialize(value, options[propName] && options[propName].serializer);
-					}
-				}
-			});
-			return data;
-		},
-		deserialize: function(data) {
-			var desc = this._desc;
-			var options = this._options;
-			var object = {};
-			Object.keys(desc.properties).forEach(function(propName){
-				if (options[propName] !== false) {
-					var serializedPropName = options[propName] && options[propName].propName || propName;
-					object[propName] = desc.properties[propName].serializer.deserialize(data[serializedPropName], options[propName] && options[propName].serializer);
-				}
-			});
-			return object;
-		},
-	});
-
-	var ArraySerializer = compose(function(args) {
-		this._desc = args;
-	}, {
-		serialize: function(instance) {
-			return instance.map(this._desc.serializer.serialize, this._desc.serializer);
-		},
-		deserialize: function(data) {
-			return data.map(this._desc.serializer.deserialize, this._desc.serializer);
-		},
-	});
-
-	var ObservableSetSerializer = compose(function(args) {
-		this._desc = args;
-	}, {
-		serialize: function(instance) {
-			return instance.toArray().map(this._desc.serializer.serialize, this._desc.serializer);
-		},
-		deserialize: function(data) {
-			return new ObservableSet(data.map(this._desc.serializer.deserialize, this._desc.serializer));
-		},
-	});
-
-
-	var EntityIdentityMultiRepositoriesSerializer = compose(function(args){
-			this._description = args;
-		}, {
-			serialize: function(rsc, repositoryName) {
-				return this._description.repositories[repositoryName].getIdentity(rsc);
-			},
-			deserialize: function(id, repositoryName) {
-				return this._description.repositories[repositoryName].get(id);
-			},
-		}
-	);
 
 	var persistableGenerator = function(args) {
 		var SAVE = args.save || "save";
@@ -123,9 +39,9 @@ define([
 	};
 
 	var Repository = compose(function(args) {
-		this._typeDesc = args.typeDesc;
-		this._dataSource = args.dataSource;
 		this._registry = {}; // mapping id <-> rsc
+		this._factory = args.factory;
+		this._dataSource = args.dataSource;
 		this._serializer = args.serializer;
 	}, {
 		// le 'get' est une méthode publique à destination des autres repositories uniquement, pas des utilisateurs des repositories
@@ -133,7 +49,7 @@ define([
 		get: function(id) {
 			var instance = this._registry[id];
 			if (! instance) {
-				instance = this._typeDesc.create();
+				instance = this._factory();
 				this._registry[id] = instance;
 			}
 			return instance;
@@ -248,191 +164,86 @@ define([
 		},
 	});
 
-	var GeoPoint = compose(function (long, lat){
+	var Polygon = function Polygon (argument) {
+		this.points = argument;
+	};
+
+	var GeoPoint = compose(ObservableObject, function (long, lat){
 		this.setEach({
 			longitude: long,
 			latitude: lat,
 		});
 	});
 
-	var pointDesc = {};
-	Object.assign(pointDesc, {
-		type: 'object',
-		isEntity: false,
-		properties: {
-			latitude: numberDesc,
-			longitude: numberDesc,
-		},
-		instanceConstructor: compose(
-			ObservableObject,
-			GeoPoint,
-			{
-				typeDesc: pointDesc,
+
+
+	var SchemaSerializer = compose(function(schema, serializers) {
+		this.serializers = serializers;
+		this.schema = schema;
+	}, {
+		serialize: function(instance) {
+			var schema = this.schema;
+			var type = schema.type;
+			if (['string', 'number', 'integer'].indexOf(type) >= 0) {
+				return instance;
 			}
-		),
-		create: function(args) {
-			return this.instanceConstructor(args);
+			if (type === 'object') {
+				var data = {};
+				Object.keys(schema.properties).forEach(function(propName){
+					var value = instance.get(propName);
+					data[propName] = this.serializers[schema.properties[propName]].serialize(value);
+				}, this);
+				return data;
+			}
+			if (type === 'set') {
+				var itemSerializer = this.serializers[schema.items];
+				return instance.toArray().map(itemSerializer.serialize, itemSerializer);
+			}
 		},
-		serializer: new ValueObjectSerializer(pointDesc, {
-			latitude: {propName: 'x'},
-			longitude: {propName: 'y'},
-		}),
+		deserialize: function(data) {
+			var schema = this.schema;
+			var type = schema.type;
+			if (['string', 'number', 'interger'].indexOf(type) >= 0) {
+				return data;
+			}
+			if (type === 'object') {
+				var object = {};
+				Object.keys(schema.properties).forEach(function(propName){
+					var value = data[propName];
+					object[propName] = this.serializers[schema.properties[propName]].deserialize(value);
+				});
+				return object;
+			}
+			if (type === 'set') {
+				var itemSerializer = this.serializers[schema.items];
+				return data.map(itemSerializer.deserialize, itemSerializer);
+			}
+		},
 	});
 
-
-	var polygonDesc = {};
-	Object.assign(polygonDesc, {
-		type: 'object',
-		isEntity: false,
-		properties: {
-			points: {
-				type: 'array',
-				items: pointDesc,
-				serializer: new ArraySerializer(pointDesc),
-			},
-			area: {type: 'number', serializer: nativeTypeSerializer},
+	var EntityIdentitySerializer = function(registry) {
+		this._registry = registry;
+	};
+	EntityIdentitySerializer.prototype = {
+		serialize: function(rsc) {
+			return this._registry.getIdentity(rsc);
 		},
-		instanceConstructor: compose(
-			Dict,
-			{
-				typeDesc: polygonDesc,
-			}
-		),
-		create: function(args) {
-			return this.instanceConstructor(args);
+		deserialize: function(id) {
+			return this._registry.get(id);
 		},
-		serializer: new ValueObjectSerializer(polygonDesc, {
-			area: false, // cette propriété ne sera pas sérialisée
-		}),
-	});
-
-	var parcelleDesc = {};
-	Object.assign(parcelleDesc, {
-		// id: 'parcelle', // est-ce nécessaire ?
-		isEntity: true,
-		type: 'object',
-		properties: { // décrit l'API publique
-			name: stringDesc,
-			geom: polygonDesc,
-		},
-		registry: new Set(),
-		create: function(args) {
-			var parcelle = args ? new this.instanceConstructor(args) : new this.instanceConstructor();
-			this.registry.add(parcelle);
-			return parcelle;
-		},
-		repositories: {
-			local: new Repository({
-				typeDesc: parcelleDesc,
-				dataSource: new LocalStorage('parcelles'),
-				serializer: new ValueObjectSerializer(parcelleDesc),
-			}),
-			remote: new Repository({
-				typeDesc: parcelleDesc,
-				dataSource: new JsonRestStore('/parcelles'),
-				serializer: new ValueObjectSerializer(parcelleDesc),
-			}),
-		},
-		serializer: new EntityIdentityMultiRepositoriesSerializer(parcelleDesc),
-/*		serializers: {
-			local: new EntityIdentity(parcelleDesc.repositories.local),
-			remote: new EntityIdentity(parcelleDesc.repositories.remote),
-		},
-*/	});
-	parcelleDesc.instanceConstructor = compose(
-		ObservableObject,
-		Parcelle, // mixin spécifique au domaine
-		persistableGenerator({
-			save: "save",
-			load: 'load',
-			repository: 'localRepository',
-		}),
-		persistableGenerator({
-			save: 'pull',
-			load: 'push',
-			repository: 'remoteRepository',
-		}), {
-			typeDesc: parcelleDesc,
-			localRepository: parcelleDesc.repositories.local,
-			remoteRepository: parcelleDesc.repositories.remote,
-		}
-	);
-
-	var essenceDesc = {
-		type: 'string',
-		enum: ['Chêne', 'Frêne', "Hêtre"],
-		serializer: nativeTypeSerializer,
 	};
 
-	var mesureDesc = {};
-	Object.assign(mesureDesc, {
-		type: 'object',
-		isEntity: false,
-		properties: {
-			essence: essenceDesc,
-			diametre: {
-				type: 'number',
-				min: 0,
-				serializer: nativeTypeSerializer,
-			},
-		},
-		instanceConstructor: compose(
-			Dict,
-			//Mesure, // mixin spécifique au domaine
-			{
-				typeDesc: mesureDesc,
-			}
-		),
-		create: function(args) {
-			return this.instanceConstructor(args);
-		},
-		serializer: new ValueObjectSerializer(mesureDesc),
-	});
+	var EntityBase = compose(
+		Dict,
+		persistableGenerator({
+			save: "save",
+			load: 'load',
+			repository: 'repository',
+		})
+	);
 
-
-
-	var stationDesc = {};
-	Object.assign(stationDesc, {
-		// id: 'station', // est-ce nécessaire ?
-		isEntity: true,
-		type: 'object',
-		properties: {
-			name: stringDesc,
-			mesures: {
-				type: 'array',
-				items: mesureDesc,
-				serializer: new ObservableSetSerializer(mesureDesc),
-			},
-			location: pointDesc,
-			parcelle: parcelleDesc, // clé étrangère
-		},
-		registry: new Set(),
-		create: function(args) {
-			var instance = args ? new this.instanceConstructor(args) : new this.instanceConstructor();
-			this.registry.add(instance);
-			return instance;
-		},
-		repositories: {
-			local: new Repository({
-				typeDesc: stationDesc,
-				dataSource: new LocalStorage('stations'),
-				serializer: new ValueObjectSerializer(stationDesc, {
-					parcelle: {serializer: 'local'}, // serait-il possible de définir l'option 'local' pour toutes les propriétés qui pointent vers une entité ?
-				}),
-			}),
-			remote: new Repository({
-				typeDesc: stationDesc,
-				dataSource: new JsonRestStore('/stations'),
-				serializer: new ValueObjectSerializer(stationDesc, {
-					parcelle: {serializer: 'remote'},
-				}),
-			}),
-		},
-		serializer: new EntityIdentityMultiRepositoriesSerializer(stationDesc),
-	});
-	stationDesc.instanceConstructor = compose(
-		ObservableObject,
-		Station, // mixin spécifique au domaine
+	var LocalRemoteEntityBase = compose(
+		Dict,
 		persistableGenerator({
 			save: "save",
 			load: 'load',
@@ -442,47 +253,407 @@ define([
 			save: 'pull',
 			load: 'push',
 			repository: 'remoteRepository',
-		}), {
-			typeDesc: stationDesc,
-			localRepository: stationDesc.repositories.local,
-			remoteRepository: stationDesc.repositories.remote,
-		}
+		})
 	);
+
+	var LocalApp = compose(function(args) {
+		var self = this;
+		this.entities = args.entities;
+		this.relations = args.relations;
+		this.dataSourcesProvider = args.dataSourcesProvider;
+		this.factories = {};
+		this.serializers = {};
+		this.repositories = {};
+
+		Object.keys(args.types).forEach(function(typeId) {
+			this.addType(typeId, args.types[typeId]);
+		}, this);
+
+
+	}, {
+		addType: function(typeId, options) {
+			if (this._isEntityType(typeId)) {
+				// pour une entité, on considère qu'elle est toujours déclarée avec un schéma
+				var Entity = compose(EntityBase, {
+					schema: options.schema,
+				});
+				var instancesRegistry = new Set();
+				this.factories[typeId] = function(args) {
+					var instance = args ? new Entity(args) : new Entity();
+					instancesRegistry.add(instance);
+					return instance;
+				};
+
+
+				this.repositories[typeId] = new Repository({
+					factory: this.factories[typeId],
+					serializer: new SchemaSerializer(options.schema, this.serializers),
+					dataSource: this.dataSourcesProvider.get(typeId),
+				});
+
+				Entity.prototype.repository = this.repositories[typeId];
+
+				this.serializers[typeId] = new EntityIdentitySerializer(this.repositories[typeId]);
+			} else {
+				if (options.factory){
+					this.factories[typeId] = options.factory;
+				} else {
+					var instanceConstructor;
+					if (options.schema.type === 'object') {
+						instanceConstructor = Dict;
+					}
+					if (options.schema.type === 'set') {
+						instanceConstructor = ObservableSet;
+					}
+					this.factories[typeId] = function(args) {
+						return instanceConstructor(args);
+					};
+				}
+				this.serializers[typeId] = options.serializer || new SchemaSerializer(options.schema, this.serializers);
+			}
+		},
+		create: function(type, args) {
+			return this.factories[type](args);
+		},
+		_isEntityType: function(type) {
+			return this.entities.indexOf(type) >= 0;
+		},
+	});
+
+
+	var LocalRemoteApp = compose(function(args) {
+		var self = this;
+		this.entities = args.entities;
+		this.relations = args.relations;
+		this.factories = {};
+		this.localSerializers = {};
+		this.remoteSerializers = {};
+		this.localRepositories = {};
+		this.remoteRepositories = {};
+		this.localDataSourcesProvider = args.localDataSourcesProvider;
+		this.remoteDataSourcesProvider = args.remoteDataSourcesProvider;
+
+		Object.keys(args.types).forEach(function(typeId) {
+			this.addType(typeId, args.types[typeId]);
+		}, this);
+
+
+	}, {
+		addType: function(typeId, options) {
+			if (this._isEntityType(typeId)) {
+				var LocalRemoteEntity = compose(LocalRemoteEntityBase, {
+					schema: options.schema,
+				});
+				var instancesRegistry = new Set();
+				this.factories[typeId] = function(args) {
+					var instance = args ? new LocalRemoteEntity(args) : new LocalRemoteEntity();
+					instancesRegistry.add(instance);
+					return instance;
+				};
+
+
+				this.localRepositories[typeId] = new Repository({
+					factory: this.factories[typeId],
+					serializer: new SchemaSerializer(options.schema, this.localSerializers),
+					dataSource: this.localDataSourcesProvider.get(typeId),
+				});
+				this.remoteRepositories[typeId] = new Repository({
+					factory: this.factories[typeId],
+					serializer: new SchemaSerializer(options.schema, this.remoteSerializers),
+					dataSource: this.remoteDataSourcesProvider.get(typeId),
+				});
+
+				LocalRemoteEntity.prototype.localRepository = this.localRepositories[typeId];
+				LocalRemoteEntity.prototype.remoteRepository = this.remoteRepositories[typeId];
+
+				this.localSerializers[typeId] = new EntityIdentitySerializer(this.localRepositories[typeId]);
+				this.remoteSerializers[typeId] = new EntityIdentitySerializer(this.remoteRepositories[typeId]);
+			} else {
+				if (options.factory){
+					this.factories[typeId] = options.factory;
+				} else {
+					var instanceConstructor;
+					if (options.schema.type === 'object') {
+						instanceConstructor = Dict;
+					}
+					if (options.schema.type === 'set') {
+						instanceConstructor = ObservableSet;
+					}
+					this.factories[typeId] = function(args) {
+						return instanceConstructor(args);
+					};
+				}
+				this.localSerializers[typeId] = options.localSerializer || options.serializer || new SchemaSerializer(options.schema, this.localSerializers);
+				this.remoteSerializers[typeId] = options.remoteSerializer || options.serializer || new SchemaSerializer(options.schema, this.remoteSerializers);
+			}
+		},
+		create: function(type, args) {
+			return this.factories[type](args);
+		},
+		_isEntityType: function(type) {
+			return this.entities.indexOf(type) >= 0;
+		},
+	});
+
+	var modelDeclaration = {
+		entities: [
+			'station',
+			'parcelle',
+		],
+		// en pahse expérimentale, on ne gère que des relations un-à-plusieurs avec une propriété sur la ressource 'plusieurs' qui représente la clé étrangère
+		relations: {
+			station: {
+				model: 'parcelle',
+				propName: 'parcelle',
+			},
+		},
+		types: {
+			string: {
+				schema: {
+					type: 'string',
+				}
+			},
+			number: {
+				schema: {
+					type: 'number',
+				},
+			},
+			positiveInteger: {
+				schema: {
+					type: 'integer',
+					min: 0,
+				}
+			},
+			polygon: {
+				factory: function(args) {
+					return new Polygon(args);
+				},
+				serializer: {
+					serialize: function(polygon) {
+						return this.points;
+					},
+					deserialize: function(points) {
+						return new Polygon(points);
+					},
+				},
+			},
+			point: {
+				factory: function(args) {
+					return new GeoPoint(args.longitude, args.latitude);
+				},
+				serializer: {
+					serialize: function(geoPoint) {
+						return {
+							x: geoPoint.get('longitude'),
+							y: geoPoint.get('latitude'),
+						};
+					},
+					deserialize: function(data) {
+						return new GeoPoint(data.x, data.y);
+					},
+				},
+			},
+			essence: {
+				schema: {
+					type: 'string',
+					enum: ["Chêne", "Frêne", "Hêtre"],
+				}
+			},
+			mesures: {
+				schema: {
+					type: 'set',
+					items: 'mesure',
+				},
+			},
+			mesure: {
+				schema: {
+					type: 'object',
+					properties: {
+						essence: 'essence',
+						diametre: 'positiveInteger'
+					},
+				},
+
+			},
+			parcelle: {
+				schema: {
+					type: 'object',
+					properties: {
+						name: 'string',
+						geom: 'polygon',
+					},
+				}
+			},
+			station: {
+				schema: {
+					type: 'object',
+					properties: {
+						name: 'string',
+						mesures: 'mesures',
+						location: 'point',
+						parcelle: 'parcelle', // a supprimer quand les relations seront implémentées
+					},
+				},
+			},
+
+		},
+
+	};
+
+	var LocalStorageProvider = function(nameSpace) {
+		this._nameSpace = nameSpace;
+	};
+	LocalStorageProvider.prototype.get = function(typeId) {
+		return new LocalStorage(this._nameSpace+'/'+typeId);
+	};
+
+	var JsonRestServiceProvider = function(baseUrl) {
+		this._baseUrl = baseUrl;
+	};
+	JsonRestServiceProvider.prototype.get = function(typeId) {
+		return new JsonRestStore(this._baseUrl+'/'+typeId);
+	};
+
+
+	var clientApp =	new LocalRemoteApp({
+		entities: modelDeclaration.entities,
+		relations: modelDeclaration.relations,
+		types: modelDeclaration.types,
+		localDataSourcesProvider: new LocalStorageProvider('client'),
+		remoteDataSourcesProvider: new LocalStorageProvider('server'),
+	});
+
+
+
+
+	// server
+	var serverApp = new LocalApp({
+		entities: modelDeclaration.entities,
+		relations: modelDeclaration.relations,
+		types: modelDeclaration.types,
+		dataSourcesProvider: new LocalStorageProvider('server'),
+	});
+
+/*
+	var serverView = new RestView({
+		app: serverApp,
+		port: 8080,
+
+	});
+	serverView.start();
+
+	var serverParcelle2 = serverApp.parcelle.create({
+		name: 'Parcelle 2',
+	});
+	serverParcelle2.save();
+
+	// intéraction entre client et server
+	parcelle1.push();
+	var queryResult = clientApp.parcelle.repositories.remote.query({
+		name: 'Parcelle 2',
+	});
+	// cache management
+	var clientParcelle2 = queryResult[0];
+	clientApp.parcelle.use(clientParcelle2);
+	queryResult.destroy();
+
+	clientParcelle2.pull();
+	assert.equal(clientParcelle2.get('name'), 'Parcelle 2');
+
+	clientParcelle2.set('name', 'nouveau nom pour la parcelle 2');
+	clientParcelle2.push();
+
+	assert.equal(serverParcelle2.get('name'), 'nouveau nom pour la parcelle 2');
+*/
+
 
 
 	registerSuite({
-		name: 'data creation',
+		name: 'clientApp data creation',
 		'parcelle': function() {
-			var parcelle1 = parcelleDesc.create({
+			var parcelle1 = clientApp.create('parcelle', {
 				name: 'Parcelle 1',
 			});
 			parcelle1.save();
 
-			var localRepo = parcelleDesc.repositories.local;
+			var localRepo = clientApp.localRepositories['parcelle'];
 			var id = localRepo.getIdentity(parcelle1);
 			assert.deepEqual(localRepo._dataSource.get(id), {
 				name: 'Parcelle 1',
 			});
 		},
 		'parcelle-station': function() {
-			var parcelle1 = parcelleDesc.repositories.local.get('1');
-			var station1 = stationDesc.create({
-				name: 'P1S1',
-				parcelle: parcelle1,
-				mesures: [
-					mesureDesc.create({
-						essence: essenceDesc.enum[0],
-						diametre: 30,
-					}),
-				],
-			});
-			station1.save();
+			var parcelle1 = clientApp.localRepositories['parcelle'].get('1');
 
-			var localRepo = stationDesc.repositories.local;
-			var id = localRepo.getIdentity(station1);
+			var stationP1S1 = clientApp.create('station', {
+				parcelle: parcelle1,
+				name: 'P1S1',
+				mesures: clientApp.create('mesures', [
+					clientApp.create('mesure', {essence: 'Chêne', diametre: 30}),
+				]),
+				location: clientApp.create('point', {
+					longitude: 12.3,
+					latitude: 17.5,
+				}),
+			});
+
+			stationP1S1.save();
+
+			var localRepo = clientApp.localRepositories['station'];
+			var id = localRepo.getIdentity(stationP1S1);
 			assert.deepEqual(localRepo._dataSource.get(id), {
 				name: 'P1S1',
 				parcelle: '1',
+				location: {x: 12.3, y: 17.5},
+				mesures: [
+					{
+						essence: 'Chêne',
+						diametre: 30,
+					}
+				],
+			});
+
+
+		},
+	});
+
+	registerSuite({
+		name: 'serverApp data creation',
+		'parcelle': function() {
+			var parcelle1 = serverApp.create('parcelle', {
+				name: 'Parcelle 1',
+			});
+			parcelle1.save();
+
+			var repo = serverApp.repositories['parcelle'];
+			var id = repo.getIdentity(parcelle1);
+			assert.deepEqual(repo._dataSource.get(id), {
+				name: 'Parcelle 1',
+			});
+		},
+		'parcelle-station': function() {
+			var parcelle1 = serverApp.repositories['parcelle'].get('1');
+
+			var stationP1S1 = serverApp.create('station', {
+				parcelle: parcelle1,
+				name: 'P1S1',
+				mesures: serverApp.create('mesures', [
+					serverApp.create('mesure', {essence: 'Chêne', diametre: 30}),
+				]),
+				location: serverApp.create('point', {
+					longitude: 12.3,
+					latitude: 17.5,
+				}),
+			});
+
+			stationP1S1.save();
+
+			var repo = serverApp.repositories['station'];
+			var id = repo.getIdentity(stationP1S1);
+			assert.deepEqual(repo._dataSource.get(id), {
+				name: 'P1S1',
+				parcelle: '1',
+				location: {x: 12.3, y: 17.5},
 				mesures: [
 					{
 						essence: 'Chêne',

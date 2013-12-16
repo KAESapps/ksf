@@ -30,11 +30,13 @@ define([
 		};
 		var merge = this.merge;
 		this.merge = function(rsc, options){
+			rsc.get(args.propName)._startChanges();
 			merge.apply(this, arguments);
 			var items = this.getPropValue(rsc, args.propName);
 			items.forEach(function(item){
 				args.itemManager.merge(item);
 			});
+			rsc.get(args.propName)._stopChanges();
 		};
 	};
 });

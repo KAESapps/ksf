@@ -33,7 +33,7 @@ define([
 						childBounds = child.get('bounds') || {},
 						childWBound, childHBound;
 
-					childStyle.position = 'absolute';
+					childStyle.position = options.sizeReference ? 'relative' : 'absolute';
 					childStyle.zIndex = index;
 
 					if (options.verticalAlign === 'bottom') {

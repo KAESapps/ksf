@@ -24,7 +24,7 @@ define([
 			});
 
 			this.getR('active').onValue(function(active) {
-				self.style.set('active', active ? 'active' : 'inactive');
+				self.cssClasses.set('active', active ? 'active' : 'inactive');
 			});
 		}
 	);

@@ -23,15 +23,15 @@ define([
 		factory: function (item) {
 			var li = new HtmlElement("li", {draggable: true});
 			li.domAttrs.set("innerHTML", item.name);
-			li.style.set('movable', 'movable');
+			li.cssClasses.set('movable', 'movable');
 			li.domNode.addEventListener("click", function(){
 				li.set("active", !li.get("active"));
 			});
 			li.whenChanged('active', function(b) {
 				if (b) {
-					li.style.set('active', 'active');
+					li.cssClasses.set('active', 'active');
 				} else {
-					li.style.remove('active');
+					li.cssClasses.remove('active');
 				}
 			});
 			li.domNode.addEventListener('dragstart', function(ev) {

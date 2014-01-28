@@ -21,43 +21,43 @@ define([
 	var main = window.main = new FlexContainer({
 		orientation: 'vertical',
 	});
-	main.style.set('name', 'main');
+	main.cssClasses.set('name', 'main');
 
 	var img = new HtmlElement('img', { width: 150, height: 150, alt: "Logo", className: 'fixed'});
-	img.style.set('name', 'img');
+	img.cssClasses.set('name', 'img');
 
 	var title = new HtmlElement('h1', { innerHTML: "Title", className: 'flex'});
-	title.style.set('name', 'title');
+	title.cssClasses.set('name', 'title');
 
 	var header = new FlexContainer({
 		orientation: 'horizontal',
 	});
-	header.style.set('name', 'header');
+	header.cssClasses.set('name', 'header');
 	header.content.setContent([
 		img,
 		[title, { flex: true }]
 	]);
 
 	var centerLeft = new HtmlElement('div', { innerHTML: "Flex", className: 'flex'});
-	centerLeft.style.set('name', 'centerLeft');
+	centerLeft.cssClasses.set('name', 'centerLeft');
 
 	var centerRight = new HtmlElement('div', { innerHTML: "Flex", className: 'flex'});
-	centerRight.style.set('name', 'centerRight');
+	centerRight.cssClasses.set('name', 'centerRight');
 
 	var center = new FlexContainer({
 		orientation: 'horizontal',
 	});
-	center.style.set('name', 'center');
+	center.cssClasses.set('name', 'center');
 	center.content.setContent([
 		[centerLeft, { flex: true }],
 		[centerRight, { flex: true }]
 	]);
 
 	var longContent = new HtmlElement('div', { innerHTML: "Fixed - With a long content so that we can increase height of this bloc by resizing the viewport", className: 'fixed' });
-	longContent.style.set('name', 'longContent');
+	longContent.cssClasses.set('name', 'longContent');
 
 	var footer = new HtmlElement('div', { innerHTML: "Fixed", className: 'fixed', name: 'footer'});
-	footer.style.set('name', 'footer');
+	footer.cssClasses.set('name', 'footer');
 
 	main.content.setContent([
 		header,

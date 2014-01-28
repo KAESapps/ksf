@@ -28,9 +28,9 @@ define([
 			this._components.asChangesStream().onValue(function(changes) {
 				changes.forEach(function(change) {
 					if (change.type === 'add') {
-						change.value.style && change.value.style.set('name', str.hyphenate(change.key));
+						change.value.cssClasses && change.value.cssClasses.set('name', str.hyphenate(change.key));
 					} else if (change.type === 'remove') {
-						change.value.style && change.value.style.remove('name');
+						change.value.cssClasses && change.value.cssClasses.remove('name');
 					}
 				});
 			});

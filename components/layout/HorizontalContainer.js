@@ -120,7 +120,7 @@ define([
 					self._applyContent();
 				}));
 
-				cancels.push(this.style.asReactive().onValue(this._applyStyle.bind(this)));
+				cancels.push(this.cssClasses.asReactive().onValue(this._applyStyle.bind(this)));
 
 				this._appliedChildren.forEach(function(child) {
 					child.startLiveRendering && child.startLiveRendering();

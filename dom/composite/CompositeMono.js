@@ -60,6 +60,11 @@ define([
 				return this[MAIN_COMPONENT].domNode;
 			}
 		});
+		Object.defineProperty(CompositeMono.prototype, 'cssClasses', {
+			get: function() {
+				return this[MAIN_COMPONENT].cssClasses;
+			}
+		});
 		Object.defineProperty(CompositeMono.prototype, 'style', {
 			get: function() {
 				return this[MAIN_COMPONENT].style;

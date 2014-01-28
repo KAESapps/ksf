@@ -25,7 +25,7 @@ define([
 				textContent: "Area",
 				bounds: { height: 300, width: 400 }
 			});
-			area.style.set('base', 'area');
+			area.cssClasses.set('base', 'area');
 			document.body.appendChild(area.get('domNode'));
 			area.startLiveRendering();
 		},

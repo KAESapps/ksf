@@ -8,10 +8,10 @@ define([
 	ObservableObject
 ){
 	return compose(function() {
-		this.style = new ObservableObject();
+		this.cssClasses = new ObservableObject();
 	}, {
-		_applyStyle: function() {
-			var style = this.style,
+		_applyCssClasses: function() {
+			var style = this.cssClasses,
 				newClasses = new Set(),
 				domNode = this.domNode;
 

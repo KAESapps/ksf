@@ -83,6 +83,24 @@ define([
 		setContentR: function(valuesStream){
 			return this.own(this.onValue(this, "setContent"));
 		},
+		// apply changes to current content
+		updateContent: function(changes){
+			this._startChanges();
+			changes.forEach(function(change){
+				if (change.type === "add"){
+					this.add(change.value, change.index);
+				}
+				if (change.type === "remove"){
+					this.remove(change.index);
+				}
+			}, this);
+			this._stopChanges();
+		},
+		// update content of this with changes from stream
+		// store handler, to call it on destroy
+		updateContentR: function(changesStream){
+			return this.own(changesStream.onValue(this, "updateContent"));
+		},
 		clone: function(){
 			var clone = new this.constructor();
 			clone.addEach(this);

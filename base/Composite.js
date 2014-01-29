@@ -21,7 +21,7 @@ define([
 		{
 			destroy: function(){
 				Destroyable.prototype.destroy.call(this);
-				destroy(this._components.registry);
+				destroy(this._components);
 			},
 		}
 	);

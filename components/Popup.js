@@ -36,7 +36,7 @@ define([
 		}.bind(this));
 
 		this._setLayout();
-		this.style.set('base', 'Popup');
+		this.cssClasses.set('base', 'Popup');
 	}, {
 		_setLayout: function() {
 			this._layout.set('config', [

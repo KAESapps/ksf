@@ -3,7 +3,8 @@ define([
 	'dojo/has',
 	'ksf/collections/ObservableObject',
 	'ksf/collections/Set',
-	'ksf/dom/WithCssClassStyle',
+	'ksf/dom/WithCssClasses',
+	'ksf/dom/WithStyle',
 	'ksf/dom/WithSize',
 	'ksf/dom/Sizeable'
 ], function(
@@ -11,11 +12,11 @@ define([
 	has,
 	ObservableObject,
 	Set,
-	WithCssClassStyle,
+	WithCssClasses,
+	WithStyle,
 	WithSize,
 	Sizeable
 ) {
-	//
 	var DomNodeProxy = compose(
 		ObservableObject,
 		function(domNode) {
@@ -58,7 +59,8 @@ define([
 
 	return compose(
 		ObservableObject,
-		WithCssClassStyle,
+		WithCssClasses,
+		WithStyle,
 		WithSize,
 		Sizeable,
 		function(tag, domAttrs, props, domEvents) {
@@ -102,6 +104,9 @@ define([
 						}),
 						this.getR('bounds').onValue(function() {
 							self._applyBounds();
+						}),
+						this.cssClasses.asReactive().onValue(function() {
+							self._applyCssClasses();
 						}),
 						this.style.asReactive().onValue(function() {
 							self._applyStyle();

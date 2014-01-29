@@ -22,7 +22,7 @@ define([
 	var layer = new HtmlContainer('div', {}, {
 		content: [showButton]
 	});
-	layer.style.set('base', 'layer');
+	layer.cssClasses.set('base', 'layer');
 
 
 	var hideButton = new HtmlElement('button', {
@@ -32,7 +32,7 @@ define([
 		bounds: { height: 200, width: 200 },
 		content: [hideButton]
 	});
-	panel.style.set('base', 'panel');
+	panel.cssClasses.set('base', 'panel');
 
 	var container2 = new LayerContainer({
 		bounds: { height: 300, width: 500 },

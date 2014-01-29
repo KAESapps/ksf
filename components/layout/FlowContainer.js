@@ -8,7 +8,7 @@ define([
 	return compose(
 		OrderedContainerBase,
 		function(args) {
-			this.style.set('base', 'FlowContainer');
+			this.cssClasses.set('base', 'FlowContainer');
 		}, {
 			_layoutContent: function() {
 				this.content.forEach(function(child) {

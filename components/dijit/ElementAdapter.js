@@ -2,17 +2,17 @@ define([
 	'compose',
 	'ksf/collections/ObservableObject',
 	'ksf/dom/Sizeable',
-	'ksf/dom/WithCssClassStyle'
+	'ksf/dom/WithCssClass'
 ], function(
 	compose,
 	ObservableObject,
 	Sizeable,
-	WithCssClassStyle
+	WithCssClass
 ) {
 	return compose(
 		ObservableObject,
 		Sizeable,
-		WithCssClassStyle,
+		WithCssClass,
 		function(dijit, attrs) {
 			this._dijit = dijit;
 			this.domNode = this._dijit.domNode;
@@ -41,7 +41,7 @@ define([
 			startLiveRendering: function() {
 				var self = this;
 				return [
-					this.style.asReactive().onValue(this._applyStyle.bind(this)),
+					this.cssClasses.asReactive().onValue(this._applyCssClasses.bind(this)),
 					this.getEachR('inDom', 'bounds').onValue(function() {
 						self._applyBounds();
 						self._dijitResize();

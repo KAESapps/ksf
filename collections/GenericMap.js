@@ -88,10 +88,10 @@ define([
 			this._startChanges();
 			changes.forEach(function(change){
 				if (change.type === "add"){
-					this.add(change.value, change.index);
+					this.add(change.value, change.key);
 				}
 				if (change.type === "remove"){
-					this.remove(change.index);
+					this.remove(change.key);
 				}
 			}, this);
 			this._stopChanges();

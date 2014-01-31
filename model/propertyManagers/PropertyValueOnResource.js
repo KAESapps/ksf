@@ -7,7 +7,7 @@ define([
 	};
 	PropertyValue.prototype = {
 		install: function(rsc, arg){
-			rsc.getR(this.propName).onValue(function() {
+			rsc.getR(this.propName).changes().onValue(function() {
 				this.owner.refreshSyncStatus(rsc);
 			}.bind(this));
 		},

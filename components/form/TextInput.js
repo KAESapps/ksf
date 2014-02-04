@@ -25,7 +25,11 @@ define([
 				args.hint && this.set('hint', args.hint);
 			}
 			this._component = new HtmlElement('input', {type: 'text'}, null, domEvents);
-			this._component.domAttrs.bind('value', this, 'value');
+			this._component.domAttrs.bind('value', this, 'value', {
+				convert: function(value) {
+					return (value !== undefined) ? value : null;
+				}
+			});
 
 			this.getR('passwordDisplay').onValue(function(pass) {
 				self._component.domAttrs.set('type', pass ? 'password' : 'text');

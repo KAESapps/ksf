@@ -33,14 +33,14 @@ define([
 				this._digesting = true;
 				while(this._waitingChanges.length > 0){
 					var changes = this._waitingChanges.pop();
-					var changes = this._applyChanges(changes);
+					changes = this._applyChanges(changes);
 					this._emit('changes', changes);
 				}
 				this._digesting = false;
 			}
 		},
 		_applyChanges: function(changes) {
-			// var changes = this._processChanges(changes);
+			changes = this._processChanges(changes);
 
 			changes.forEach(function(change) {
 				if (change.type === 'set') {
@@ -50,18 +50,6 @@ define([
 			return changes;
 		},
 		_processChanges: function(changes) {
-			// computedProperty
-			var changedProperties = changes.map(function(change) {
-				return change.key;
-			});
-			if (changedProperties.indexOf('firstName') >= 0 || changedProperties.indexOf('firstName') >= 0) {
-				var firstName =
-				changes.push({
-					type: 'set',
-					key: 'fullName',
-					value: firstName + ' ' + lastName,
-				});
-			}
 			return changes;
 		},
 	});

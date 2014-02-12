@@ -23,8 +23,6 @@ define([
 				this._pendingEvents.push([type, event]);
 			} else {
 				event = event || {};
-				event.type = type;
-				event.emiter = this;
 				this._listeners && this._listeners[type] && this._listeners[type].forEach(function(listener){
 					listener(event);
 				});

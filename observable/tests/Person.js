@@ -1,26 +1,26 @@
 define([
 	'compose',
-	'../_CompositeByProperty',
-	'../accessors/PropertyAccessor'
+	'../_StatefulMap',
+	'../accessors/BasicPropertyAccessor'
 ], function(
 	compose,
-	_CompositeByProperty,
-	PropertyAccessor
+	_StatefulMap,
+	BasicPropertyAccessor
 ){
 	var StringProperty = compose({
 		compute: function(value) {
 			return typeof(value) === 'string' ? value : '';
 		},
-		accessorFactory: PropertyAccessor
+		accessorFactory: BasicPropertyAccessor
 	});
 
 	var StringComputedProperty = compose(function(fct) {
 		this.compute = fct;
 	}, {
-		accessorFactory: PropertyAccessor
+		accessorFactory: BasicPropertyAccessor
 	});
 
-	return compose(_CompositeByProperty, {
+	return compose(_StatefulMap, {
 		_properties: {
 			firstName: new StringProperty(),
 			lastName: new StringProperty()

@@ -5,9 +5,7 @@ define([
 	compose,
 	_Composite
 ){
-	return compose(_Composite, function() {
-		this._compute();
-	}, {
+	return compose(_Composite, {
 		_properties: {},
 		_computedProperties: {},
 		_computeStateFromSet: function(arg) {
@@ -15,7 +13,10 @@ define([
 			var newState = {},
 				self = this;
 			Object.keys(this._properties).forEach(function(propId) {
-				newState[propId] = self._properties[propId].compute(arg[propId]);
+				var propValue = self._properties[propId].compute(arg[propId]);
+				if (propValue !== undefined){
+					newState[propId] = propValue;
+				}
 			});
 			// TODO: gérer l'arbre des dépendances :
 			Object.keys(this._computedProperties).forEach(function(propId) {

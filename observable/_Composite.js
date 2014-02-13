@@ -1,13 +1,11 @@
 define([
 	'compose',
-	'ksf/base/Destroyable',
-	'./_Observable'
+	'ksf/base/Destroyable'
 ], function(
 	compose,
-	Destroyable,
-	_Observable
+	Destroyable
 ){
-	return compose(_Observable, Destroyable, function() {
+	return compose(Destroyable, function() {
 	}, {
 		_computeStateFromPatch: function(arg) {
 			// hook for converting patch() argument into a state
@@ -16,7 +14,7 @@ define([
 			this.patch();
 		},
 		patch: function(arg) {
-			this._observableState.set(this._computeStateFromPatch(arg));
+			this._setState(this._computeStateFromPatch(arg));
 		},
 		_addAccessor: function(accessor) {
 			this.own(accessor);

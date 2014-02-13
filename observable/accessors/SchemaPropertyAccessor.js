@@ -1,11 +1,11 @@
 define([
 	'compose',
-	'./PropertyAccessor'
+	'./BasicPropertyAccessor'
 ], function(
 	compose,
-	PropertyAccessor
+	BasicPropertyAccessor
 ){
-	var PropertySchemaAccessor = compose(PropertyAccessor, function(propName, schema) {
+	var SchemaPropertyAccessor = compose(BasicPropertyAccessor, function(propName, schema) {
 		this._propName = propName;
 		this._schema = schema;
 	}, {
@@ -21,9 +21,9 @@ define([
 			var accessor;
 			var subSchema = this._schema.properties[propName];
 			if (subSchema.properties) {
-				accessor = new PropertySchemaAccessor(propName, subSchema);
+				accessor = new SchemaPropertyAccessor(propName, subSchema);
 			} else {
-				accessor = new PropertyAccessor(propName);
+				accessor = new BasicPropertyAccessor(propName);
 			}
 			this._addAccessor(accessor);
 			return accessor;
@@ -36,5 +36,5 @@ define([
 			accessor.destroy();
 		}
 	});
-	return PropertySchemaAccessor;
+	return SchemaPropertyAccessor;
 });

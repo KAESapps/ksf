@@ -1,23 +1,38 @@
 define([
 	'compose',
-	'../_ObservableNestedMap'
+	'../_StatefulMap',
+	'../accessors/BasicPropertyAccessor',
+	'../accessors/_MapPropertyAccessor'
 ], function(
 	compose,
-	_ObservableNestedMap
+	_StatefulMap,
+	BasicPropertyAccessor,
+	_MapPropertyAccessor
 ){
-	return compose(_ObservableNestedMap, function() {
-		this._setStructure({
-			properties: {
-				firstName: {},
-				lastName: {},
-				address: {
-					type: 'object',
-					properties: {
-						street: {},
-						city: {}
-					}
-				}
-			}
-		});
+	var StringProperty = compose({
+		compute: function(value) {
+			return value;
+		},
+		accessorFactory: BasicPropertyAccessor
+	});
+
+	var AddressProperty = compose({
+		compute: function(value) {
+			return value;
+		},
+		accessorFactory: compose(_MapPropertyAccessor, {
+			_properties: {
+				street: new StringProperty(),
+				city: new StringProperty(),
+			},
+		})
+	});
+
+	return compose(_StatefulMap, {
+		_properties: {
+			firstName: new StringProperty(),
+			lastName: new StringProperty(),
+			address: new AddressProperty()
+		},
 	});
 });

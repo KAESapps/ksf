@@ -2,16 +2,16 @@ define([
 	'intern!object',
 	'intern/chai!assert',
 	'../Stateful',
-	'../ObservableMap',
 	'./Person',
-	'./PersonWithAddress'
+	'./PersonWithAddress',
+	'./Station'
 ], function(
 	registerSuite,
 	assert,
 	Stateful,
-	ObservableMap,
 	Person,
-	PersonWithAddress
+	PersonWithAddress,
+	Station
 ){
 	registerSuite({
 		name: 'simple value',
@@ -40,89 +40,6 @@ define([
 				'toto',
 			]);
 		},
-	});
-
-	registerSuite({
-		name: 'composite type key/value',
-		'set get': function() {
-			// observable qui a une valeur de type composite 'object' et qui a une API adaptée à ce cas
-			var obs = new ObservableMap();
-
-			assert.deepEqual(obs.get(), {});
-			obs.set({name: 'toto'});
-			assert.deepEqual(obs.get(), {}, "No property declared");
-		},
-		'props': function() {
-			var obs = new ObservableMap();
-
-			obs.addProperty('name', 'toto');
-			var nameProp = obs.getProperty('name');
-			assert.equal(nameProp.get(), 'toto');
-			assert.deepEqual(obs.get(), {name: 'toto'});
-
-			nameProp.set('titi');
-			assert.equal(nameProp.get(), 'titi');
-			assert.deepEqual(obs.get(), {name: 'titi'});
-
-			obs.set({name: 'tata', truc: 'muche'});
-			assert.equal(nameProp.get(), 'tata');
-			assert.deepEqual(obs.get(), {name: 'tata'});
-
-			obs.removeProperty('name');
-			assert.throw(function() {
-				nameProp.get();
-			});
-			assert.deepEqual(obs.get(), {});
-
-		},
-		'observing value': function() {
-			var observedValues = [];
-			var observedNameValues = [];
-			var obs = new ObservableMap();
-			var handler = obs.onValue(function(value) {
-				observedValues.push(value);
-			});
-
-			obs.addProperty('name', 'toto');
-			var nameProp = obs.getProperty('name');
-			var propHandler = nameProp.onValue(function(value) {
-				observedNameValues.push(value);
-			});
-
-			nameProp.set('titi');
-			obs.set({name: 'tata', truc: 'muche'});
-			obs.removeProperty('name');
-
-			assert.deepEqual(observedValues, [
-				{},
-				{name: 'toto'},
-				{name: 'titi'},
-				{name: 'tata'},
-				{},
-			]);
-			assert.deepEqual(observedNameValues, [
-				'toto',
-				'titi',
-				'tata',
-			]);
-		},
-/*
-		"observing properties": function() {
-			var observedProperties = [];
-			var obs = new ObservableMap();
-			obs.onProperties(function(props) {
-				observedProperties.push(props);
-			});
-			obs.addProperty('name', 'toto');
-			obs.removeProperty('name');
-
-			assert.deepEqual(observedProperties, [
-				{},
-				{name: true},
-				{}
-			]);
-		},
-*/
 	});
 
 	registerSuite({
@@ -305,9 +222,60 @@ define([
 	});
 
 	registerSuite({
-		name: "Avec logique",
-		"": function() {
+		name: "Station et arbres",
+		"get set": function() {
+			var obs = new Station();
 
+			assert.deepEqual(obs.get(), {
+				nom: '',
+				arbres: []
+			});
+
+			obs.getProperty('nom').set('Station 1');
+
+			var arbresProp = obs.getProperty('arbres');
+
+			var arbre1Accessor = arbresProp.add();
+
+			assert.deepEqual(arbre1Accessor.get(), {});
+
+			arbre1Accessor.getProperty('essence').set('Frêne');
+			arbre1Accessor.getProperty('circonference').set(45);
+
+			assert.deepEqual(obs.get(), {
+				nom: 'Station 1',
+				arbres: [{
+					essence: 'Frêne',
+					circonference: 45
+				}]
+			});
+
+			var arbre2Accessor = arbresProp.add();
+			arbre2Accessor.set({
+				essence: 'Chêne',
+				circonference: 125
+			});
+
+			assert.deepEqual(obs.get(), {
+				nom: 'Station 1',
+				arbres: [{
+					essence: 'Frêne',
+					circonference: 45
+				}, {
+					essence: 'Chêne',
+					circonference: 125
+				}]
+			});
+
+			arbresProp.remove(0);
+
+			assert.deepEqual(obs.get(), {
+				nom: 'Station 1',
+				arbres: [{
+					essence: 'Chêne',
+					circonference: 125
+				}]
+			});
 		}
 	});
 });

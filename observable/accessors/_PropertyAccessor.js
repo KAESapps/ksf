@@ -8,19 +8,28 @@ define([
 	return compose(Destroyable, function(propName) {
 		this._propName = propName;
 	}, {
+		/* required method during composition */
+		_computeStateFromSet: function(setArg) {},
+
 		setParent: function(parent) {
 			this._parent = parent;
 		},
+		
 		get: function() {
 			if (this._destroyed) { throw "Destroyed"; }
 			return this._parent.get()[this._propName];
 		},
-		set: function(value) {
+
+		_setState: function(state) {
 			if (this._destroyed) { throw "Destroyed"; }
-			var obj = {};
-			obj[this._propName] = value;
-			this._parent.patch(obj);
+			var parentPatch = {};
+			parentPatch[this._propName] = state;
+			this._parent.patch(parentPatch);
 		},
+		set: function(arg) {
+			this._setState(this._computeStateFromSet(arg));
+		},
+
 		onValue: function(listener) {
 			if (this._destroyed) { throw "Destroyed"; }
 			var self = this;

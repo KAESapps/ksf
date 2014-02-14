@@ -1,37 +1,41 @@
 define([
 	'compose',
-	'../_StatefulMap',
-	'../accessors/BasicPropertyAccessor'
+	'../propertyObject/_StatefulPropertyObject',
+	'../propertyObject/_WithComputedProperties',
+	'../propertyObject/BasicPropertyAccessor'
 ], function(
 	compose,
-	_StatefulMap,
+	_StatefulPropertyObject,
+	_WithComputedProperties,
 	BasicPropertyAccessor
 ){
-	var StringProperty = compose({
-		compute: function(value) {
-			return typeof(value) === 'string' ? value : '';
-		},
-		accessorFactory: BasicPropertyAccessor
+	var DefaultEmptyString = compose({
+		_computeValueFromSet: function(arg) {
+			return typeof(arg) === 'string' ? arg : '';
+		}
 	});
 
-	var StringComputedProperty = compose(function(fct) {
-		this.compute = fct;
-	}, {
-		accessorFactory: BasicPropertyAccessor
+	var StringComputer = compose(function(fct) {
+		this._computeValueFromSet = fct;
 	});
 
-	return compose(_StatefulMap, {
+	return compose(_StatefulPropertyObject, _WithComputedProperties, {
 		_properties: {
-			firstName: new StringProperty(),
-			lastName: new StringProperty()
+			firstName: new DefaultEmptyString(),
+			lastName: new DefaultEmptyString()
 		},
 		_computedProperties: {
 			fullName: {
-				propertyObject: new StringComputedProperty(function(firstName, lastName) {
+				computer: new StringComputer(function(firstName, lastName) {
 					return (firstName + ' ' + lastName).trim();
 				}),
 				deps: ['firstName', 'lastName']
 			}
+		},
+		_accessorFactories: {
+			firstName: BasicPropertyAccessor,
+			lastName: BasicPropertyAccessor,
+			fullName: BasicPropertyAccessor
 		}
 	});
 });

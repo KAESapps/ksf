@@ -6,8 +6,7 @@ define([
 	_PropertyAccessor
 ){
 	return compose(_PropertyAccessor, {
-		_computeStateFromSet: function(setArg) {
-			return setArg;
-		}
+		get: _PropertyAccessor.prototype._getValue,
+		set: _PropertyAccessor.prototype._setValue
 	});
 });

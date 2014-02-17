@@ -1,38 +1,48 @@
 define([
 	'compose',
-	'../_StatefulMap',
-	'../accessors/BasicPropertyAccessor',
-	'../accessors/_MapPropertyAccessor'
+	'../propertyObject/_StatefulPropertyObject',
+	'../propertyObject/_Accessor',
+	'../propertyObject/_Computer',
+	'../propertyObject/BasicPropertyAccessor',
+	'../propertyObject/_CompositePropertyAccessor'
 ], function(
 	compose,
-	_StatefulMap,
+	_StatefulPropertyObject,
+	_PropObjAccessor,
+	_PropObjComputer,
 	BasicPropertyAccessor,
-	_MapPropertyAccessor
+	_CompositePropertyAccessor
 ){
-	var StringProperty = compose({
-		compute: function(value) {
-			return value;
-		},
-		accessorFactory: BasicPropertyAccessor
+	var DefaultEmptyString = compose({
+		_computeValueFromSet: function(arg) {
+			return typeof(arg) === 'string' ? arg : '';
+		}
 	});
 
-	var AddressProperty = compose({
-		compute: function(value) {
-			return value;
-		},
-		accessorFactory: compose(_MapPropertyAccessor, {
-			_properties: {
-				street: new StringProperty(),
-				city: new StringProperty(),
-			},
-		})
-	});
-
-	return compose(_StatefulMap, {
+	var AddressComputer = compose(_PropObjComputer, {
+		_getDefault: function() { return {}; },
 		_properties: {
-			firstName: new StringProperty(),
-			lastName: new StringProperty(),
-			address: new AddressProperty()
+			city: new DefaultEmptyString(),
+			street: new DefaultEmptyString(),
+		}
+	});
+
+	var MapPropertyAccessor = compose(_CompositePropertyAccessor, _PropObjAccessor, {
+		_createPropertyAccessor: function(id) {
+			return new BasicPropertyAccessor(this, id);
 		},
+	});
+
+	return compose(_StatefulPropertyObject, {
+		_properties: {
+			firstName: new DefaultEmptyString(),
+			lastName: new DefaultEmptyString(),
+			address: new AddressComputer()
+		},
+		_accessorFactories: {
+			firstName: BasicPropertyAccessor,
+			lastName: BasicPropertyAccessor,
+			address: MapPropertyAccessor
+		}
 	});
 });

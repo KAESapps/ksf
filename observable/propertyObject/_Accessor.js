@@ -8,7 +8,7 @@ define([
 			return this._accessorFactories[id](this, id);
 		},
 		_getPropertyAccessor: function(id) {
-			var accessor = this._createPropertyAccessor(id);
+			var accessor = this.own(this._createPropertyAccessor(id));
 			return accessor;
 		},
 

@@ -3,19 +3,19 @@ define([
 	'intern/chai!assert',
 	'compose',
 	'../StateContainer',
-	// '../_StatefulMap',
 	'./Person',
-	// './PersonWithAddress',
-	'./Station'
+	'./PersonWithAddress',
+	'./Station',
+	'./Task'
 ], function(
 	registerSuite,
 	assert,
 	compose,
 	StateContainer,
-	// _StatefulMap,
 	Person,
-	// PersonWithAddress,
-	Station
+	PersonWithAddress,
+	Station,
+	Task
 ){
 	registerSuite({
 		name: 'simple value',
@@ -193,9 +193,17 @@ define([
 		'set get nested': function() {
 			var obs = new PersonWithAddress();
 
-			assert.deepEqual(obs.get(), {});
+			assert.deepEqual(obs.get(), {
+				firstName: "",
+				lastName: "",
+				address: {
+					city: "",
+					street: ""
+				}
+			});
 			obs.set({
-				firstName: 'toto',
+				firstName: "toto",
+				lastName: "",
 				address: {
 					city: "Paris",
 					street: "rue de la paix"
@@ -203,6 +211,7 @@ define([
 			});
 			assert.deepEqual(obs.get(), {
 				firstName: 'toto',
+				lastName: "",
 				address: {
 					city: "Paris",
 					street: "rue de la paix"
@@ -217,6 +226,7 @@ define([
 
 			assert.deepEqual(obs.get(), {
 				firstName: 'toto',
+				lastName: "",
 				address: {
 					city: "Paris",
 					street: "av des Champs-Elysees"
@@ -365,33 +375,15 @@ define([
 			});
 		}
 	});
-/*
-	var Task = compose(_StatefulMap, {
-		_properties: {
-			done: {
-				compute: function(val) { return val; },
-				accessorFactory: BasicPropertyAccessor
-			},
-			label: {
-				compute: function(val) { return val; },
-				accessorFactory: BasicPropertyAccessor
-			}
-		},
-		_computeStateFromSet: function(arg) {
-			var newState = _StatefulMap.prototype._computeStateFromSet.call(this, arg);
 
-			if (this.get().done && newState.done) {
-				newState.label = this.get().label;
-			}
-			return newState;
-		}
-	});
-*/
 	registerSuite({
 		name: "Locked tasks",
 		"get set": function() {
 			var obs = new Task();
-			assert.deepEqual(obs.get(), {});
+			assert.deepEqual(obs.get(), {
+				label: "",
+				done: false
+			});
 
 			var observedLabels = [];
 			var labelAcc = obs.getProperty('label');
@@ -403,20 +395,25 @@ define([
 				label: "A faire pour demain."
 			});
 			assert.deepEqual(obs.get(), {
-				label: "A faire pour demain."
+				label: "A faire pour demain.",
+				done: false
 			});
 
-			obs.patch({
-				done: true
-			});
+			obs.patch([{
+				type: 'set',
+				key: 'done',
+				value: true
+			}]);
 			assert.deepEqual(obs.get(), {
 				done: true,
 				label: "A faire pour demain."
 			});
 
-			obs.patch({
-				label: "A faire pour hier."
-			});
+			obs.patch([{
+				type: 'set',
+				key: 'label',
+				value: "A faire pour hier."
+			}]);
 			assert.deepEqual(obs.get(), {
 				done: true,
 				label: "A faire pour demain."
@@ -426,11 +423,12 @@ define([
 				label: "Toujours à faire"
 			});
 			assert.deepEqual(obs.get(), {
-				label: "Toujours à faire"
+				label: "Toujours à faire",
+				done: false
 			});
 
 			assert.deepEqual(observedLabels, [
-				undefined,
+				"",
 				"A faire pour demain.",
 				"A faire pour demain.",
 				"A faire pour demain.",

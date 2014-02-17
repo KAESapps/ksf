@@ -7,6 +7,7 @@ define([
 ){
 	return compose(_PropertyAccessor, {
 		get: _PropertyAccessor.prototype._getValue,
-		set: _PropertyAccessor.prototype._setValue
+		set: _PropertyAccessor.prototype._setValue,
+		onValue: _PropertyAccessor.prototype._onValue
 	});
 });

@@ -9,8 +9,9 @@ define([
 		_getValue: function() {
 			return this._observableState.get();
 		},
-		_setValue: function(value) {
+		_applyValue: function(value) {
 			this._observableState.set(value);
+			return value;
 		},
 		_onValue: function(listener) {
 			return this._observableState.onValue(listener);
@@ -21,9 +22,9 @@ define([
 		this.set(initialValue);
 	}, proto, {
 		get: proto._getValue,
-		_computeValueFromSet: function(arg) { return arg; },
+		_computeValueFromSet: function(arg, initValue) { return arg; },
 		set: function(arg) {
-			this._setValue(this._computeValueFromSet(arg));
+			return this._applyValue(this._computeValueFromSet(arg, this._getValue()));
 		},
 		onValue: proto._onValue
 	});

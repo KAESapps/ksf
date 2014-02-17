@@ -1,28 +1,36 @@
 define([
 	'compose',
-	'./_Stateful'
+	'./_Stateful',
+	'ksf/base/Evented'
 ], function(
 	compose,
-	_Stateful
+	_Stateful,
+	Evented
 ){
 	var proto = {
-		_computeValueFromPatch: function(arg) {},
-		_patchValue: function(arg) {
-			this._changes = arg;
-			this._setValue(this._computeValueFromPatch(this._getValue(), arg));
+		_computeValueFromChanges: function(arg) {},
+		_applyChanges: function(changes) {
+			this._applyValue(this._computeValueFromChanges(this._getValue(), changes));
+			this._emit('changes', changes);
+			return changes;
 		},
 		_onChanges: function(listener) {
-			var self = this;
-			return this._observableState.onValue(function(value) {
-				listener({
-					value: value,
-					diff: self._changes
-				});
+			return this.on('changes', function(changes) {
+				if (changes.length > 0) {
+					listener(changes);
+				}
 			});
 		},
+		_patch: function(changes) {
+			return this._applyChanges(this._computeChangesFromPatch(this._getValue(), changes));
+		},
+		_set: function(arg) {
+			return this._applyChanges(this._computeChangesFromSet(this._getValue(), arg));
+		},
 	};
-	return compose(_Stateful, proto, {
-		patch: proto._patchValue,
+	return compose(_Stateful, Evented, proto, {
+		patch: proto._patch,
+		set: proto._set,
 		onChanges: proto._onChanges
 	});
 });

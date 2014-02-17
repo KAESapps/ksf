@@ -297,6 +297,11 @@ define([
 					circonference: 125
 				}]
 			});
+
+			assert.deepEqual(arbre2Accessor.get(), {
+				essence: 'Chêne',
+				circonference: 125
+			});
 		},
 		"observing changes": function() {
 			var obs = new Station();
@@ -308,71 +313,36 @@ define([
 			obs.getProperty('nom').set('Station 1');
 			obs.getProperty('arbres').add().getProperty('essence').set('Frêne');
 
-			assert.deepEqual(observedChanges[0], {
-				value: {
-					nom: '',
-					position: undefined,
-					arbres: []
-				},
-				diff: undefined
-			});
-			assert.deepEqual(observedChanges[1], {
-				value: {
-					nom: 'Station 1',
-					position: undefined,
-					arbres: []
-				},
-				diff: [{
-					type: 'set',
-					key: 'nom',
-					value: "Station 1"
-				}]
-			});
-			assert.deepEqual(observedChanges[2], {
-				value: {
-					nom: 'Station 1',
-					position: undefined,
-					arbres: [{
+			assert.deepEqual(observedChanges[0], [{
+				type: 'set',
+				key: 'nom',
+				value: "Station 1"
+			}]);
+			assert.deepEqual(observedChanges[1], [{
+				type: 'patched',
+				key: 'arbres',
+				arg: [{
+					type: 'added',
+					index: 0,
+					value: {
 						essence: undefined,
 						circonference: undefined
-					}]
-				},
-				diff: [{
+					}
+				}]
+			}]);
+			assert.deepEqual(observedChanges[2], [{
+				type: 'patched',
+				key: 'arbres',
+				arg: [{
 					type: 'patched',
-					key: 'arbres',
+					index: 0,
 					arg: [{
-						type: 'added',
-						index: 0,
-						value: {
-							essence: undefined,
-							circonference: undefined
-						}
-					}]
-				}],
-			});
-			assert.deepEqual(observedChanges[3], {
-				value: {
-					nom: 'Station 1',
-					position: undefined,
-					arbres: [{
-						essence: 'Frêne',
-						circonference: undefined
-					}]
-				},
-				diff: [{
-					type: 'patched',
-					key: 'arbres',
-					arg: [{
-						type: 'patched',
-						index: 0,
-						arg: [{
-							type: 'set',
-							key: 'essence',
-							value: 'Frêne'
-						}]
+						type: 'set',
+						key: 'essence',
+						value: 'Frêne'
 					}]
 				}]
-			});
+			}]);
 		}
 	});
 
@@ -434,6 +404,37 @@ define([
 				"A faire pour demain.",
 				"Toujours à faire"
 			]);
+		},
+		"observing changes": function() {
+			var obs = new Task();
+
+			var observedChanges = [];
+			var canceler = obs.onChanges(function(value) {
+				observedChanges.push(value);
+			});
+
+			var labelAcc = obs.getProperty('label');
+			var doneAcc = obs.getProperty('done');
+			labelAcc.set("A faire pour demain");
+			doneAcc.set(true);
+			labelAcc.set("Plus à faire");
+
+			assert.deepEqual(obs.get(), {
+				label: "A faire pour demain",
+				done: true
+			});
+
+			assert.deepEqual(observedChanges[0], [{
+				type: 'set',
+				key: 'label',
+				value: "A faire pour demain"
+			}]);
+			assert.deepEqual(observedChanges[1], [{
+				type: 'set',
+				key: 'done',
+				value: true
+			}]);
+			assert.equal(observedChanges.length, 2);
 		}
 	});
 });

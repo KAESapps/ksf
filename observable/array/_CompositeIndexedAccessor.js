@@ -6,9 +6,9 @@ define([
 	_IndexedAccessor
 ){
 	return compose(_IndexedAccessor, {
-		_patchValue: function(arg) {
+		_patch: function(arg) {
 			if (this._destroyed) { throw "Destroyed"; }
-			this._parent._patchValue([{
+			this._parent._patch([{
 				type: 'patched',
 				index: this._getIndex(),
 				arg: arg

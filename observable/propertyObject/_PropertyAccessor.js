@@ -14,9 +14,9 @@ define([
 			return this._parent._getValue()[this._propName];
 		},
 
-		_setValue: function(arg) {
+		_set: function(arg) {
 			if (this._destroyed) { throw "Destroyed"; }
-			this._parent._patchValue([{
+			this._parent._patch([{
 				type: 'set',
 				key: this._propName,
 				value: arg
@@ -26,7 +26,7 @@ define([
 		_onValue: function(listener) {
 			if (this._destroyed) { throw "Destroyed"; }
 			var self = this;
-			return this.own(this._parent.onValue(function() {
+			return this.own(this._parent._onValue(function() {
 				listener(self.get());
 			}));
 		}

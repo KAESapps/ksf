@@ -8,13 +8,41 @@ define([
 	return compose({
 		_itemComputer: null,
 
-		_computeValueFromSet: function(arg) {
+		_computeChangesFromSet: function(initValue, arg) {
 			arg = arg || [];
-			var self = this;
+			initValue = initValue || [];
 
-			return arg.map(function(item) {
-				return self._itemComputer._computeValueFromSet(item);
+			var self = this;
+			var changes = initValue.map(function(oldItem) {
+				return {
+					type: 'removed',
+					index: 0
+				};
 			});
+			arg.forEach(function(item, index) {
+				changes.push({
+					type: 'added',
+					index: index,
+					value: self._itemComputer._computeValueFromSet(item, undefined)
+				});
+			});
+			return this._computeChangesFromPatch(changes);
+		},
+		_computeChangesFromPatch: function(value, arrayChanges) {
+			value = value || [];
+			arrayChanges = arrayChanges || [];
+
+			var self = this;
+			arrayChanges.forEach(function(change) {
+				if (change.type === 'added') {
+					change.value = self._itemComputer._computeValueFromSet(change.value, undefined);
+				} else if (change.type === 'set') {
+					change.value = self._itemComputer._computeValueFromSet(change.value, value[change.index]);
+				} else if (change.type === 'patched') {
+					change.arg = self._itemComputer._computeChangesFromPatch(value[change.index], change.arg);
+				}
+			});
+			return arrayChanges;
 		},
 		/*
 			@param: arrayChanges
@@ -36,25 +64,30 @@ define([
 					arg: (...)
 				}]
 		*/
-		_computeValueFromPatch: function(value, arrayChanges) {
+		_computeValueFromChanges: function(value, arrayChanges) {
+			value = value || [];
+			arrayChanges = arrayChanges || [];
+
 			var self = this;
-			var state = clone(value);
+			var newValue = clone(value);
 			arrayChanges.forEach(function(change) {
 				if (change.type === 'added') {
-					var newItem = self._itemComputer._computeValueFromSet(change.value);
-					state.push(newItem);
-					change.value = newItem;
+					newValue.push(change.value);
 				} else if (change.type === 'removed') {
-					state.splice(change.index, 1);
+					newValue.splice(change.index, 1);
 				} else if (change.type === 'set') {
-					state[change.index] = self._itemComputer._computeValueFromSet(change.value);
+					newValue[change.index] = change.value;
 				} else if (change.type === 'patched') {
-					state[change.index] = self._itemComputer._computeValueFromPatch(value[change.index], change.arg);
+					newValue[change.index] = self._itemComputer._computeValueFromChanges(value[change.index], change.arg);
 				} else {
 					throw "Bad change format";
 				}
 			});
-			return state;
-		}
+			return newValue;
+		},
+
+		_computeValueFromSet: function(arg, initValue) {
+			return this._computeValueFromChanges(initValue, this._computeChangesFromSet(initValue, arg));
+		},
 	});
 });

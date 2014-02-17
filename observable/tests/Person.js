@@ -16,7 +16,7 @@ define([
 	});
 
 	var StringComputer = compose(function(fct) {
-		this._computeValueFromSet = fct;
+		this._computeValueFromDeps = fct;
 	});
 
 	return compose(_StatefulPropertyObject, _WithComputedProperties, {

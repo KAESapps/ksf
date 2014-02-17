@@ -6,9 +6,9 @@ define([
 	_PropertyAccessor
 ){
 	return compose(_PropertyAccessor, {
-		_patchValue: function(arg) {
+		_patch: function(arg) {
 			if (this._destroyed) { throw "Destroyed"; }
-			this._parent._patchValue([{
+			this._parent._patch([{
 				type: 'patched',
 				key: this._propName,
 				arg: arg

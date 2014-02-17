@@ -30,7 +30,7 @@ define([
 		add: function(value, index) {
 			index = this._getValue().length;
 			
-			var changes = this._patchValue([{
+			var changes = this._patch([{
 				type: 'added',
 				index: index,
 				value: value
@@ -38,7 +38,7 @@ define([
 			return this._getIndexedAccessor(index);
 		},
 		remove: function(index) {
-			this._patchValue([{
+			this._patch([{
 				type: 'removed',
 				index: index
 			}]);

@@ -6,16 +6,44 @@ define([
 	clone
 ){
 	return compose({
-		_computeValueFromSet: function(arg) {
+		_computeChangesFromSet: function(currentValue, arg) {
 			arg = arg || {};
-			var newValue = {},
-				self = this;
-			Object.keys(this._properties).forEach(function(propId) {
-				var propValue = self._getPropertyComputer(propId)._computeValueFromSet(arg[propId]);
-				newValue[propId] = propValue;
-			});
+			currentValue = currentValue || {};
 
-			return newValue;
+			var changes = [],
+				self = this;
+			
+			Object.keys(this._properties).forEach(function(propId) {
+				var propComputer = self._getPropertyComputer(propId),
+					propValue;
+				if (propComputer._computeChangesFromSet) {
+					changes.push({
+						type: 'patched',
+						key: propId,
+						arg: propComputer._computeChangesFromSet(currentValue[propId], arg[propId])
+					});
+				} else {
+					changes.push({
+						type: 'set',
+						key: propId,
+						value: propComputer._computeValueFromSet(arg[propId], currentValue[propId])
+					});
+				}
+			});
+			return this._computeChangesFromPatch(currentValue, changes);
+		},
+		_computeChangesFromPatch: function(initValue, propChanges) {
+			propChanges = propChanges || [];
+			initValue = initValue || {};
+			propChanges.forEach(function(change) {
+				var propComputer = this._getPropertyComputer(change.key);
+				if (change.type === 'patched') {
+					change.arg = propComputer._computeChangesFromPatch(initValue[change.key], change.arg);
+				} else if (change.type === 'set') {
+					change.value = propComputer._computeValueFromSet(change.value, initValue[change.key]);
+				}
+			}.bind(this));
+			return propChanges;
 		},
 		/*
 			@param: propChanges
@@ -30,21 +58,27 @@ define([
 					arg: (...)
 				}]
 		*/
-		_computeValueFromPatch: function(initValue, propChanges) {
+		_computeValueFromChanges: function(initValue, propChanges) {
 			propChanges = propChanges || [];
+			initValue = initValue || {};
 			var newValue = clone(initValue);
 			propChanges.forEach(function(change) {
-				var propValue,
-					propComputer = this._getPropertyComputer(change.key);
+				var propValue;
 				if (change.type === 'patched') {
-					propValue = propComputer._computeValueFromPatch(initValue[change.key], change.arg);
+					var propComputer = this._getPropertyComputer(change.key);
+					propValue = propComputer._computeValueFromChanges(initValue[change.key], change.arg);
 				} else if (change.type === 'set') {
-					propValue = propComputer._computeValueFromSet(change.value);
+					propValue = change.value;
 				}
 				newValue[change.key] = propValue;
 			}.bind(this));
 			return newValue;
 		},
+
+		_computeValueFromSet: function(arg, initValue) {
+			return this._computeValueFromChanges(initValue, this._computeChangesFromSet(initValue, arg));
+		},
+
 		_getPropertyComputer: function(propId) {
 			return this._properties[propId];
 		}

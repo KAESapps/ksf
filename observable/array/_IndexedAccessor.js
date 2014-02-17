@@ -16,20 +16,20 @@ define([
 			return this._parent._getValue()[this._getIndex()];
 		},
 
-		_setValue: function(arg) {
+		_applyValue: function(arg) {
 			if (this._destroyed) { throw "Destroyed"; }
 			var parentPatch = [{
 				type: 'set',
 				index: this._getIndex(),
 				value: arg
 			}];
-			this._parent._patchValue(parentPatch);
+			this._parent._patch(parentPatch);
 		},
 
 		_onValue: function(listener) {
 			if (this._destroyed) { throw "Destroyed"; }
 			var self = this;
-			return this.own(this._parent.onValue(function() {
+			return this.own(this._parent._onValue(function() {
 				listener(self.get());
 			}));
 		},
@@ -40,7 +40,7 @@ define([
 		},
 
 		set: function(arg) {
-			return this._setValue(arg);
+			return this._applyValue(arg);
 		}
 	});
 });

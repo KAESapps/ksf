@@ -25,19 +25,13 @@ define([
 			done: BasicPropertyAccessor,
 		}
 	}, {
-		_applyLockedLabel: function(oldValue, newValue) {
-			if (oldValue && oldValue.done && newValue.done) {
-				newValue.label = oldValue.label;
-			}
-			return newValue;
-		},
-		_computeValueFromSet: function(arg) {
-			var newValue = _StatefulPropertyObject.prototype._computeValueFromSet.call(this, arg);
-			return this._applyLockedLabel(this._getValue(), newValue);
-		},
-		_computeValueFromPatch: function(initValue, propChanges) {
-			var newValue = _StatefulPropertyObject.prototype._computeValueFromPatch.call(this, initValue, propChanges);
-			return this._applyLockedLabel(initValue, newValue);
-		},
+		_computeChangesFromPatch: function(initValue, changes) {
+			var tmpValue = this._computeValueFromChanges(initValue, changes);
+			return changes.filter(function(item) {
+				if (item.key !== 'label' || !tmpValue.done) {
+					return true;
+				}
+			});
+		}
 	});
 });

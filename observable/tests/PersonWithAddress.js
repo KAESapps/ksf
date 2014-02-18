@@ -20,7 +20,6 @@ define([
 	});
 
 	var AddressComputer = compose(_PropObjComputer, {
-		_getDefault: function() { return {}; },
 		_properties: {
 			city: new DefaultEmptyString(),
 			street: new DefaultEmptyString(),

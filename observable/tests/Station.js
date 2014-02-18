@@ -49,7 +49,6 @@ define([
 	});
 
 	var ArbreItem = compose(_PropObjComputer, {
-		_getDefault: function() { return {}; },
 		_properties: {
 			essence: new EnumComputer([
 				"Chêne",
@@ -60,7 +59,6 @@ define([
 	});
 
 	var ArbreList = compose(_ArrayComputer, {
-		_getDefault: function() { return []; },
 		_itemComputer: new ArbreItem()
 	});
 

@@ -16,7 +16,7 @@ define([
 			return this._parent._getValue()[this._getIndex()];
 		},
 
-		_applyValue: function(arg) {
+		_set: function(arg) {
 			if (this._destroyed) { throw "Destroyed"; }
 			var parentPatch = [{
 				type: 'set',
@@ -40,7 +40,7 @@ define([
 		},
 
 		set: function(arg) {
-			return this._applyValue(arg);
+			return this._set(arg);
 		}
 	});
 });

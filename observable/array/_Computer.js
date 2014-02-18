@@ -23,10 +23,10 @@ define([
 				changes.push({
 					type: 'added',
 					index: index,
-					value: self._itemComputer._computeValueFromSet(item, undefined)
+					value: item
 				});
 			});
-			return this._computeChangesFromPatch(changes);
+			return this._computeChangesFromPatch(initValue, changes);
 		},
 		_computeChangesFromPatch: function(value, arrayChanges) {
 			value = value || [];

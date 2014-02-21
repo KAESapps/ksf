@@ -9,38 +9,29 @@ define([
 		this._parent = parent;
 	}, {
 		_getIndex: function() {
-			return this._parent._getIndexedAccessorIndex(this);
+			return this._parent.getIndexedAccessorIndex(this);
 		},
-		_getValue: function() {
+		getValue: function() {
 			if (this._destroyed) { throw "Destroyed"; }
-			return this._parent._getValue()[this._getIndex()];
+			return this._parent.getValue()[this._getIndex()];
 		},
 
-		_set: function(arg) {
+		setValue: function(arg) {
 			if (this._destroyed) { throw "Destroyed"; }
 			var parentPatch = [{
 				type: 'set',
 				index: this._getIndex(),
 				value: arg
 			}];
-			this._parent._patch(parentPatch);
+			this._parent.patchValue(parentPatch);
 		},
 
-		_onValue: function(listener) {
+		onValue: function(listener) {
 			if (this._destroyed) { throw "Destroyed"; }
 			var self = this;
-			return this.own(this._parent._onValue(function() {
+			return this.own(this._parent.onValue(function() {
 				listener(self.get());
 			}));
-		},
-
-
-		get: function() {
-			return this._getValue();
-		},
-
-		set: function(arg) {
-			return this._set(arg);
 		}
 	});
 });

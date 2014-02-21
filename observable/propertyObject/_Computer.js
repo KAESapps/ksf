@@ -6,9 +6,9 @@ define([
 	clone
 ){
 	return compose({
-		_computeChangesFromSet: function(currentValue, arg) {
+		computeChangesFromSet: function(arg, initValue) {
 			arg = arg || {};
-			currentValue = currentValue || {};
+			initValue = initValue || {};
 
 			var changes = [],
 				self = this;
@@ -16,31 +16,31 @@ define([
 			Object.keys(this._properties).forEach(function(propId) {
 				var propComputer = self._getPropertyComputer(propId),
 					propValue;
-				if (propComputer._computeChangesFromSet) {
+				if (propComputer.computeChangesFromSet) {
 					changes.push({
 						type: 'patched',
 						key: propId,
-						arg: propComputer._computeChangesFromSet(currentValue[propId], arg[propId])
+						arg: propComputer.computeChangesFromSet(arg[propId], initValue[propId])
 					});
 				} else {
 					changes.push({
 						type: 'set',
 						key: propId,
-						value: propComputer._computeValueFromSet(arg[propId], currentValue[propId])
+						value: propComputer.computeValueFromSet(arg[propId], initValue[propId])
 					});
 				}
 			});
-			return this._computeChangesFromPatch(currentValue, changes);
+			return this.computeChangesFromPatch(changes, initValue);
 		},
-		_computeChangesFromPatch: function(initValue, propChanges) {
+		computeChangesFromPatch: function(propChanges, initValue) {
 			propChanges = propChanges || [];
 			initValue = initValue || {};
 			propChanges.forEach(function(change) {
 				var propComputer = this._getPropertyComputer(change.key);
 				if (change.type === 'patched') {
-					change.arg = propComputer._computeChangesFromPatch(initValue[change.key], change.arg);
+					change.arg = propComputer.computeChangesFromPatch(change.arg, initValue[change.key]);
 				} else if (change.type === 'set') {
-					change.value = propComputer._computeValueFromSet(change.value, initValue[change.key]);
+					change.value = propComputer.computeValueFromSet(change.value, initValue[change.key]);
 				}
 			}.bind(this));
 			return propChanges;
@@ -58,7 +58,7 @@ define([
 					arg: (...)
 				}]
 		*/
-		_computeValueFromChanges: function(initValue, propChanges) {
+		computeValueFromChanges: function(propChanges, initValue) {
 			propChanges = propChanges || [];
 			initValue = initValue || {};
 			var newValue = clone(initValue);
@@ -66,7 +66,7 @@ define([
 				var propValue;
 				if (change.type === 'patched') {
 					var propComputer = this._getPropertyComputer(change.key);
-					propValue = propComputer._computeValueFromChanges(initValue[change.key], change.arg);
+					propValue = propComputer.computeValueFromChanges(change.arg, initValue[change.key]);
 				} else if (change.type === 'set') {
 					propValue = change.value;
 				}
@@ -75,8 +75,8 @@ define([
 			return newValue;
 		},
 
-		_computeValueFromSet: function(arg, initValue) {
-			return this._computeValueFromChanges(initValue, this._computeChangesFromSet(initValue, arg));
+		computeValueFromSet: function(arg, initValue) {
+			return this.computeValueFromChanges(this.computeChangesFromSet(arg, initValue), initValue);
 		},
 
 		_getPropertyComputer: function(propId) {

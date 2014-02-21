@@ -8,17 +8,17 @@ define([
 	clone
 ){
 	return compose({
-		_computedProperties: {},
+		computedProperties: {},
 
-		_addComputedPropertyChanges: function(value, changes) {
+		_addComputedPropertyChanges: function(changes, value) {
 			var self = this;
 			// TODO: gérer l'arbre des dépendances :
-			Object.keys(this._computedProperties).forEach(function(propId) {
-				var args = self._computedProperties[propId].deps.map(function(depId) {
+			Object.keys(this.computedProperties).forEach(function(propId) {
+				var args = self.computedProperties[propId].deps.map(function(depId) {
 					return value[depId];
 				}),
 					computer = self._getComputedPropertyComputer(propId),
-					computedValue = computer._computeValueFromDeps.apply(computer, args);
+					computedValue = computer.computeValueFromDeps.apply(computer, args);
 				changes.push({
 					type: 'set',
 					key: propId,
@@ -27,12 +27,12 @@ define([
 			});
 			return changes;
 		},
-		_computeChangesFromPatch: function(value, changes) {
-			changes = _Computer.prototype._computeChangesFromPatch.call(this, value, changes);
-			return this._addComputedPropertyChanges(this._computeValueFromChanges(value, changes), changes);
+		computeChangesFromPatch: function(changes, value) {
+			changes = _Computer.prototype.computeChangesFromPatch.call(this, changes, value);
+			return this._addComputedPropertyChanges(changes, this.computeValueFromChanges(changes, value));
 		},
 		_getComputedPropertyComputer: function(propId) {
-			return this._computedProperties[propId].computer;
+			return this.computedProperties[propId].computer;
 		}
 	});
 });

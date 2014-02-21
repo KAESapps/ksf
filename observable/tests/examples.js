@@ -269,8 +269,7 @@ define([
 				}]
 			});
 
-			var arbre2Accessor = arbresProp.add();
-			arbre2Accessor.set({
+			var arbre2Accessor = arbresProp.add({
 				essence: 'Chêne',
 				circonference: 125
 			});
@@ -342,6 +341,45 @@ define([
 						value: 'Frêne'
 					}]
 				}]
+			}]);
+		},
+		"observing sub-changes": function() {
+			var arbresProp = new Station().getProperty('arbres');
+
+			var arbresChanges = [];
+			var canceler = arbresProp.onChanges(function(ev) {
+				arbresChanges.push(ev);
+			});
+
+			arbresProp.add({
+				essence: "Frêne",
+				circonference: 56
+			});
+			arbresProp.add({
+				essence: 'Chêne',
+				circonference: 125
+			});
+			arbresProp.remove(0);
+
+			assert.deepEqual(arbresChanges[0], [{
+				type: 'added',
+				index: 0,
+				value: {
+					essence: "Frêne",
+					circonference: 56
+				}
+			}]);
+			assert.deepEqual(arbresChanges[1], [{
+				type: 'added',
+				index: 1,
+				value: {
+					essence: "Chêne",
+					circonference: 125
+				}
+			}]);
+			assert.deepEqual(arbresChanges[2], [{
+				type: 'removed',
+				index: 0
 			}]);
 		}
 	});

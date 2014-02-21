@@ -9,9 +9,9 @@ define([
 		this._indexAccessors = [];
 	}, {
 		_indexAccessorFactory: null,
-		_getIndexedAccessor: function(index) {
+		getIndexedAccessor: function(index) {
 			var accessor;
-			if (index in this._getValue()) {
+			if (index in this.getValue()) {
 				if (index in this._indexAccessors) {
 					accessor = this._indexAccessors[index];
 				} else {
@@ -23,22 +23,22 @@ define([
 			}
 			return accessor;
 		},
-		_getIndexedAccessorIndex: function(accessor) {
+		getIndexedAccessorIndex: function(accessor) {
 			return this._indexAccessors.indexOf(accessor);
 		},
 
 		add: function(value, index) {
-			index = this._getValue().length;
+			index = this.getValue().length;
 			
-			var changes = this._patch([{
+			var changes = this.patchValue([{
 				type: 'added',
 				index: index,
 				value: value
 			}]);
-			return this._getIndexedAccessor(index);
+			return this.getIndexedAccessor(index);
 		},
 		remove: function(index) {
-			this._patch([{
+			this.patchValue([{
 				type: 'removed',
 				index: index
 			}]);

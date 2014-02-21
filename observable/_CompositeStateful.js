@@ -7,30 +7,30 @@ define([
 	_Stateful,
 	Evented
 ){
-	var proto = {
-		_computeValueFromChanges: function(arg) {},
+	return compose(_Stateful, Evented, {
+		computeValueFromChanges: function(arg, initValue) {},
 		_applyChanges: function(changes) {
-			this._applyValue(this._computeValueFromChanges(this._getValue(), changes));
+			this._writeValue(this.computeValueFromChanges(changes, this.getValue()));
 			this._emit('changes', changes);
 			return changes;
 		},
-		_onChanges: function(listener) {
+		
+		onChanges: function(listener) {
 			return this.on('changes', function(changes) {
 				if (changes.length > 0) {
 					listener(changes);
 				}
 			});
 		},
-		_patch: function(changes) {
-			return this._applyChanges(this._computeChangesFromPatch(this._getValue(), changes));
+		
+		computeChangesFromPatch: function(arg, initValue) { return arg; },
+		patchValue: function(patch) {
+			return this._applyChanges(this.computeChangesFromPatch(patch, this.getValue()));
 		},
-		_set: function(arg) {
-			return this._applyChanges(this._computeChangesFromSet(this._getValue(), arg));
+		
+		computeChangesFromSet: function(arg, initValue) {},
+		setValue: function(arg) {
+			return this._applyChanges(this.computeChangesFromSet(arg, this.getValue()));
 		},
-	};
-	return compose(_Stateful, Evented, proto, {
-		patch: proto._patch,
-		set: proto._set,
-		onChanges: proto._onChanges
 	});
 });

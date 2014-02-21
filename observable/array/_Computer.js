@@ -8,7 +8,7 @@ define([
 	return compose({
 		_itemComputer: null,
 
-		_computeChangesFromSet: function(initValue, arg) {
+		computeChangesFromSet: function(arg, initValue) {
 			arg = arg || [];
 			initValue = initValue || [];
 
@@ -26,20 +26,20 @@ define([
 					value: item
 				});
 			});
-			return this._computeChangesFromPatch(initValue, changes);
+			return this.computeChangesFromPatch(changes, initValue);
 		},
-		_computeChangesFromPatch: function(value, arrayChanges) {
+		computeChangesFromPatch: function(arrayChanges, value) {
 			value = value || [];
 			arrayChanges = arrayChanges || [];
 
 			var self = this;
 			arrayChanges.forEach(function(change) {
 				if (change.type === 'added') {
-					change.value = self._itemComputer._computeValueFromSet(change.value, undefined);
+					change.value = self._itemComputer.computeValueFromSet(change.value, undefined);
 				} else if (change.type === 'set') {
-					change.value = self._itemComputer._computeValueFromSet(change.value, value[change.index]);
+					change.value = self._itemComputer.computeValueFromSet(change.value, value[change.index]);
 				} else if (change.type === 'patched') {
-					change.arg = self._itemComputer._computeChangesFromPatch(value[change.index], change.arg);
+					change.arg = self._itemComputer.computeChangesFromPatch(change.arg, value[change.index]);
 				}
 			});
 			return arrayChanges;
@@ -64,7 +64,7 @@ define([
 					arg: (...)
 				}]
 		*/
-		_computeValueFromChanges: function(value, arrayChanges) {
+		computeValueFromChanges: function(arrayChanges, value) {
 			value = value || [];
 			arrayChanges = arrayChanges || [];
 
@@ -78,7 +78,7 @@ define([
 				} else if (change.type === 'set') {
 					newValue[change.index] = change.value;
 				} else if (change.type === 'patched') {
-					newValue[change.index] = self._itemComputer._computeValueFromChanges(value[change.index], change.arg);
+					newValue[change.index] = self._itemComputer.computeValueFromChanges(change.arg, value[change.index]);
 				} else {
 					throw "Bad change format";
 				}
@@ -86,8 +86,8 @@ define([
 			return newValue;
 		},
 
-		_computeValueFromSet: function(arg, initValue) {
-			return this._computeValueFromChanges(initValue, this._computeChangesFromSet(initValue, arg));
+		computeValueFromSet: function(arg, initValue) {
+			return this.computeValueFromChanges(this.computeChangesFromSet(arg, initValue), initValue);
 		},
 	});
 });

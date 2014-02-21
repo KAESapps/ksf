@@ -30,7 +30,7 @@ define([
 			if (this._destroyed) { throw "Destroyed"; }
 			var self = this;
 			return this.own(this._parent.onValue(function() {
-				listener(self.get());
+				listener(self.getValue());
 			}));
 		}
 	});

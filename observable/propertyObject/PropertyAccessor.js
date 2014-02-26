@@ -5,30 +5,45 @@ define([
 	compose,
 	Destroyable
 ){
-	return compose(Destroyable, function(parent, propName) {
-		this._parent = parent;
-		this._propName = propName;
-	}, {
-		getValue: function() {
-			if (this._destroyed) { throw "Destroyed"; }
-			return this._parent.getValue()[this._propName];
-		},
+	var generator = function(args) {
+		var PARENT = args.parent || '_parent',
+			PROPNAME = args.propName || '_propName',
+			GETVALUE = args.getValue || 'getValue',
+			SETVALUE = args.setValue || 'setValue',
+			ONVALUE = args.onValue || 'onValue',
+			PARENT_GETVALUE = args.parentGetValue || 'getValue',
+			PARENT_PATCHVALUE = args.parentPatchValue || 'patchValue',
+			PARENT_ONVALUE = args.parentOnValue || 'onValue';
 
-		setValue: function(arg) {
+		var Trait = compose(Destroyable, function(parent, propName) {
+			this[PARENT] = parent;
+			this[PROPNAME] = propName;
+		});
+		Trait.prototype[GETVALUE] = function() {
 			if (this._destroyed) { throw "Destroyed"; }
-			this._parent.patchValue([{
+			return this[PARENT][PARENT_GETVALUE]()[this[PROPNAME]];
+		};
+
+		Trait.prototype[SETVALUE] = function(arg) {
+			if (this._destroyed) { throw "Destroyed"; }
+			this[PARENT][PARENT_PATCHVALUE]([{
 				type: 'set',
-				key: this._propName,
+				key: this[PROPNAME],
 				value: arg
 			}]);
-		},
+		};
 
-		onValue: function(listener) {
+		Trait.prototype[ONVALUE] = function(listener) {
 			if (this._destroyed) { throw "Destroyed"; }
 			var self = this;
-			return this.own(this._parent.onValue(function() {
-				listener(self.getValue());
+			return this.own(this[PARENT][PARENT_ONVALUE](function() {
+				listener(self[GETVALUE]());
 			}));
-		},
-	});
+		};
+		return Trait;
+	};
+
+	var Trait = generator({});
+	Trait.custom = generator;
+	return Trait;
 });

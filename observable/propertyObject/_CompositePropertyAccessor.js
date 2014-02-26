@@ -5,34 +5,52 @@ define([
 	compose,
 	PropertyAccessor
 ){
-	return compose(PropertyAccessor, {
-		patchValue: function(arg) {
-			if (this._destroyed) { throw "Destroyed"; }
-			this._parent.patchValue([{
-				type: 'patched',
-				key: this._propName,
-				arg: arg
-			}]);
-		},
+	var generator = function(args) {
+		var PARENT = args.parent || '_parent',
+			PROPNAME = args.propName || '_propName',
+			PARENT_PATCHVALUE = args.parentPatchValue || 'patchValue',
+			PARENT_ONCHANGES = args.parentOnChanges || 'onChanges';
 
-		onChanges: function(listener) {
-			if (this._destroyed) { throw "Destroyed"; }
-			var self = this;
-			return this.own(this._parent.onChanges(function(changes) {
-				var selfChanges = self._getChanges(changes);
-				if (selfChanges.length > 0) {
-					listener(selfChanges);
-				}
-			}));
-		},
+		return compose(PropertyAccessor.custom({
+			parent: PARENT,
+			propName: PROPNAME,
+			getValue: args.getValue,
+			parentGetValue: args.parentGetValue,
+			parentPatchValue: PARENT_PATCHVALUE,
+			parentOnValue: args.parentOnValue
+		}), {
+			patchValue: function(arg) {
+				if (this._destroyed) { throw "Destroyed"; }
+				this[PARENT][PARENT_PATCHVALUE]([{
+					type: 'patched',
+					key: this[PROPNAME],
+					arg: arg
+				}]);
+			},
 
-		_getChanges: function(parentChanges) {
-			var propName = this._propName;
-			return parentChanges.filter(function(item) {
-				return item.type === 'patched' && item.key === propName;
-			}).map(function(item) {
-				return item.arg;
-			})[0];
-		},
-	});
+			onChanges: function(listener) {
+				if (this._destroyed) { throw "Destroyed"; }
+				var self = this;
+				return this.own(this[PARENT][PARENT_ONCHANGES](function(changes) {
+					var selfChanges = self._getChanges(changes);
+					if (selfChanges.length > 0) {
+						listener(selfChanges);
+					}
+				}));
+			},
+
+			_getChanges: function(parentChanges) {
+				var propName = this[PROPNAME];
+				return parentChanges.filter(function(item) {
+					return item.type === 'patched' && item.key === propName;
+				}).map(function(item) {
+					return item.arg;
+				})[0];
+			},
+		});
+	};
+
+	var Trait = generator({});
+	Trait.custom = generator;
+	return Trait;
 });

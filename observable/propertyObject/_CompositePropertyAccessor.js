@@ -33,7 +33,7 @@ define([
 				var self = this;
 				return this.own(this[PARENT][PARENT_ONCHANGES](function(changes) {
 					var selfChanges = self._getChanges(changes);
-					if (selfChanges.length > 0) {
+					if (selfChanges && selfChanges.length > 0) {
 						listener(selfChanges);
 					}
 				}));

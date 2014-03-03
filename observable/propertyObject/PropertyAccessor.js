@@ -21,7 +21,8 @@ define([
 		});
 		Trait.prototype[GETVALUE] = function() {
 			if (this._destroyed) { throw "Destroyed"; }
-			return this[PARENT][PARENT_GETVALUE]()[this[PROPNAME]];
+			var parentValue = this[PARENT][PARENT_GETVALUE]();
+			return parentValue && parentValue[this[PROPNAME]];
 		};
 
 		Trait.prototype[SETVALUE] = function(arg) {

@@ -1,11 +1,9 @@
 define([
 	'compose',
-	'./_Computer',
-	'lodash/objects/clone'
+	'./Computer'
 ], function(
 	compose,
-	_Computer,
-	clone
+	Computer
 ){
 	return compose({
 		computedProperties: {},
@@ -28,7 +26,7 @@ define([
 			return changes;
 		},
 		computeChangesFromPatch: function(changes, value) {
-			changes = _Computer.prototype.computeChangesFromPatch.call(this, changes, value);
+			changes = Computer.prototype.computeChangesFromPatch.call(this, changes, value);
 			return this._addComputedPropertyChanges(changes, this.computeValueFromChanges(changes, value));
 		},
 		_getComputedPropertyComputer: function(propId) {

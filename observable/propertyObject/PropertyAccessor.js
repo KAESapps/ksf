@@ -6,39 +6,44 @@ define([
 	Destroyable
 ){
 	var generator = function(args) {
-		var PARENT = args.parent || '_parent',
-			PROPNAME = args.propName || '_propName',
-			GETVALUE = args.getValue || 'getValue',
-			SETVALUE = args.setValue || 'setValue',
-			ONVALUE = args.onValue || 'onValue',
-			PARENT_GETVALUE = args.parentGetValue || 'getValue',
-			PARENT_PATCHVALUE = args.parentPatchValue || 'patchValue',
-			PARENT_ONVALUE = args.parentOnValue || 'onValue';
+		var getValue = args.getValue || 'getValue',
+			setValue = args.setValue || 'setValue',
+			onValue = args.onValue || 'onValue',
+			parentGetValue = args.parentGetValue || 'getValue',
+			parentPatchvalue = args.parentPatchValue || 'patchValue',
+			parentOnValue = args.parentOnValue || 'onValue';
 
 		var Trait = compose(Destroyable, function(parent, propName) {
-			this[PARENT] = parent;
-			this[PROPNAME] = propName;
+			this._parent = parent;
+			this._propName = propName;
 		});
-		Trait.prototype[GETVALUE] = function() {
-			if (this._destroyed) { throw "Destroyed"; }
-			var parentValue = this[PARENT][PARENT_GETVALUE]();
-			return parentValue && parentValue[this[PROPNAME]];
+
+		Trait.prototype._extractValue = function(parentValue) {
+			return parentValue && parentValue[this._propName];
 		};
 
-		Trait.prototype[SETVALUE] = function(arg) {
+		Trait.prototype[getValue] = function() {
 			if (this._destroyed) { throw "Destroyed"; }
-			this[PARENT][PARENT_PATCHVALUE]([{
+			var self = this;
+			return this._parent[parentGetValue]().then(function(parentValue) {
+				return self._extractValue(parentValue);
+			});
+		};
+
+		Trait.prototype[setValue] = function(arg) {
+			if (this._destroyed) { throw "Destroyed"; }
+			return this._parent[parentPatchvalue]([{
 				type: 'set',
-				key: this[PROPNAME],
+				key: this._propName,
 				value: arg
 			}]);
 		};
 
-		Trait.prototype[ONVALUE] = function(listener) {
+		Trait.prototype[onValue] = function(listener) {
 			if (this._destroyed) { throw "Destroyed"; }
 			var self = this;
-			return this.own(this[PARENT][PARENT_ONVALUE](function() {
-				listener(self[GETVALUE]());
+			return this.own(this._parent[parentOnValue](function(parentValue) {
+				listener(self._extractValue(parentValue));
 			}));
 		};
 		return Trait;

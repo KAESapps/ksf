@@ -21,7 +21,7 @@ define([
 		}), {
 			patchValue: function(arg) {
 				if (this._destroyed) { throw "Destroyed"; }
-				this[PARENT][PARENT_PATCHVALUE]([{
+				return this[PARENT][PARENT_PATCHVALUE]([{
 					type: 'patched',
 					key: this[PROPNAME],
 					arg: arg

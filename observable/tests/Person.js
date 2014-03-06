@@ -1,11 +1,15 @@
 define([
 	'compose',
-	'../propertyObject/_StatefulPropertyObject',
+	'../MemoryValueSource',
+	'../ValueSourceCompositeAccessor',
+	'../propertyObject/Computer',
 	'../propertyObject/_WithComputedProperties',
 	'../propertyObject/PropertyAccessor'
 ], function(
 	compose,
-	_StatefulPropertyObject,
+	ValueSource,
+	CompositeAccessorWithComputer,
+	Computer,
 	_WithComputedProperties,
 	PropertyAccessor
 ){
@@ -19,11 +23,12 @@ define([
 		this.computeValueFromDeps = fct;
 	});
 
-	var PersonPropObj = compose(_StatefulPropertyObject, _WithComputedProperties, {
-		_properties: {
+	var PersonComputer = compose(Computer.prototype, _WithComputedProperties, function() {
+		Computer.call(this, {
 			firstName: new DefaultEmptyString(),
 			lastName: new DefaultEmptyString()
-		},
+		});
+	}, {
 		computedProperties: {
 			fullName: {
 				computer: new StringComputer(function(firstName, lastName) {
@@ -39,22 +44,9 @@ define([
 		}
 	});
 
-	return compose(function() {
-		this._propObj = new PersonPropObj();
-	}, {
-		get: function() { return this._propObj.getValue(); },
-		set: function(arg) { return this._propObj.setValue(arg); },
-		onValue: function(listener) { return this._propObj.onValue(listener); },
-		destroy: function() { return this._propObj.destroy(); },
-
-		getProperty: function(propId) {
-			var acc = this._propObj.getPropertyAccessor(propId);
-			return {
-				get: function() { return acc.getValue(); },
-				set: function(arg) { return acc.setValue(arg); },
-				onValue: function(listener) { return acc.onValue(listener); },
-				destroy: function() { return acc.destroy(); }
-			};
-		},
-	});
+	var Person = function() {
+		CompositeAccessorWithComputer.call(this, new ValueSource(), new PersonComputer());
+	};
+	Person.prototype = CompositeAccessorWithComputer.prototype;
+	return Person;
 });

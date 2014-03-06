@@ -5,7 +5,9 @@ define([
 	compose,
 	clone
 ){
-	return compose({
+	return compose(function(propertyComputers) {
+		this._propertyComputers = propertyComputers;
+	}, {
 		computeChangesFromSet: function(arg, initValue) {
 			arg = arg || {};
 			initValue = initValue || {};
@@ -13,22 +15,13 @@ define([
 			var changes = [],
 				self = this;
 			
-			Object.keys(this._properties).forEach(function(propId) {
-				var propComputer = self._getPropertyComputer(propId),
-					propValue;
-				if (propComputer.computeChangesFromSet) {
-					changes.push({
-						type: 'patched',
-						key: propId,
-						arg: propComputer.computeChangesFromSet(arg[propId], initValue[propId])
-					});
-				} else {
-					changes.push({
-						type: 'set',
-						key: propId,
-						value: propComputer.computeValueFromSet(arg[propId], initValue[propId])
-					});
-				}
+			Object.keys(this._propertyComputers).forEach(function(propId) {
+				var propComputer = self._getPropertyComputer(propId);
+				changes.push({
+					type: 'set',
+					key: propId,
+					value: propComputer.computeValueFromSet(arg[propId], initValue[propId])
+				});
 			});
 			return this.computeChangesFromPatch(changes, initValue);
 		},
@@ -80,7 +73,7 @@ define([
 		},
 
 		_getPropertyComputer: function(propId) {
-			return this._properties[propId];
+			return this._propertyComputers[propId];
 		}
 	});
 });

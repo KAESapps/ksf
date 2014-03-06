@@ -5,9 +5,9 @@ define([
 	compose,
 	clone
 ){
-	return compose({
-		_itemComputer: null,
-
+	return compose(function(itemComputer) {
+		this._itemComputer = itemComputer;
+	}, {
 		computeChangesFromSet: function(arg, initValue) {
 			arg = arg || [];
 			initValue = initValue || [];

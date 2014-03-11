@@ -107,6 +107,9 @@ define([
 				}
 			});
 			return ret;
+		},
+		sort: function(sortFn) {
+			return new SortedAccessor(this, sortFn);
 		}
 	};
 

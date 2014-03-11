@@ -2,16 +2,16 @@ define([
 	'intern!object',
 	'intern/chai!assert',
 	'compose',
-	'../StateContainer',
-	'./Person',
-	'./PersonWithAddress',
-	'./Station',
-	'./Task'
+	'../Stateful',
+	// './Person',
+	// './PersonWithAddress',
+	// './Station',
+	// './Task'
 ], function(
 	registerSuite,
 	assert,
 	compose,
-	StateContainer,
+	Stateful,
 	Person,
 	PersonWithAddress,
 	Station,
@@ -20,26 +20,27 @@ define([
 	registerSuite({
 		name: 'simple value',
 		'set get': function() {
-			var obs = new StateContainer(undefined);
-			assert.equal(obs.get(), undefined);
+			var obs = new Stateful(undefined);
+			assert.equal(obs.getValue(), undefined);
 
-			obs.set('toto');
-			assert.equal(obs.get(), 'toto');
+			obs.setValue('toto');
+			assert.equal(obs.getValue(), 'toto');
 		},
 		'observing value': function() {
 			var observedValues = [];
-			var obs = new StateContainer();
-			obs.set('toto');
+			var obs = new Stateful();
 
-			var handler = obs.onValue(function(value) {
+			var observe = obs.onValue(function(value) {
 				observedValues.push(value);
 			});
+
+			obs.setValue('toto');
 			assert.deepEqual(observedValues, [
 				'toto',
 			]);
 
-			handler();
-			obs.set('titi');
+			observe.destroy();
+			obs.setValue('titi');
 			assert.deepEqual(observedValues, [
 				'toto',
 			]);

@@ -1,19 +1,23 @@
 define([
-	'intern!object',	'intern/chai!assert',
 	"../Grid",
 	"ksf/collections/OrderableSet",
 	'../HtmlElement',
 	'../Select',
 	'ksf/collections/Dict',
+	// 'dojo/has',
 
 ], function(
-	registerSuite, assert,
 	Grid,
 	OrderableSet,
 	HtmlElement,
 	Select,
 	Dict
+	// has
 ){
+/*	has.add("ksf-monitoring", function(){
+		return true;
+	});
+*/
 	// create css rules
 	var css = document.createElement("style");
 	css.type = "text/css";

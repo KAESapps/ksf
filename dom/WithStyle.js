@@ -9,24 +9,24 @@ define([
 ){
 	return compose(function() {
 		this.style = new ObservableObject();
+		this._currentStyles = [];
 	}, {
 		_applyStyle: function() {
-			var style = this.style,
-				newStyles = new Set(),
+			var oldStyles = this._currentStyles,
+				newStyles = this.style.toArray(),
 				domNode = this.domNode;
 
-			style && style.forEach(function(styleObj) {
-				newStyles.add(styleObj);
-			});
-			if (this._appliedStyles) {
-				this._appliedStyles.difference(newStyles).forEach(function(styleObj) {
+			this._currentStyles.forEach(function(styleObj) {
+				if (newStyles.indexOf(styleObj) === -1) {
 					styleObj.unapply(domNode);
-				});
-			}
-			newStyles.difference(this._appliedStyles || []).forEach(function(styleObj) {
-				styleObj.apply(domNode);
+				}
 			});
-			this._appliedStyles = newStyles;
+			newStyles.forEach(function(styleObj) {
+				if (oldStyles.indexOf(styleObj) === -1) {
+					styleObj.apply(domNode);
+				}
+			});
+			this._currentStyles = newStyles;
 		}
 	});
 });

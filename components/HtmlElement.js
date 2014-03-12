@@ -21,12 +21,12 @@ define([
 		ObservableObject,
 		function(domNode) {
 			this._domNode = domNode;
-			this._notAppliedAttrs = new Set();
+			this._notAppliedAttrs = [];
 		},
 		{
 			set: function(prop, value) {
-				if (! this._notAppliedAttrs.has(prop)) {
-					this._notAppliedAttrs.add(prop);
+				if (this._notAppliedAttrs.indexOf(prop) < 0) {
+					this._notAppliedAttrs.push(prop);
 				}
 				ObservableObject.prototype.set.apply(this, arguments);
 			},
@@ -43,11 +43,10 @@ define([
 				this._notAppliedAttrs.forEach(function(attr) {
 					domNode[attr] = this.get(attr);
 				}.bind(this));
-				this._notAppliedAttrs.clear();
+				this._notAppliedAttrs.splice(0, this._notAppliedAttrs.lenght);
 			},
 			readDomAttrs: function() {
 				var domNode = this._domNode;
-				var domValues = {};
 				this._startChanges();
 				Array.prototype.forEach.call(arguments, function(attr) {
 					this.set(attr, domNode[attr]);

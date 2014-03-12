@@ -9,7 +9,7 @@ define([
 	{
 		_applyContentChanges: function(changes) {
 			// v----rendering log----v
-			var timer = "apply content";
+			var timer = "apply content changes";
 			if (window.renderingLog) {
 				console.time(timer);
 			}
@@ -32,7 +32,10 @@ define([
 			});
 
 			// v----rendering log----v
-			console.timeEnd(timer);
+			if (window.renderingLog) {
+				console.log(changes.length, 'changes');
+				console.timeEnd(timer);
+			}
 			// ^----rendering log----^
 
 		}

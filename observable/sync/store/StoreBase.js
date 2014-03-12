@@ -24,7 +24,7 @@ define([
 
 			var changes = [],
 				self = this;
-			
+
 			Object.keys(arg).forEach(function(propId) {
 				var propComputer = self._getPropertyComputer(propId),
 					propValue;
@@ -62,7 +62,11 @@ define([
 		computeValueFromChanges: function(propChanges, initValue) {
 			propChanges = propChanges || [];
 			initValue = initValue || {};
-			var newValue = clone(initValue);
+			// var newValue = initValue;//clone(initValue);
+			var newValue = {};
+			for (var key in initValue){
+				newValue[key] = initValue[key];
+			}
 			propChanges.forEach(function(change) {
 				var propValue;
 				if (change.type === 'removed') {
@@ -110,7 +114,19 @@ define([
 		},
 		sort: function(sortFn) {
 			return new SortedAccessor(this, sortFn);
-		}
+		},
+		onValue: function(cb) {
+			var self = this;
+			return this._source.onValue(function() {
+				cb(self.getValue());
+			});
+		},
+		getItemByKey: function(key) {
+			return this._source.getItemByKey(key);
+		},
+		getKeys: function() {
+			return Object.keys(this.getValue());
+		},
 	};
 
 	var SortedAccessor = function(source, sortFn) {
@@ -153,7 +169,13 @@ define([
 		},
 		range: function(from, to) {
 			return new RangeAccessor(this, { from: from, to: to});
-		}
+		},
+		onValue: function(cb) {
+			var self = this;
+			return this._source.onValue(function() {
+				cb(self.getValue());
+			});
+		},
 	};
 
 	var RangeAccessor = function(source, bounds) {
@@ -173,7 +195,13 @@ define([
 		},
 		getItemByKey: function(key) {
 			return this._source.getItemByKey(key);
-		}
+		},
+		onValue: function(cb) {
+			var self = this;
+			return this._source.onValue(function() {
+				cb(self.getValue());
+			});
+		},
 	};
 
 	var Store = function(itemComputer, itemAccessorFactory) {
@@ -204,6 +232,9 @@ define([
 	};
 	Store.prototype.sort = function(sortFn) {
 		return new SortedAccessor(this, sortFn);
+	};
+	Store.prototype.getKeys = function() {
+		return Object.keys(this.getValue());
 	};
 	return Store;
 });

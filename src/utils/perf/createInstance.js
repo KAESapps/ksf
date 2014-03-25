@@ -26,11 +26,11 @@ define([
 	var KsfEmployee = ksfCompose(Person, WithJob);
 	var DojoEmployee = dojoCompose(Person, WithJob);
 
-	JSLitmus.test('dojo compose', function() {
-		return new DojoEmployee('syv', 'dev');
-	});
 	JSLitmus.test('ksf compose', function() {
 		return new KsfEmployee('syv', 'dev');
+	});
+	JSLitmus.test('dojo compose', function() {
+		return new DojoEmployee('syv', 'dev');
 	});
 
 

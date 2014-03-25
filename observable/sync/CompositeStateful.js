@@ -6,16 +6,13 @@ define([
 	Stateful
 ){
 	var generator = function(args) {
-		var getValue = args.getValue || 'getValue',
-			setValue = args.setValue || 'setValue',
-			patchValue = args.patchValue || 'patchValue',
-			onValue = args.onValue || 'onValue',
-			onChanges = args.onChanges || 'onChanges';
+		var getValue = args.getValue || 'get',
+			setValue = args.setValue || 'set',
+			patchValue = args.patchValue || 'patchValue';
 
 		var CustomStateful = Stateful.custom({
 			getValue: getValue,
-			setValue: '_applyValue',
-			onValue: onValue
+			setValue: '_applyValue'
 		});
 
 
@@ -30,20 +27,15 @@ define([
 			var changes = computeChangesFn(arg, value);
 			var newValue = self._computer.computeValueFromChanges(changes, value);
 			self._applyValue(newValue);
-			self._emit('changes', changes);
+			if (changes.length > 0) {
+				self._emit('changes', changes);
+			}
 		};
 		Trait.prototype[setValue] = function(arg) {
 			return this._applyChanges(arg, this._computer.computeChangesFromSet.bind(this._computer));
 		};
 		Trait.prototype[patchValue] = function(patch) {
 			return this._applyChanges(patch, this._computer.computeChangesFromPatch.bind(this._computer));
-		};
-		Trait.prototype[onChanges] = function(listener) {
-			return this.own(this.on('changes', function(changes) {
-				if (changes.length > 0) {
-					listener(changes);
-				}
-			}));
 		};
 
 		return Trait;

@@ -6,12 +6,10 @@ define([
 	Destroyable
 ){
 	var generator = function(args) {
-		var getValue = args.getValue || 'getValue',
-			setValue = args.setValue || 'setValue',
-			onValue = args.onValue || 'onValue',
-			parentGetValue = args.parentGetValue || 'getValue',
-			parentPatchvalue = args.parentPatchValue || 'patchValue',
-			parentOnValue = args.parentOnValue || 'onValue';
+		var getValue = args.getValue || 'get',
+			setValue = args.setValue || 'set',
+			parentGetValue = args.parentGetValue || 'get',
+			parentPatchvalue = args.parentPatchValue || 'patchValue';
 
 		var Trait = compose(Destroyable, function(parent, propName) {
 			this._parent = parent;
@@ -25,7 +23,7 @@ define([
 		Trait.prototype[getValue] = function() {
 			if (this._destroyed) { throw "Destroyed"; }
 			var self = this,
-				parentValue = this._parent.getValue();
+				parentValue = this._parent[parentGetValue]();
 			return self._extractValue(parentValue);
 		};
 
@@ -38,12 +36,18 @@ define([
 			}]);
 		};
 
-		Trait.prototype[onValue] = function(listener) {
+		Trait.prototype._onValue = function(listener) {
 			if (this._destroyed) { throw "Destroyed"; }
 			var self = this;
-			return this.own(this._parent[parentOnValue](function(parentValue) {
+			return this.own(this._parent.on('value', function(parentValue) {
 				listener(self._extractValue(parentValue));
 			}));
+		};
+
+		Trait.prototype.on = function(event, listener) {
+			if (event === 'value') {
+				return this._onValue(listener);
+			}
 		};
 		return Trait;
 	};

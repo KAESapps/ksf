@@ -1,5 +1,0 @@
-define([
-	'./HtmlElement',
-	'./Select',
-	'./SelectableList',
-]);

@@ -61,5 +61,29 @@ define([
 			var syv = new Employee('syv');
 			assert.equal(syv.doWork(), "I'm working");
 		},
+		"many constructors": function() {
+			var Person = function (name) {
+				this.name = name;
+			};
+			Person.prototype = {
+				greet: function(somebody) {
+					return "Hello " + somebody;
+				}
+			};
+
+			var WithJob = function(){
+				this.job = arguments[1];
+			};
+			WithJob.prototype = {
+				describe: function() {
+					return  "My name is " + this.name + " and I'm a " + this.job;
+				},
+			};
+
+			var Employee = compose(Person, WithJob);
+
+			var syv = new Employee('syv', 'dev');
+			assert.equal(syv.describe(), "My name is syv and I'm a dev");
+		},
 	});
 });

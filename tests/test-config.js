@@ -1,4 +1,4 @@
-define(['../require-config'], function() {
+define(['../src/require-config'], function() {
 	loaderConfig.packages.push({
 		name: 'ksf',
 		location: '..',

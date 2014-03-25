@@ -24,7 +24,7 @@ define([
 
 			var changes = [],
 				self = this;
-
+			
 			Object.keys(arg).forEach(function(propId) {
 				var propComputer = self._getPropertyComputer(propId),
 					propValue;
@@ -62,11 +62,7 @@ define([
 		computeValueFromChanges: function(propChanges, initValue) {
 			propChanges = propChanges || [];
 			initValue = initValue || {};
-			// var newValue = initValue;//clone(initValue);
-			var newValue = {};
-			for (var key in initValue){
-				newValue[key] = initValue[key];
-			}
+			var newValue = clone(initValue);
 			propChanges.forEach(function(change) {
 				var propValue;
 				if (change.type === 'removed') {
@@ -100,9 +96,9 @@ define([
 		this._filterFn = filterFn;
 	};
 	FilterAccessor.prototype = {
-		getValue: function() {
+		get: function() {
 			var self = this,
-				value = this._source.getValue();
+				value = this._source.get();
 			var ret = {};
 			Object.keys(value).forEach(function(key) {
 				var item = value[key];
@@ -134,9 +130,9 @@ define([
 		this._sortFn = sortFn;
 	};
 	SortedAccessor.prototype = {
-		getValue: function() {
+		get: function() {
 			var self = this,
-				value = this._source.getValue();
+				value = this._source.get();
 
 			var ret = Object.keys(value).map(function(key) {
 				return value[key];
@@ -146,7 +142,7 @@ define([
 		},
 		getKeys: function() {
 			var self = this,
-				value = this._source.getValue();
+				value = this._source.get();
 
 			var ret = Object.keys(value).map(function(key) {
 				return { key: key, value: value[key] };
@@ -170,12 +166,26 @@ define([
 		range: function(from, to) {
 			return new RangeAccessor(this, { from: from, to: to});
 		},
-		onValue: function(cb) {
+		_onValue: function(listener) {
 			var self = this;
-			return this._source.onValue(function() {
-				cb(self.getValue());
+			return this._source.on('value', function() {
+				listener(self.get());
 			});
 		},
+		_onKeys: function(listener) {
+			var self = this;
+			return this._source.on('value', function() {
+				listener(self.getKeys());
+			});
+		},
+		on: function(event, listener) {
+			if (event === 'value') {
+				return this._onValue(listener);
+			}
+			if (event === 'keys') {
+				return this._onKeys(listener);
+			}
+		}
 	};
 
 	var RangeAccessor = function(source, bounds) {
@@ -188,9 +198,9 @@ define([
 				value = this._source.getKeys();
 			return value.slice(self._bounds.from, self._bounds.to);
 		},
-		getValue: function() {
+		get: function() {
 			var self = this,
-				value = this._source.getValue();
+				value = this._source.get();
 			return value.slice(self._bounds.from, self._bounds.to);
 		},
 		getItemByKey: function(key) {

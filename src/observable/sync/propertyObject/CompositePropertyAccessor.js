@@ -8,8 +8,7 @@ define([
 	var generator = function(args) {
 		var PARENT = args.parent || '_parent',
 			PROPNAME = args.propName || '_propName',
-			PARENT_PATCHVALUE = args.parentPatchValue || 'patchValue',
-			PARENT_ONCHANGES = args.parentOnChanges || 'onChanges';
+			PARENT_PATCHVALUE = args.parentPatchValue || 'patch';
 
 		return compose(PropertyAccessor.custom({
 			parent: PARENT,
@@ -17,9 +16,8 @@ define([
 			getValue: args.getValue,
 			parentGetValue: args.parentGetValue,
 			parentPatchValue: PARENT_PATCHVALUE,
-			parentOnValue: args.parentOnValue
 		}), {
-			patchValue: function(arg) {
+			patch: function(arg) {
 				if (this._destroyed) { throw "Destroyed"; }
 				return this[PARENT][PARENT_PATCHVALUE]([{
 					type: 'patched',
@@ -28,10 +26,10 @@ define([
 				}]);
 			},
 
-			onChanges: function(listener) {
+			_onChanges: function(listener) {
 				if (this._destroyed) { throw "Destroyed"; }
 				var self = this;
-				return this.own(this[PARENT][PARENT_ONCHANGES](function(changes) {
+				return this.own(this[PARENT].on('changes', function(changes) {
 					var selfChanges = self._getChanges(changes);
 					if (selfChanges && selfChanges.length > 0) {
 						listener(selfChanges);

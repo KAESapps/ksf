@@ -24,7 +24,7 @@ define([
 
 			var changes = [],
 				self = this;
-			
+
 			Object.keys(arg).forEach(function(propId) {
 				var propComputer = self._getPropertyComputer(propId),
 					propValue;
@@ -96,9 +96,9 @@ define([
 		this._filterFn = filterFn;
 	};
 	FilterAccessor.prototype = {
-		get: function() {
+		value: function() {
 			var self = this,
-				value = this._source.get();
+				value = this._source.value();
 			var ret = {};
 			Object.keys(value).forEach(function(key) {
 				var item = value[key];
@@ -117,38 +117,38 @@ define([
 				cb(self.getValue());
 			});
 		},
-		getItemByKey: function(key) {
-			return this._source.getItemByKey(key);
+		item: function(key) {
+			return this._source.item(key);
 		},
-		getKeys: function() {
+		keys: function() {
 			return Object.keys(this.getValue());
 		},
 	};
 
-	var SortedAccessor = function(source, sortFn) {
+	var SortedAccessor = function(source, compareFn) {
 		this._source = source;
-		this._sortFn = sortFn;
+		this._compareFn = compareFn;
 	};
 	SortedAccessor.prototype = {
-		get: function() {
+		value: function() {
 			var self = this,
-				value = this._source.get();
+				value = this._source.value();
 
 			var ret = Object.keys(value).map(function(key) {
 				return value[key];
 			});
-			ret.sort(self._sortFn);
+			ret.sort(self._compareFn);
 			return ret;
 		},
-		getKeys: function() {
+		keys: function() {
 			var self = this,
-				value = this._source.get();
+				value = this._source.value();
 
 			var ret = Object.keys(value).map(function(key) {
 				return { key: key, value: value[key] };
 			});
 			ret.sort(function(a, b) {
-				return self._sortFn(a.value, b.value);
+				return self._compareFn(a.value, b.value);
 			});
 			return ret.map(function(keyValue) {
 				return keyValue.key;
@@ -160,8 +160,8 @@ define([
 		remove: function(key) {
 			return this._source.remove(key);
 		},
-		getItemByKey: function(key) {
-			return this._source.getItemByKey(key);
+		item: function(key) {
+			return this._source.item(key);
 		},
 		range: function(from, to) {
 			return new RangeAccessor(this, { from: from, to: to});
@@ -169,13 +169,50 @@ define([
 		_onValue: function(listener) {
 			var self = this;
 			return this._source.on('value', function() {
-				listener(self.get());
+				listener(self.value());
 			});
 		},
 		_onKeys: function(listener) {
 			var self = this;
 			return this._source.on('value', function() {
-				listener(self.getKeys());
+				listener(self.keys());
+			});
+		},
+		on: function(event, listener) {
+			if (event === 'value') {
+				return this._onValue(listener);
+			}
+			if (event === 'keys') {
+				return this._onKeys(listener);
+			}
+			if (event === 'changes') {
+				return this._onChanges(listener);
+			}
+		}
+	};
+
+	var RangeAccessor = function(source, bounds) {
+		this._source = source;
+		this._bounds = bounds;
+	};
+	RangeAccessor.prototype = {
+		keys: function() {
+			var self = this,
+				value = this._source.keys();
+			return value.slice(self._bounds.from, self._bounds.to);
+		},
+		value: function() {
+			var self = this,
+				value = this._source.value();
+			return value.slice(self._bounds.from, self._bounds.to);
+		},
+		item: function(key) {
+			return this._source.item(key);
+		},
+		_onValue: function(cb) {
+			var self = this;
+			return this._source.onValue(function() {
+				cb(self.getValue());
 			});
 		},
 		on: function(event, listener) {
@@ -188,32 +225,6 @@ define([
 		}
 	};
 
-	var RangeAccessor = function(source, bounds) {
-		this._source = source;
-		this._bounds = bounds;
-	};
-	RangeAccessor.prototype = {
-		getKeys: function() {
-			var self = this,
-				value = this._source.getKeys();
-			return value.slice(self._bounds.from, self._bounds.to);
-		},
-		get: function() {
-			var self = this,
-				value = this._source.get();
-			return value.slice(self._bounds.from, self._bounds.to);
-		},
-		getItemByKey: function(key) {
-			return this._source.getItemByKey(key);
-		},
-		onValue: function(cb) {
-			var self = this;
-			return this._source.onValue(function() {
-				cb(self.getValue());
-			});
-		},
-	};
-
 	var Store = function(itemComputer, itemAccessorFactory) {
 		CompositeStateful.call(this, new StoreComputer(
 			itemComputer
@@ -221,18 +232,18 @@ define([
 		this._itemAccessorFactory = itemAccessorFactory;
 	};
 	Store.prototype = Object.create(CompositeStateful.prototype);
-	Store.prototype.getItemByKey = function(key) {
+	Store.prototype.item = function(key) {
 		return new this._itemAccessorFactory(this, key);
 	};
 	Store.prototype.add = function(value, key) {
-		return this.patchValue([{
+		return this.patch([{
 			type: 'added',
 			key: key,
 			value: value
 		}]);
 	};
 	Store.prototype.remove = function(key) {
-		return this.patchValue([{
+		return this.patch([{
 			type: 'removed',
 			key: key
 		}]);
@@ -240,11 +251,11 @@ define([
 	Store.prototype.filter = function(filterFn) {
 		return new FilterAccessor(this, filterFn);
 	};
-	Store.prototype.sort = function(sortFn) {
-		return new SortedAccessor(this, sortFn);
+	Store.prototype.sort = function(compareFn) {
+		return new SortedAccessor(this, compareFn);
 	};
-	Store.prototype.getKeys = function() {
-		return Object.keys(this.getValue());
+	Store.prototype.keys = function() {
+		return Object.keys(this._getValue());
 	};
 	return Store;
 });

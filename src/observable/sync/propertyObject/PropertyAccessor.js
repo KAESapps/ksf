@@ -6,10 +6,10 @@ define([
 	Destroyable
 ){
 	var generator = function(args) {
-		var getValue = args.getValue || 'get',
-			setValue = args.setValue || 'set',
-			parentGetValue = args.parentGetValue || 'get',
-			parentPatchvalue = args.parentPatchValue || 'patchValue';
+		var getValue = args.getValue || '_getValue',
+			setValue = args.setValue || '_setValue',
+			parentGetValue = args.parentGetValue || 'value',
+			parentPatchvalue = args.parentPatchValue || 'patch';
 
 		var Trait = compose(Destroyable, function(parent, propName) {
 			this._parent = parent;
@@ -18,6 +18,14 @@ define([
 
 		Trait.prototype._extractValue = function(parentValue) {
 			return parentValue && parentValue[this._propName];
+		};
+
+		Trait.prototype.value = function(value) {
+			if (arguments.length === 0) {
+				return this._getValue();
+			} else {
+				return this._setValue(value);
+			}
 		};
 
 		Trait.prototype[getValue] = function() {
@@ -47,6 +55,9 @@ define([
 		Trait.prototype.on = function(event, listener) {
 			if (event === 'value') {
 				return this._onValue(listener);
+			}
+			if (event === 'changes') {
+				return this._onChanges(listener);
 			}
 		};
 		return Trait;

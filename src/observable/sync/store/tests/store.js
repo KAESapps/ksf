@@ -32,14 +32,14 @@ define([
 	registerSuite({
 		name: 'filter',
 
-		'getValue': function() {
+		'get': function() {
 			store = new DocumentStore({
 				properties: {
 					name: new StringProperty(),
 					age: new IntegerProperty()
 				}
 			});
-			store.setValue({
+			store.value({
 				"1": {name: "Sylvain", age: 32},
 				"2": {name: "Quentin", age: 28},
 				"3": {name: "Aurélie", age: 31},
@@ -48,14 +48,14 @@ define([
 				return item.age > 30;
 			});
 
-			var value = filteredStore.getValue();
+			var value = filteredStore.value();
 			assert.deepEqual(value, {
 				"1": {name: "Sylvain", age: 32},
 				"3": {name: "Aurélie", age: 31},
 			});
 		},
 	});
-	
+
 	var ascendingAge = function(a, b) {
 		return a.age - b.age;
 	};
@@ -69,16 +69,16 @@ define([
 					age: new IntegerProperty()
 				}
 			});
-			store.setValue({
+			store.value({
 				"1": {name: "Sylvain", age: 32},
 				"2": {name: "Quentin", age: 28},
 				"3": {name: "Aurélie", age: 31},
 			});
 
 		},
-		'getValue': function() {
+		'get': function() {
 			var sorted = store.sort(ascendingAge);
-			var value = sorted.getValue();
+			var value = sorted.value();
 			assert.deepEqual(value, [
 				{name: "Quentin", age: 28},
 				{name: "Aurélie", age: 31},
@@ -88,7 +88,7 @@ define([
 		'add value': function() {
 			var sorted = store.sort(ascendingAge);
 			sorted.add({name: "Léonie", age: 1}, "4"); // si aucun id n'est précisé, il est généré
-			var value = sorted.getValue();
+			var value = sorted.value();
 			assert.deepEqual(value, [
 				{name: "Léonie", age: 1},
 				{name: "Quentin", age: 28},
@@ -96,7 +96,7 @@ define([
 				{name: "Sylvain", age: 32},
 			]);
 
-			value =	store.getValue();
+			value =	store.value();
 			assert.deepEqual(value, {
 				"1": {name: "Sylvain", age: 32},
 				"2": {name: "Quentin", age: 28},
@@ -106,15 +106,15 @@ define([
 		},
 		"item accessor": function() {
 			var sorted = store.sort(ascendingAge);
-			var keys = sorted.getKeys();
-			var ketAccessor = sorted.getItemByKey(keys[0]);
-			var value = ketAccessor.getValue();
+			var keys = sorted.keys();
+			var ketAccessor = sorted.item(keys[0]);
+			var value = ketAccessor.value();
 			assert.deepEqual(value, {name: "Quentin", age: 28});
 		},
 		"change item age": function() {
 			var sorted = store.sort(ascendingAge);
-			sorted.getItemByKey("3").getPropertyAccessor('age').setValue(33);
-			var value = sorted.getValue();
+			sorted.item("3").prop('age').value(33);
+			var value = sorted.value();
 			assert.deepEqual(value, [
 				{name: "Quentin", age: 28},
 				{name: "Sylvain", age: 32},
@@ -123,12 +123,12 @@ define([
 		},
 		"range accessor": function() {
 			var sorted = store.sort(ascendingAge);
-			var value = sorted.range(0, 2).getValue();
+			var value = sorted.range(0, 2).value();
 			assert.deepEqual(value, [
 				{name: "Quentin", age: 28},
 				{name: "Aurélie", age: 31},
 			]);
-			value = sorted.range(0, 2).getKeys();
+			value = sorted.range(0, 2).keys();
 			assert.deepEqual(value, [
 				'2',
 				'3'

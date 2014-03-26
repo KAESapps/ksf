@@ -6,8 +6,8 @@ define([
 	Evented
 ){
 	var generator = function(args) {
-		var getValue = args.getValue || 'getValue',
-			setValue = args.setValue || 'setValue';
+		var getValue = args.getValue || '_getValue',
+			setValue = args.setValue || '_setValue';
 
 
 		var Stateful = compose(Evented, function(initialValue) {
@@ -19,6 +19,13 @@ define([
 		Stateful.prototype[setValue] = function(value) {
 			this._value = value;
 			this._emit('value', value);
+		};
+		Stateful.prototype.value = function(value) {
+			if (arguments.length === 0) {
+				return this._getValue();
+			} else {
+				this._setValue(value);
+			}
 		};
 		return Stateful;
 	};

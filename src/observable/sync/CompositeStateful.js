@@ -6,9 +6,9 @@ define([
 	Stateful
 ){
 	var generator = function(args) {
-		var getValue = args.getValue || 'get',
-			setValue = args.setValue || 'set',
-			patchValue = args.patchValue || 'patchValue';
+		var getValue = args.getValue || '_getValue',
+			setValue = args.setValue || '_setValue',
+			patchValue = args.patchValue || 'patch';
 
 		var CustomStateful = Stateful.custom({
 			getValue: getValue,

@@ -1,7 +1,7 @@
 define(['../src/require-config'], function() {
 	loaderConfig.packages.push({
 		name: 'ksf',
-		location: '..',
+		location: '../src',
 	});
 
 	return {

@@ -9,10 +9,12 @@
 	<body>
 		<script>
 			var srcDir = location.pathname.replace(/[^\/]+$/, '');
+			require.config = require;
 			require({
 				baseUrl: '../bower_components',
 				packages: [
-					{ name: 'ksf', location: srcDir + '../src' }
+					{ name: 'ksf', location: srcDir + '../src' },
+					{ name: 'dojoCompose', location: 'compose', main: 'compose' }
 				]
 			});
 			require(['ksf/require-config'], function() {

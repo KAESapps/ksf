@@ -6,13 +6,15 @@
 		<script src="../node_modules/intern/node_modules/dojo/dojo.js"></script>
 		<script>
 (function () {
-	var ksfRoot = location.pathname.replace(/[^\/]+$/, '') + '../';
+	var root = location.pathname.replace(/[^\/]+$/, '') + '../';
+	require.config = require;
 	require({
-		baseUrl: ksfRoot + 'bower_components/',
+		baseUrl: root + 'bower_components/',
 		packages: [
-			{ name: 'intern', location: ksfRoot + 'node_modules/intern' },
-			{ name: 'chai', location: ksfRoot + 'node_modules/intern/node_modules/chai', main: 'chai' },
-			{ name: 'ksf', location: ksfRoot },
+			{ name: 'intern', location: root + 'node_modules/intern' },
+			{ name: 'chai', location: root + 'node_modules/intern/node_modules/chai', main: 'chai' },
+			{ name: 'ksf', location: root + 'src' },
+			{ name: 'tests', location: root + 'tests' },
 		],
 		map: { 'intern': { 'dojo': 'intern/node_modules/dojo' } }
 	}, [ 'intern/client' ]);

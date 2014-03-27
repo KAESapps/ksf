@@ -1,6 +1,6 @@
 define([
 	'../compose',
-	'compose',
+	'dojoCompose',
 ], function(
 	ksfCompose,
 	dojoCompose

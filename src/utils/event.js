@@ -1,23 +1,24 @@
 define([
 ], function(
 ){
-	return {
-		on: function(type, cb){
-			this._listeners || (this._listeners = {});
-			var listeners = this._listeners[type] || (this._listeners[type] = []);
+	return function() {
+		var listeners;
+		var eventEmitter = function(cb) {
+			listeners || (listeners = []);
 			listeners.push(cb);
 			return function() {
 				listeners.splice(listeners.indexOf(cb), 1);
 			};
-		},
-		_emit: function(type, event){
-			var listeners = this._listeners && this._listeners[type];
+		};
+		eventEmitter.emit = function(event) {
 			if (listeners) {
 				var length = listeners.length;
 				for (var i=0; i < length; i++) {
 					listeners[i](event);
 				}
 			}
-		}
+
+		};
+		return eventEmitter;
 	};
 });

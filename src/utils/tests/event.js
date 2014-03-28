@@ -1,32 +1,29 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'../Evented',
-	'compose',
+	'../event',
 ], function(
 	registerSuite,
 	assert,
-	Evented,
-	compose
+	event
 ) {
 
 	var o;
-	var EventedObject = compose(Evented);
 
 	registerSuite({
 		beforeEach : function() {
-
-			o = new EventedObject();
+			o = {};
+			o.onValue = event();
 		},
 		"emit without listener": function(){
-			o._emit('value', "hello");
+			o.onValue.emit("hello");
 		},
 		"one listener": function(){
 			var observedEvents = [];
-			o.on('value', function(ev){
+			o.onValue(function(ev){
 				observedEvents.push(ev);
 			});
-			o._emit('value', "hello");
+			o.onValue.emit("hello");
 			assert.deepEqual(observedEvents, [
 				"hello",
 			]);
@@ -34,13 +31,13 @@ define([
 		"many listeners": function(){
 			var observedEvents1 = [];
 			var observedEvents2 = [];
-			o.on('value', function(ev){
+			o.onValue(function(ev){
 				observedEvents1.push(ev);
 			});
-			o.on('value', function(ev){
+			o.onValue(function(ev){
 				observedEvents2.push(ev);
 			});
-			o._emit('value', "hello");
+			o.onValue.emit("hello");
 			assert.deepEqual(observedEvents1, [
 				"hello",
 			]);
@@ -51,14 +48,14 @@ define([
 		"remove one listener from many": function() {
 			var observedEvents1 = [];
 			var observedEvents2 = [];
-			var canceler1 = o.on('value', function(ev){
+			var canceler1 = o.onValue(function(ev){
 				observedEvents1.push(ev);
 			});
-			o.on('value', function(ev){
+			o.onValue(function(ev){
 				observedEvents2.push(ev);
 			});
 			canceler1();
-			o._emit('value', "hello");
+			o.onValue.emit("hello");
 			assert.deepEqual(observedEvents1, [
 			]);
 			assert.deepEqual(observedEvents2, [

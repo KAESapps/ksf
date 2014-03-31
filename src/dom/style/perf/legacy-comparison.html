@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<title>Perf bench</title>
+<script src="../../../../bower_components/dojo/dojo.js"></script>
+<script>
+	require({
+		baseUrl: '../../..',
+		packages: [
+			{ name: 'style', location: 'dom/style', main: 'Style' },
+			{ name: 'compose', location: 'utils', main: 'compose' }
+		]
+	});
+</script>
+<body>
+	<script>
+	require(['style'], function(Style) {
+		console.time('ksf 1000 styles creation');
+		var style;
+		for (var i = 0; i < 1000; i++) {
+			style = new Style({
+				css: '#this {\
+					background-color: red;\
+					width: 50px;\
+					height: 20px;\
+				}'
+			});
+			// style.destroy();
+		}
+		console.timeEnd('ksf 1000 styles creation');
+
+
+
+		console.time('CSS 1000 rules creation');
+
+		var rules = "";
+		for (var i = 0; i < 1000; i++) {
+			rules += '.s' + i + ' {\
+				background-color: red;\
+				width: 50px;\
+				height: 20px;\
+			}\n';
+		}
+		var styleElement = document.createElement('style');
+		styleElement.appendChild(document.createTextNode(rules));
+		// document.head.removeChild(styleElement);
+		console.timeEnd('CSS 1000 rules creation');
+
+		console.time('CSS attach style element to document');
+		document.head.appendChild(styleElement);
+		console.timeEnd('CSS attach style element to document');
+
+		var node = document.createElement('div');
+		document.body.appendChild(node);
+		
+		console.time('CSS apply style to node');
+		node.classList.add('s999');
+		console.timeEnd('CSS apply style to node');
+
+		var node = document.createElement('div');
+		document.body.appendChild(node);
+
+		console.time('ksf apply style to 1st node');
+		style.apply(node);
+		console.timeEnd('ksf apply style to 1st node');
+		
+		var node = document.createElement('div');
+		document.body.appendChild(node);
+
+		console.time('ksf apply style 2nd node');
+		style.apply(node);
+		console.timeEnd('ksf apply style 2nd node');
+	});
+	</script>
+</body>

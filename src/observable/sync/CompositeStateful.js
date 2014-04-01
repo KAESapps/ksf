@@ -12,21 +12,18 @@ define([
 
 		var CustomStateful = Stateful.custom({
 			getValue: getValue,
-			setValue: '_applyValue'
+			setValue: setValue
 		});
 
 
-		var Trait = compose(CustomStateful.prototype, function(changesComputer) {
-			this._computer = changesComputer;
-			CustomStateful.call(this);
-		});
+		var Trait = compose(CustomStateful);
 
 		Trait.prototype._applyChanges = function(arg, computeChangesFn) {
 			var self = this,
 				value = this[getValue]();
 			var changes = computeChangesFn(arg, value);
 			var newValue = self._computer.computeValueFromChanges(changes, value);
-			self._applyValue(newValue);
+			CustomStateful.prototype[setValue].call(this, newValue);
 			if (changes.length > 0) {
 				self._emit('changes', changes);
 			}

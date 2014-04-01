@@ -11,7 +11,7 @@ define([
 
 
 		var Stateful = compose(Evented, function(initialValue) {
-			this._value = initialValue;
+			this[setValue](initialValue);
 		});
 		Stateful.prototype[getValue] = function() {
 			return this._value;

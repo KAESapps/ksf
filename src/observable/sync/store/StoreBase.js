@@ -1,96 +1,16 @@
 define([
 	'compose',
-	'lodash/objects/clone',
-	'lodash/collections/filter',
 	'../CompositeStateful',
-	'../../computers/propertyObject/Computer',
 	'../propertyObject/CompositePropertyAccessor',
-	'../propertyObject/_WithPropertyAccessors'
+	'../propertyObject/_WithPropertyAccessors',
+	'./StoreComputer'
 ], function(
 	compose,
-	clone,
-	filter,
 	CompositeStateful,
-	PropertyObjectComputer,
 	CompositePropertyAccessor,
-	_WithPropertyAccessors
+	_WithPropertyAccessors,
+	StoreComputer
 ){
-	var StoreComputer = compose(function(itemComputer) {
-		this._itemComputer = itemComputer;
-	}, {
-		computeChangesFromSet: function(arg, initValue) {
-			arg = arg || {};
-			initValue = initValue || {};
-
-			var changes = [],
-				self = this;
-
-			Object.keys(arg).forEach(function(propId) {
-				var propComputer = self._getPropertyComputer(propId),
-					propValue;
-				if (propComputer.computeChangesFromSet) {
-					changes.push({
-						type: 'patched',
-						key: propId,
-						arg: propComputer.computeChangesFromSet(arg[propId], initValue[propId])
-					});
-				} else {
-					changes.push({
-						type: 'set',
-						key: propId,
-						value: propComputer.computeValueFromSet(arg[propId], initValue[propId])
-					});
-				}
-			});
-			return this.computeChangesFromPatch(changes, initValue);
-		},
-		computeChangesFromPatch: function(propChanges, initValue) {
-			propChanges = propChanges || [];
-			initValue = initValue || {};
-			propChanges.forEach(function(change) {
-				var propComputer = this._getPropertyComputer(change.key);
-				if (change.type === 'patched') {
-					change.arg = propComputer.computeChangesFromPatch(change.arg, initValue[change.key]);
-				} else if (change.type === 'set') {
-					change.value = propComputer.computeValueFromSet(change.value, initValue[change.key]);
-				} else if (change.type === 'added') {
-					change.value = propComputer.computeValueFromSet(change.value, initValue[change.key]);
-				}
-			}.bind(this));
-			return propChanges;
-		},
-		computeValueFromChanges: function(propChanges, initValue) {
-			propChanges = propChanges || [];
-			initValue = initValue || {};
-			var newValue = clone(initValue);
-			propChanges.forEach(function(change) {
-				var propValue;
-				if (change.type === 'removed') {
-					delete newValue[change.key];
-				} else {
-					if (change.type === 'patched') {
-						var propComputer = this._getPropertyComputer(change.key);
-						propValue = propComputer.computeValueFromChanges(change.arg, initValue[change.key]);
-					} else if (change.type === 'set') {
-						propValue = change.value;
-					} else if (change.type === 'added') {
-						propValue = change.value;
-					}
-					newValue[change.key] = propValue;
-				}
-			}.bind(this));
-			return newValue;
-		},
-
-		computeValueFromSet: function(arg, initValue) {
-			return this.computeValueFromChanges(this.computeChangesFromSet(arg, initValue), initValue);
-		},
-
-		_getPropertyComputer: function(propId) {
-			return this._itemComputer;
-		}
-	});
-
 	var FilterAccessor = function(source, filterFn) {
 		this._source = source;
 		this._filterFn = filterFn;
@@ -111,18 +31,23 @@ define([
 		sort: function(sortFn) {
 			return new SortedAccessor(this, sortFn);
 		},
-		onValue: function(cb) {
+		_onValue: function(cb) {
 			var self = this;
-			return this._source.onValue(function() {
-				cb(self.getValue());
+			return this._source.on('value', function() {
+				cb(self.value());
 			});
 		},
 		item: function(key) {
 			return this._source.item(key);
 		},
 		keys: function() {
-			return Object.keys(this.getValue());
+			return Object.keys(this.value());
 		},
+		on: function(event, listener) {
+			if (event === 'value') {
+				return this._onValue(listener);
+			}
+		}
 	};
 
 	var SortedAccessor = function(source, compareFn) {
@@ -163,6 +88,11 @@ define([
 		item: function(key) {
 			return this._source.item(key);
 		},
+		items: function() {
+			return this.keys().map(function(key) {
+				return this.item(key);
+			}, this);
+		},
 		range: function(from, to) {
 			return new RangeAccessor(this, { from: from, to: to});
 		},
@@ -178,6 +108,58 @@ define([
 				listener(self.keys());
 			});
 		},
+		_computeChanges: function(initial, target) {
+			console.time('_computeChanges');
+			// remove domNode of components that are no longer in content
+			var ret = [],
+				initialCopy = initial.slice();
+			initial.forEach(function(item){
+				if (target.indexOf(item) < 0) {
+					var index = initialCopy.indexOf(item);
+					ret.push({
+						type: 'remove',
+						index: index
+					});
+					initialCopy.splice(index, 1);
+				}
+			});
+			var self = this;
+			// insert new components and move current components
+			target.forEach(function(key, index) {
+				var currentItem = initialCopy[index];
+
+				if (currentItem !== key) {
+					var initialIndex = initialCopy.indexOf(key);
+					if (initialIndex < 0) {
+						ret.push({
+							type: 'add',
+							index: index,
+							item: self.item(key)
+						});
+						initialCopy.splice(index, 0, key);
+					} else {
+						ret.push({
+							type: 'move',
+							from: initialIndex,
+							to: index
+						});
+						initialCopy.splice(initialIndex, 1);
+						initialCopy.splice(index, 0, key);
+					}
+				}
+			});
+			console.timeEnd('_computeChanges');
+			return ret;
+		},
+		_onItemChanges: function(listener) {
+			var self = this;
+			var oldValue = this.keys();
+			return this.on('keys', function(keys) {
+				var newValue = keys;
+				listener(self._computeChanges(oldValue, newValue));
+				oldValue = newValue;
+			});
+		},
 		on: function(event, listener) {
 			if (event === 'value') {
 				return this._onValue(listener);
@@ -187,6 +169,9 @@ define([
 			}
 			if (event === 'changes') {
 				return this._onChanges(listener);
+			}
+			if (event === 'itemChanges') {
+				return this._onItemChanges(listener);
 			}
 		}
 	};
@@ -212,7 +197,7 @@ define([
 		_onValue: function(cb) {
 			var self = this;
 			return this._source.onValue(function() {
-				cb(self.getValue());
+				cb(self.value());
 			});
 		},
 		on: function(event, listener) {
@@ -225,13 +210,7 @@ define([
 		}
 	};
 
-	var Store = function(itemComputer, itemAccessorFactory) {
-		CompositeStateful.call(this, new StoreComputer(
-			itemComputer
-		));
-		this._itemAccessorFactory = itemAccessorFactory;
-	};
-	Store.prototype = Object.create(CompositeStateful.prototype);
+	var Store = compose(CompositeStateful);
 	Store.prototype.item = function(key) {
 		return new this._itemAccessorFactory(this, key);
 	};

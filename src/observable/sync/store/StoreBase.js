@@ -3,14 +3,21 @@ define([
 	'../CompositeStateful',
 	'../propertyObject/CompositePropertyAccessor',
 	'../propertyObject/_WithPropertyAccessors',
-	'./StoreComputer'
+	'./StoreComputer',
+	'../ValueAccessor'
 ], function(
 	compose,
 	CompositeStateful,
 	CompositePropertyAccessor,
 	_WithPropertyAccessors,
-	StoreComputer
+	StoreComputer,
+	ValueAccessor
 ){
+	var CountAccessor = compose(ValueAccessor, {
+		_computeValue: function(parentValue) {
+			return Object.keys(parentValue).length;
+		}
+	});
 	var FilterAccessor = function(source, filterFn) {
 		this._source = source;
 		this._filterFn = filterFn;
@@ -179,10 +186,18 @@ define([
 		this._bounds = bounds;
 	};
 	RangeAccessor.prototype = {
+		_computeKeys: function(sourceKeys) {
+			return sourceKeys.slice(this._bounds.from, this._bounds.to);
+		},
 		keys: function() {
 			var self = this,
 				value = this._source.keys();
-			return value.slice(self._bounds.from, self._bounds.to);
+			return this._computeKeys(value);
+		},
+		items: function() {
+			return this.keys().map(function(key) {
+				return this.item(key);
+			}, this);
 		},
 		value: function() {
 			var self = this,
@@ -192,10 +207,66 @@ define([
 		item: function(key) {
 			return this._source.item(key);
 		},
+		_computeChanges: function(initial, target) {
+			// remove domNode of components that are no longer in content
+			var ret = [],
+				initialCopy = initial.slice();
+			initial.forEach(function(item){
+				if (target.indexOf(item) < 0) {
+					var index = initialCopy.indexOf(item);
+					ret.push({
+						type: 'remove',
+						index: index
+					});
+					initialCopy.splice(index, 1);
+				}
+			});
+			var self = this;
+			// insert new components and move current components
+			target.forEach(function(key, index) {
+				var currentItem = initialCopy[index];
+
+				if (currentItem !== key) {
+					var initialIndex = initialCopy.indexOf(key);
+					if (initialIndex < 0) {
+						ret.push({
+							type: 'add',
+							index: index,
+							item: self.item(key)
+						});
+						initialCopy.splice(index, 0, key);
+					} else {
+						ret.push({
+							type: 'move',
+							from: initialIndex,
+							to: index
+						});
+						initialCopy.splice(initialIndex, 1);
+						initialCopy.splice(index, 0, key);
+					}
+				}
+			});
+			return ret;
+		},
 		_onValue: function(cb) {
 			var self = this;
 			return this._source.onValue(function() {
 				cb(self.value());
+			});
+		},
+		_onKeys: function(listener) {
+			var self = this;
+			return this._source.on('keys', function(srcKeys) {
+				listener(self._computeKeys(srcKeys));
+			});
+		},
+		_onItemChanges: function(listener) {
+			var self = this;
+			var oldValue = this.keys();
+			return this.on('keys', function(keys) {
+				var newValue = keys;
+				listener(self._computeChanges(oldValue, newValue));
+				oldValue = newValue;
 			});
 		},
 		on: function(event, listener) {
@@ -204,6 +275,9 @@ define([
 			}
 			if (event === 'keys') {
 				return this._onKeys(listener);
+			}
+			if (event === 'itemChanges') {
+				return this._onItemChanges(listener);
 			}
 		}
 	};
@@ -233,6 +307,9 @@ define([
 	};
 	Store.prototype.keys = function() {
 		return Object.keys(this._getValue());
+	};
+	Store.prototype.count = function() {
+		return new CountAccessor(this);
 	};
 	return Store;
 });

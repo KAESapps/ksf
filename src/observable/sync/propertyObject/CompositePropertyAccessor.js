@@ -45,6 +45,16 @@ define([
 					return item.arg;
 				})[0];
 			},
+
+			on: function(event, listener) {
+				if (event === 'value') {
+					return this._onValue(listener);
+				} else if (event === 'changes') {
+					return this._onChanges(listener);
+				} else {
+					throw "Bad event name: " + event;
+				}
+			}
 		});
 	};
 

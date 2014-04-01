@@ -19,14 +19,12 @@ define([
 		Trait.prototype._extractValue = function(parentValue) {
 			return parentValue && parentValue[this._propName];
 		};
-		Trait.prototype._extractChanges = function(parentChanges) {
-			var propName = this._propName,
-				changes;
-			var found = parentChanges && parentChanges.some(function(change) {
-				changes = change.arg;
-				return change.key === propName;
+		Trait.prototype._hasChanges = function(parentChanges) {
+			var propName = this._propName;
+			var found = parentChanges && parentChanges.some(function(parentChange) {
+				return parentChange.key === propName;
 			});
-			return found ? changes : undefined;
+			return found;
 		};
 
 		Trait.prototype.value = function(value) {
@@ -57,27 +55,14 @@ define([
 			if (this._destroyed) { throw "Destroyed"; }
 			var self = this;
 			return this.own(this._parent.on('changes', function(parentChanges) {
-				var changes = self._extractChanges(parentChanges);
+				var changes = self._hasChanges(parentChanges);
 				changes && listener(self.value());
 			}));
 		};
 
-		Trait.prototype._onChanges = function(listener) {
-			if (this._destroyed) { throw "Destroyed"; }
-			var self = this;
-			return this.own(this._parent.on('changes', function(parentChanges) {
-				var changes = self._extractChanges(parentChanges);
-				changes && listener(changes);
-			}));
-		};
-
 		Trait.prototype.on = function(event, listener) {
-			if (event === 'value') {
-				return this._onValue(listener);
-			}
-			if (event === 'changes') {
-				return this._onChanges(listener);
-			}
+			if (event !== 'value') { throw "Bad event name: " + event; }
+			return this._onValue(listener);
 		};
 		return Trait;
 	};

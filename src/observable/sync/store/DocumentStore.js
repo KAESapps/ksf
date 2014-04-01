@@ -88,6 +88,9 @@ define([
 		_itemAccessorFactory: compose(CompositePropertyAccessor, {
 			prop: function(prop) {
 				return new PropertyAccessor(this, prop);
+			},
+			delete: function() {
+				this._parent.remove(this._propName);
 			}
 		})
 	});

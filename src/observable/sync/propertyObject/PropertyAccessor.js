@@ -26,7 +26,7 @@ define([
 				changes = change.arg;
 				return change.key === propName;
 			});
-			return changes;
+			return found ? changes : undefined;
 		};
 
 		Trait.prototype.value = function(value) {

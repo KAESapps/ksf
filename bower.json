@@ -2,11 +2,9 @@
   "name": "ksf",
   "version": "0.1.0",
   "dependencies": {
-    "dojo": "1.9.1",
-    "compose": "kriszyp/compose#e247957d59efb4966b8f94e964202b93022513b4",
-    "bacon.js": "raimohanska/bacon.js#0.6.19",
+    "dojo": "1.9.3",
     "lodash-amd": "2.X",
-    "es6-shim": "0.9.0"
+    "requirejs-text": "2.0.10"
   },
   "homepage": "https://github.com/KAESapps/ksf",
   "authors": [

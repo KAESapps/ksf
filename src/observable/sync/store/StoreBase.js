@@ -109,7 +109,6 @@ define([
 			});
 		},
 		_computeChanges: function(initial, target) {
-			console.time('_computeChanges');
 			// remove domNode of components that are no longer in content
 			var ret = [],
 				initialCopy = initial.slice();
@@ -148,7 +147,6 @@ define([
 					}
 				}
 			});
-			console.timeEnd('_computeChanges');
 			return ret;
 		},
 		_onItemChanges: function(listener) {

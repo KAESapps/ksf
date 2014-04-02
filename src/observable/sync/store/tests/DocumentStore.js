@@ -2,44 +2,19 @@ define([
 	'intern!object',
 	'intern/chai!assert',
 	'compose',
-	'../../propertyObject/PropertyAccessor',
 	'../DocumentStore'
 ], function(
 	registerSuite,
 	assert,
 	compose,
-	PropertyAccessor,
 	DocumentStore
 ){
-	var StringProperty = compose({
-		computer: {
-			computeValueFromSet: function(arg) {
-				return typeof(arg) === 'string' ? arg : '';
-			}
-		},
-		accessorFactory: PropertyAccessor
-	});
-	var IntegerProperty = compose({
-		computer: {
-			computeValueFromSet: function(arg) {
-				return typeof(arg) === 'number' ? arg : null;
-			}
-		},
-		accessorFactory: PropertyAccessor
-	});
-
 	var store;
 	registerSuite({
 		name: 'filter',
 
 		'get': function() {
 			store = new DocumentStore({
-				properties: {
-					name: new StringProperty(),
-					age: new IntegerProperty()
-				}
-			});
-			store.value({
 				"1": {name: "Sylvain", age: 32},
 				"2": {name: "Quentin", age: 28},
 				"3": {name: "Aurélie", age: 31},
@@ -64,12 +39,6 @@ define([
 		name: 'sorted',
 		beforeEach: function() {
 			store = new DocumentStore({
-				properties: {
-					name: new StringProperty(),
-					age: new IntegerProperty()
-				}
-			});
-			store.value({
 				"1": {name: "Sylvain", age: 32},
 				"2": {name: "Quentin", age: 28},
 				"3": {name: "Aurélie", age: 31},
@@ -132,6 +101,22 @@ define([
 			assert.deepEqual(value, [
 				'2',
 				'3'
+			]);
+		},
+		"observe item changes": function() {
+			var observedChanges = [];
+			var sorted = store.sort(ascendingAge);
+			sorted.on('itemChanges', function(changes) {
+				observedChanges.push(changes);
+			});
+			sorted.item("3").prop('age').value(33);
+
+			assert.deepEqual(observedChanges, [
+				[{
+					type: 'move',
+					from: 2,
+					to: 1,
+				}],
 			]);
 		},
 	});

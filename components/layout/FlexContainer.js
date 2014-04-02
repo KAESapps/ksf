@@ -56,6 +56,7 @@ define([
 						flexChildren.push(childAndOptions);
 					}
 
+					childNode.style.position = 'relative';
 					childNode.style.display = vertical ? 'block' : 'inline-block';
 					childNode.style.verticalAlign = align;
 					childNode.style.boxSizing = 'border-box';

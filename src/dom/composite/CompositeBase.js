@@ -1,11 +1,13 @@
 define([
 	'compose',
-	'../WithSize'
+	'../WithSize',
+	'ksf/base/Destroyable',
 ], function(
 	compose,
-	WithSize
+	WithSize,
+	Destroyable
 ){
-	return compose(WithSize, function() {
+	return compose(Destroyable, WithSize, function() {
 		this._root = this._rootFactory();
 		this.domNode = this._root.domNode;
 	}, {

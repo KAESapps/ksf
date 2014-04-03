@@ -15,7 +15,7 @@ define([
 			this._owned.splice([this._owned.indexOf(o)], 1);
 		},
 		destroy: function(){
-			this._owned.forEach(destroy);
+			destroy(this._owned);
 			this._destroyed = true;
 		},
 	};

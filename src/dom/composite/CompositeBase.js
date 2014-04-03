@@ -8,7 +8,7 @@ define([
 	WithSize
 ){
 	return compose(Destroyable, WithSize, function() {
-		this._root = this._rootFactory();
+		this._root = this.own(this._rootFactory());
 		this.domNode = this._root.domNode;
 	}, {
 		inDom: function(inDom) {

@@ -7,7 +7,7 @@ require.config({
 		{ name: 'es6-shim', location: 'es6-shim', main: 'es6-shim' },
 	],
 	map: {
-		'*': {
+		'ksf': {
 			compose: 'ksf/utils/compose'
 		}
 	}

@@ -54,6 +54,14 @@ define([
 			applied -= 1;
 			updateCss();
 		},
+		applyParts: function(parts) {
+			for (var p in parts) {
+				this.applyPart(p, parts[p]);
+			}
+		},
+		applyPart: function(part, domNode) {
+			domNode.classList.add(part);
+		},
 		destroy: function() {
 			rules.remove(this.rule);
 		}

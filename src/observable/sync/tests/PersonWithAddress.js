@@ -1,61 +1,65 @@
 define([
 	'compose',
-	'../propertyObject/_StatefulPropertyObject',
-	'../propertyObject/_Accessor',
-	'../propertyObject/_Computer',
+	'../CompositeStateful',
+	'../propertyObject/_WithPropertyAccessors',
+	'../../computers/propertyObject/Computer',
 	'../propertyObject/PropertyAccessor',
-	'../propertyObject/_CompositePropertyAccessor'
+	'../propertyObject/CompositePropertyAccessor'
 ], function(
 	compose,
-	_StatefulPropertyObject,
-	_PropObjAccessor,
-	_PropObjComputer,
+	CompositeStateful,
+	WithPropertyAccessors,
+	PropObjComputer,
 	PropertyAccessor,
-	_CompositePropertyAccessor
+	PropObjCompositePropertyAccessor
 ){
-	var DefaultEmptyString = compose({
+	var StringProperty = compose({
 		computeValueFromSet: function(arg) {
 			return typeof(arg) === 'string' ? arg : '';
+		},
+		accessorFactory: PropertyAccessor
+	});
+
+	var PropertyObjectProperty = compose(PropObjComputer, function(properties) {
+		this._propertyComputers = properties;
+		var accessorFactories = {};
+		for (var p in properties) {
+			accessorFactories[p] = properties[p].accessorFactory;
+		}
+		this.accessorFactory = compose(PropObjCompositePropertyAccessor, WithPropertyAccessors, {
+			_accessorFactories: accessorFactories
+		});
+	});
+
+
+	var PropertyObject = compose(function(properties) {
+		this._constructor = compose(CompositeStateful, WithPropertyAccessors, {
+			_computer: compose.create(PropObjComputer, {
+				_propertyComputers: {},
+			}),
+			_accessorFactories: {}
+		});
+
+		for (var p in properties) {
+			this.addProperty(p, properties[p]);
+		}
+	}, {
+		addProperty: function(propName, property) {
+			this._constructor.prototype._computer._propertyComputers[propName] = property;
+			this._constructor.prototype._accessorFactories[propName] = property.accessorFactory;
 		}
 	});
 
-	var AddressComputer = compose(_PropObjComputer, {
-		_properties: {
-			city: new DefaultEmptyString(),
-			street: new DefaultEmptyString(),
-		}
+
+	var PersonWithAddressMeta = new PropertyObject({
+		firstName: new StringProperty(),
+		lastName: new StringProperty(),
+		address: new PropertyObjectProperty({
+			street: new StringProperty(),
+			city: new StringProperty(),
+		}),
 	});
 
-	var BasicPropertyAccessor = PropertyAccessor.custom({
-		getValue: 'get',
-		setValue: 'set',
-		parentGetValue: 'get'
-	});
-	
-	var MapPropertyAccessor = _CompositePropertyAccessor.custom({
-		getValue: 'get',
-		setValue: 'set',
-		parentGetValue: 'get'
-	});
-	MapPropertyAccessor.prototype._createPropertyAccessor = function(id) {
-		return new BasicPropertyAccessor(this, id);
-	};
-	MapPropertyAccessor.prototype.getProperty = _PropObjAccessor.prototype.getPropertyAccessor;
+	return PersonWithAddressMeta._constructor;
 
-	return compose(_StatefulPropertyObject.custom({
-		getValue: 'get',
-		setValue: 'set'
-	}), {
-		_properties: {
-			firstName: new DefaultEmptyString(),
-			lastName: new DefaultEmptyString(),
-			address: new AddressComputer()
-		},
-		_accessorFactories: {
-			firstName: BasicPropertyAccessor,
-			lastName: BasicPropertyAccessor,
-			address: MapPropertyAccessor
-		},
-		getProperty: _PropObjAccessor.prototype.getPropertyAccessor,
-	});
 });

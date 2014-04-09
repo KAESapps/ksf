@@ -4,7 +4,7 @@ define([
 	'compose',
 	'../Stateful',
 	// './Person',
-	// './PersonWithAddress',
+	'./PersonWithAddress',
 	// './Station',
 	// './Task'
 ], function(
@@ -12,12 +12,12 @@ define([
 	assert,
 	compose,
 	Stateful,
-	Person,
-	PersonWithAddress,
-	Station,
-	Task
+	// Person,
+	PersonWithAddress
+	// Station,
+	// Task
 ){
-	registerSuite({
+/*	registerSuite({
 		name: 'simple value',
 		'set get': function() {
 			var obs = new Stateful(undefined);
@@ -46,8 +46,8 @@ define([
 			]);
 		},
 	});
-
-	registerSuite({
+*/
+/*	registerSuite({
 		name: 'Person',
 		'set get': function() {
 			// observable qui a une valeur de type composite 'object' et qui a une API adaptée à ce cas
@@ -186,15 +186,14 @@ define([
 				fullName: 'Tata',
 			});
 		},
-		*/
 	});
-
+*/
 	registerSuite({
 		name: 'Person with address',
 		'set get nested': function() {
 			var obs = new PersonWithAddress();
 
-			assert.deepEqual(obs.get(), {
+			assert.deepEqual(obs.value(), {
 				firstName: "",
 				lastName: "",
 				address: {
@@ -202,7 +201,7 @@ define([
 					street: ""
 				}
 			});
-			obs.set({
+			obs.value({
 				firstName: "toto",
 				lastName: "",
 				address: {
@@ -210,7 +209,7 @@ define([
 					street: "rue de la paix"
 				}
 			});
-			assert.deepEqual(obs.get(), {
+			assert.deepEqual(obs.value(), {
 				firstName: 'toto',
 				lastName: "",
 				address: {
@@ -219,13 +218,13 @@ define([
 				}
 			});
 
-			var streetProp = obs.getProperty('address').getProperty('street');
+			var streetProp = obs.prop('address').prop('street');
 
-			assert.equal(streetProp.get(), "rue de la paix");
-			
-			streetProp.set('av des Champs-Elysees');
+			assert.equal(streetProp.value(), "rue de la paix");
 
-			assert.deepEqual(obs.get(), {
+			streetProp.value('av des Champs-Elysees');
+
+			assert.deepEqual(obs.value(), {
 				firstName: 'toto',
 				lastName: "",
 				address: {
@@ -236,7 +235,7 @@ define([
 		},
 	});
 
-	registerSuite({
+/*	registerSuite({
 		name: "Station et arbres",
 		"get set": function() {
 			var obs = new Station();
@@ -475,5 +474,5 @@ define([
 			}]);
 			assert.equal(observedChanges.length, 2);
 		}
-	});
+	});*/
 });

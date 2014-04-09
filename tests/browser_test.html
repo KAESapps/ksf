@@ -3,21 +3,24 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Browser test runner</title>
-		<script src="../node_modules/intern/node_modules/dojo/dojo.js"></script>
+		<script src="../bower_components/requirejs/require.js"></script>
 		<script>
 (function () {
 	var root = location.pathname.replace(/[^\/]+$/, '') + '../';
-	require.config = require;
 	require({
 		baseUrl: root + 'bower_components/',
 		packages: [
 			{ name: 'intern', location: root + 'node_modules/intern' },
 			{ name: 'chai', location: root + 'node_modules/intern/node_modules/chai', main: 'chai' },
 			{ name: 'ksf', location: root + 'src' },
-			{ name: 'tests', location: root + 'tests' },
+			{ name: 'Squire', location: 'squire/src', main: 'Squire' }
 		],
 		map: { 'intern': { 'dojo': 'intern/node_modules/dojo' } }
-	}, [ 'intern/client' ]);
+	}, [ 'intern/lib/realClient', 'intern/lib/args', 'ksf/require-config' ], function(client) {
+		client.run({
+			suites: [location.search.slice(1)]
+		}, {});
+	});
 })();
 		</script>
 	</head>

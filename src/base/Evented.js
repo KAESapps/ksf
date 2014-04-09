@@ -2,7 +2,7 @@ define([
 ], function(
 ){
 	return {
-		on: function(type, cb){
+		_on: function(type, cb){
 			this._listeners || (this._listeners = {});
 			var listeners = this._listeners[type] || (this._listeners[type] = []);
 			listeners.push(cb);

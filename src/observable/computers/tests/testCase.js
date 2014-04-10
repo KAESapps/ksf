@@ -1,141 +1,19 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'compose',
+	'../PropertyObject',
+	'../Value',
+	'../Array',
+
 ], function(
 	registerSuite,
 	assert,
-	compose
+	PropertyObject,
+	Value,
+	Array
 ){
 
-	var Value = compose({
-		computeChanges: function(changeArg) {
-			return changeArg;
-		},
-		computeValue: function(changeArg, initValue) {
-			return changeArg;
-		},
-	});
 
-/*	var PatchableValue = compose(function(decorated) {
-		this._decorated = decorated;
-	}, {
-		computeChanges: function(changeArg, initValue) {
-			if (changeArg.set) {
-				return changeArg;
-			}
-			if (changeArg.patch) {
-				return {
-					patched: this._decorated.computeChanges(changeArg.patch, initValue),
-				};
-			}
-		},
-		computeValue: function(changeArg, initValue) {
-			if (changeArg.set) {
-				return changeArg.set;
-			}
-			if (changeArg.patch) {
-				return this._decorated.computeValue(changeArg.patch, initValue);
-			}
-		},
-	});
-*/
-	var PropertyObject = compose(function(properties) {
-		this._properties = properties;
-	}, {
-		computeChanges: function(changeArg, initValue) {
-			var ret = {};
-			Object.keys(changeArg).forEach(function(key) {
-				var propChangeArg = changeArg[key];
-				if (propChangeArg.value) {
-					ret[key] = propChangeArg;
-				}
-				if (propChangeArg.change) {
-					var property = this._properties[key];
-					ret[key] = {
-						changed: property.computeChanges(propChangeArg.change, initValue[key]),
-					};
-				}
-			}.bind(this));
-			return ret;
-		},
-		computeValue: function(changeArg, initValue) {
-			var value = initValue;
-			Object.keys(changeArg).forEach(function(key) {
-				var propChangeArg = changeArg[key];
-				if (propChangeArg.value) {
-					value[key] = propChangeArg.value;
-				}
-				if (propChangeArg.change) {
-					var property = this._properties[key];
-					value[key] = property.computeValue(propChangeArg.change, initValue[key]);
-				}
-			}.bind(this));
-			return value;
-		},
-	});
-
-	function identity (a) { return a;}
-
-	var Array = compose(function(item) {
-		this._item = item;
-	}, {
-		computeChanges: function(changeArg, initValue) {
-			var self = this;
-			var ret = {};
-			if (changeArg.add) {
-				ret.added = {};
-				Object.keys(changeArg.add).forEach(function(index) {
-					ret.added[index] = changeArg.add[index];
-				});
-			}
-			if (changeArg.remove) {
-				ret.removed = {};
-				Object.keys(changeArg.remove).forEach(function(index) {
-					ret.removed[index] = true;
-				});
-			}
-			if (changeArg.change) {
-				ret.changed = {};
-				Object.keys(changeArg.change).forEach(function(index) {
-					var changeAtIndex = changeArg.change[index];
-					if (changeAtIndex.value) {
-						ret.changed[index] = changeAtIndex;
-					} else if (changeAtIndex.change) {
-						ret.changed[index] = {
-							changed: self._item.computeChanges(changeAtIndex.change, initValue[index]),
-						};
-					}
-				});
-			}
-			return ret;
-		},
-		computeValue: function(changeArg, initValue) {
-			var self = this;
-			var value = initValue;
-			if (changeArg.change) {
-				Object.keys(changeArg.change).forEach(function(index) {
-					var changeAtIndex = changeArg.change[index];
-					if (changeAtIndex.value) {
-						value[index] = changeAtIndex.value;
-					} else if (changeAtIndex.change) {
-						value[index] = self._item.computeValue(changeAtIndex.change, initValue[index]);
-					}
-				});
-			}
-			if (changeArg.remove) {
-				Object.keys(changeArg.remove).forEach(function(index) {
-					delete value[index];
-				});
-			}
-			if (changeArg.add) {
-				Object.keys(changeArg.add).forEach(function(index) {
-					value.splice(index, 0, changeArg.add[index]);
-				});
-			}
-			return value;
-		},
-	});
 
 
 	var restSite = new PropertyObject({
@@ -177,44 +55,6 @@ define([
 	});
 */
 	registerSuite({
-		// TODO:
-/*		'init value': function() {
-			var changeArg = {
-				set: {
-					dataTime: "dataTime",
-					data: {
-						set: {
-							nom: 'nom',
-							docs: [],
-						},
-					},
-					lastRequestStatus: undefined,
-				}
-			};
-			var changes = restSite.computeChanges(changeArg);
-			var value = restSite.computeValue(changeArg);
-
-			assert.deepEqual(value, {
-				dataTime: "dataTime",
-				data: {
-					nom: 'nom',
-					docs: [],
-				},
-				lastRequestStatus: undefined,
-			});
-			assert.deepEqual(changes, {
-				set: {
-					dataTime: "dataTime",
-					data: {
-						nom: 'nom',
-						docs: [],
-					},
-					lastRequestStatus: undefined,
-				}
-			});
-
-		},
-*/
 		'change dataTime': function() {
 			var changeArg = {
 				dataTime: {
@@ -230,14 +70,8 @@ define([
 				lastRequestStatus: undefined,
 			};
 
-			var changes = restSite.computeChanges(changeArg, initValue);
 			var value = restSite.computeValue(changeArg, initValue);
 
-			assert.deepEqual(changes, {
-				dataTime: {
-					value: 'newDataTimeValue',
-				}
-			});
 			assert.deepEqual(value, {
 				dataTime: "newDataTimeValue",
 				data: {
@@ -266,18 +100,8 @@ define([
 				lastRequestStatus: undefined,
 			};
 
-			var changes = restSite.computeChanges(changeArg, initValue);
 			var value = restSite.computeValue(changeArg, initValue);
 
-			assert.deepEqual(changes, {
-				lastRequestStatus: {
-					value: {
-						started: "started",
-						finished: "finished",
-						stage: 'stage',
-					},
-				}
-			});
 			assert.deepEqual(value, {
 				dataTime: "dataTime",
 				data: {
@@ -313,17 +137,8 @@ define([
 				},
 			};
 
-			var changes = restSite.computeChanges(changeArg, initValue);
 			var value = restSite.computeValue(changeArg, initValue);
 
-			assert.deepEqual(changes, {
-				lastRequestStatus: {
-					changed: {
-						finished: {value: 'finished'},
-						stage: {value: 'success'},
-					}
-				},
-			});
 			assert.deepEqual(value, {
 				dataTime: "dataTime",
 				data: {
@@ -360,22 +175,8 @@ define([
 				lastRequestStatus: undefined,
 			};
 
-			var changes = restSite.computeChanges(changeArg, initValue);
 			var value = restSite.computeValue(changeArg, initValue);
 
-			assert.deepEqual(changes, {
-				data: {
-					changed: {
-						docs: {
-							changed: {
-								added: {
-									0: 'un',
-								},
-							}
-						},
-					}
-				}
-			});
 			assert.deepEqual(value, {
 				dataTime: "dataTime",
 				data: {
@@ -415,19 +216,7 @@ define([
 				},
 			};
 
-			var changes = site.computeChanges(changeArg, initValue);
 			var value = site.computeValue(changeArg, initValue);
-			assert.deepEqual(changes, {
-				docs: {
-					changed: {
-						changed: {
-							0: {
-								value: {title: 'doc 2', body: 'body of doc 2'},
-							}
-						}
-					}
-				}
-			});
 			assert.deepEqual(value, {
 				name: 'site 1',
 				docs: [
@@ -458,23 +247,7 @@ define([
 				},
 			};
 
-			var changes = site.computeChanges(changeArg, initValue);
 			var value = site.computeValue(changeArg, initValue);
-			assert.deepEqual(changes, {
-				docs: {
-					changed: {
-						changed: {
-							0: {
-								changed: {
-									title: {
-										value: 'new doc 1 title'
-									}
-								}
-							}
-						}
-					}
-				},
-			});
 			assert.deepEqual(value, {
 				name: 'site 1',
 				docs: [
@@ -501,17 +274,7 @@ define([
 				},
 			};
 
-			var changes = site.computeChanges(changeArg, initValue);
 			var value = site.computeValue(changeArg, initValue);
-			assert.deepEqual(changes, {
-				docs: {
-					changed: {
-						added: {
-							2:  {title: 'doc 4', body: 'body of doc 4'}
-						}
-					}
-				}
-			});
 			assert.deepEqual(value, {
 				name: 'site 1',
 				docs: [
@@ -541,17 +304,7 @@ define([
 				},
 			};
 
-			var changes = site.computeChanges(changeArg, initValue);
 			var value = site.computeValue(changeArg, initValue);
-			assert.deepEqual(changes, {
-				docs: {
-					changed: {
-						removed: {
-							2:  true
-						}
-					}
-				}
-			});
 			assert.deepEqual(value, {
 				name: 'site 1',
 				docs: [

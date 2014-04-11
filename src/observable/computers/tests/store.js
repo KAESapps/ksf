@@ -4,6 +4,7 @@ define([
 	'../Store',
 	'../PropertyObject',
 	'../Value',
+
 ], function(
 	registerSuite,
 	assert,
@@ -14,7 +15,7 @@ define([
 
 	var siteStore = new Store(new PropertyObject({
 		nom: new Value(),
-		description: new Array(),
+		description: new Value(),
 	}));
 
 	registerSuite({
@@ -27,12 +28,10 @@ define([
 				2: {nom: 'site 3', description: "Description du site 3"},
 			};
 			var changeArg = {
-				change: {
-					1: {
-						change: {
-							nom: {
-								value: 'nouveau nom du site 2',
-							}
+				1: {
+					change: {
+						nom: {
+							value: 'nouveau nom du site 2',
 						}
 					}
 				}
@@ -52,8 +51,8 @@ define([
 				2: {nom: 'site 3', description: "Description du site 3"},
 			};
 			var changeArg = {
-				add: {
-					3: {nom: 'site 4', description: "Description du site 4"},
+				3: {
+					add: {nom: 'site 4', description: "Description du site 4"},
 				}
 			};
 
@@ -72,8 +71,8 @@ define([
 				2: {nom: 'site 3', description: "Description du site 3"},
 			};
 			var changeArg = {
-				remove: {
-					2: true,
+				2: {
+					remove: true,
 				}
 			};
 

@@ -1,24 +1,32 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'../Stateful',
+	'compose',
+	'../_Stateful',
+	'../../computers/Value'
 ], function(
 	registerSuite,
 	assert,
-	Stateful
+	compose,
+	_Stateful,
+	Value
 ){
 	var obs, observedValues;
+
+	var BasicStateful = compose(_Stateful, {
+		_computer: new Value(),
+	});
 
 	registerSuite({
 		name: "mutation",
 		"init value": function() {
-			obs = new Stateful();
-			assert.equal(obs.value(), undefined);
+			obs = new BasicStateful();
+			assert.equal(obs._getValue(), undefined);
 		},
 		"set value": function() {
-			obs = new Stateful();
-			obs.value('test');
-			assert.equal(obs.value(), 'test');
+			obs = new BasicStateful();
+			obs._change('test');
+			assert.equal(obs._getValue(), 'test');
 		},
 
 	});
@@ -26,11 +34,11 @@ define([
 		name: "observation",
 		"set value": function() {
 			observedValues = [];
-			obs = new Stateful();
+			obs = new BasicStateful();
 			obs.onValue(function(value) {
 				observedValues.push(value);
 			});
-			obs.value('test');
+			obs._change('test');
 			assert.deepEqual(observedValues, [
 				'test',
 			]);

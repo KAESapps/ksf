@@ -4,13 +4,17 @@ define([
 	'../PropertyObject',
 	'../Value',
 	'../Array',
+	'../ValueOr',
+	'../BasicPropertyObject',
 
 ], function(
 	registerSuite,
 	assert,
 	PropertyObject,
 	Value,
-	Array
+	Array,
+	ValueOr,
+	BasicPropertyObject
 ){
 
 
@@ -314,6 +318,109 @@ define([
 			});
 		},
 
+	});
+
+
+	registerSuite({
+		name: "valueOr",
+		"set value": function() {
+			var computer = new ValueOr(new PropertyObject({
+				nom: new Value(),
+				ville: new Value(),
+			}));
+
+			var initValue = undefined;
+			var changeArg = {
+				value: "toto",
+			};
+			var value = computer.computeValue(changeArg, initValue);
+
+			assert.deepEqual(value, "toto");
+
+
+		},
+		basic: function() {
+			var computer = new ValueOr(new PropertyObject({
+				nom: new Value(),
+				ville: new Value(),
+			}));
+
+			var initValue = {
+				nom: 'toto',
+				ville: 'choisy',
+			};
+			var changeArg = {
+				change: {
+					nom: {value: 'titi'},
+				},
+			};
+			var value = computer.computeValue(changeArg, initValue);
+
+			assert.deepEqual(value, {
+				nom: "titi",
+				ville: 'choisy',
+			});
+		}
+	});
+
+	var computer;
+	registerSuite({
+		name: 'basic property object',
+		'beforeEach': function() {
+			computer = new BasicPropertyObject({
+				dataTime: new Value(),
+				lastRequestStatus: new ValueOr(new BasicPropertyObject({
+					started: new Value(),
+					finished: new Value(),
+				})),
+			});
+		},
+		'replace lastRequestStatus completely': function() {
+			var initValue = {
+				dataTime: 'dataTime',
+				lastRequestStatus: undefined,
+			};
+			var changeArg = {
+				lastRequestStatus: {
+					value: {
+						started: 'started',
+						finished: 'finished',
+					}
+				}
+			};
+			var value = computer.computeValue(changeArg, initValue);
+			assert.deepEqual(value, {
+				dataTime: 'dataTime',
+				lastRequestStatus: {
+					started: 'started',
+					finished: 'finished',
+				}
+			});
+		},
+		'patch lastRequestStatus': function() {
+			var initValue = {
+				dataTime: 'dataTime',
+				lastRequestStatus: {
+					started: 'started',
+					finished: undefined,
+				}
+			};
+			var changeArg = {
+				lastRequestStatus: {
+					change: {
+						finished: 'finished',
+					}
+				}
+			};
+			var value = computer.computeValue(changeArg, initValue);
+			assert.deepEqual(value, {
+				dataTime: 'dataTime',
+				lastRequestStatus: {
+					started: 'started',
+					finished: 'finished',
+				}
+			});
+		},
 	});
 });
 

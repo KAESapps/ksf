@@ -3,21 +3,14 @@ define([
 ], function(
 	compose
 ){
-
-	var Store = compose(function(item) {
-		this._item = item;
-	}, {
+	var Dict = compose({
 		computeValue: function(changeArg, initValue) {
 			var self = this;
 			var value = initValue;
 			Object.keys(changeArg).forEach(function(key) {
 				var changeAtKey = changeArg[key];
-				// TODO: un store ne devrait pas avoir besoin de traiter ce cas
 				if (changeAtKey.value) {
 					value[key] = changeAtKey.value;
-				}
-				if (changeAtKey.change) {
-					value[key] = self._item.computeValue(changeAtKey.change, initValue[key]);
 				}
 				if (changeAtKey.remove) {
 					delete value[key];
@@ -29,7 +22,7 @@ define([
 			return value;
 		},
 	});
-	return Store;
+	return Dict;
 
 
 

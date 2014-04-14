@@ -1,14 +1,14 @@
 require.config({
 	map: {
 		ksf: {
-			'dojo/request': 'ksf/rest/withCache/tests/requestResourceMock',
+			'dojo/request': 'ksf/rest/withCache/tests/requestQueryMock',
 		}
 	}
 });
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'../Resource',
+	'../Query',
 	'lodash/objects/cloneDeep',
 ], function(
 	registerSuite,

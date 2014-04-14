@@ -6,7 +6,7 @@ define([
 	'../../observable/sync/propertyObject/CompositePropertyAccessor',
 	'../../observable/computers/deepMapPatcher',
 	'dojo/request',
-
+	'lodash/objects/cloneDeep',
 ], function(
 	compose,
 	_PatchableStateful,
@@ -14,16 +14,17 @@ define([
 	PropertyAccessor,
 	CompositePropertyAccessor,
 	deepMapPatcher,
-	request
-
+	request,
+	cloneDeep
 ){
 	var diffRestRessource = function() {};
 	var getPatchArg = function() {};
 
-	var RestRessource = compose(_PatchableStateful.custom({
+	var RestQuery = compose(_PatchableStateful.custom({
 		patch: '_patch',
 	}), _WithPropertyAccessors, function(args) {
 		this._url = args.url;
+		this._manager = args.manager;
 		this._value = {
 			dataTime: undefined,
 			data: undefined,
@@ -61,13 +62,20 @@ define([
 				}
 			});
 			return request.get(this._url).then(function(resp) {
+				// mise à jour de la valeur des ressources récupérées
+				this._updateResources(resp);
+
+				// mise à jour de la valeur de la collection elle-même
+				var ids = resp.map(function(item) {
+					return item.id;
+				});
 				// TODO
-				// var diff = diffRestRessource(this.value().data, resp.data);
+				// var diff = diffRestQuery(this.value().data, resp.data);
 				// var dataPatchArg = getPatchArg(diff);
 				this._patch({
 					set: {
 						dataTime: new Date(),
-						data: resp,
+						data: ids,
 					},
 					patch: {
 						// data: diff, TODO
@@ -92,8 +100,31 @@ define([
 				});
 			});
 		},
-		push: function(data) {},
+		_updateResources: function(resp) {
+			resp.forEach(function(itemData) {
+				var rscId = itemData.id;
+				var rscData = cloneDeep(itemData);
+				delete rscData.id;
+				this._manager.item(rscId)._patch({
+					set: {
+						dataTime: new Date(),
+						data: rscData,
+					}
+				});
+			}, this);
+		},
+		// retourne un item accessor pour la clé présente à l'index demandé
+		item: function(index) {
+			return this._manager.item(this._value.data[index]);
+		},
+		// retourne une liste ordonnée d'accesseurs d'item
+		items: function() {
+			return this._value.data.map(this._manager.item, this._manager);
+		},
+		onItemChanges: function(cb) {
+			// TODO
+		},
 	});
 
-	return RestRessource;
+	return RestQuery;
 });

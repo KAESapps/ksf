@@ -24,7 +24,19 @@ define([
 			var sourceChangeArg = {};
 			sourceChangeArg[this._key] = changeArg;
 			this._source._change(sourceChangeArg);
-		}
+		},
+		_computeChanges: function(sourceChanges) {
+			return sourceChanges[this._key];
+		},
+		_onChanges: function(cb) {
+			var self = this;
+			return this._source._onChanges(function(sourceChanges) {
+				var changes = self._computeChanges(sourceChanges);
+				if (changes) {
+					cb(changes);
+				}
+			});
+		},
 	});
 
 	var BasicPropertyObject = compose(function(properties) {

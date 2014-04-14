@@ -10,7 +10,13 @@ define([
 			} else {
 				return this._getValue();
 			}
-		}
+		},
+		onValue: function(cb) {
+			var self = this;
+			return this._onChanges(function() {
+				cb(self._getValue());
+			});
+		},
 	};
 
 	var Value = compose(function() {

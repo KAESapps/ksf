@@ -2,56 +2,22 @@ define([
 	'intern!object',
 	'intern/chai!assert',
 	'compose',
-	'../../computers/Store',
-	'../../computers/BasicPropertyObject',
-	'../../computers/Value',
-	'../../sync/_Stateful',
-	'../../accessorMixins/Store',
-	'../../accessorMixins/BasicPropertyObject',
-	'../../accessorMixins/Value',
+	'../../StatefulFactory',
+	'../Store',
+	'../Value',
+	'../BasicPropertyObject',
+
 ], function(
 	registerSuite,
 	assert,
 	compose,
-	StoreComputer,
-	PropertyObjectComputer,
-	ValueComputer,
-	_Stateful,
-	StoreAccessorMixin,
-	BasicPropertyObjectAccessorMixin,
-	ValueAccessorMixin
+	StatefulFactory,
+	Store,
+	Value,
+	BasicPropertyObject
 ){
 
-	var Store = compose(function(itemModel) {
-		this.computer = new StoreComputer(itemModel.computer);
-		this.accessorMixin = new StoreAccessorMixin(itemModel.accessorMixin).ctr;
-	});
-
-	var BasicPropertyObject = compose(function(properties) {
-		var computers = {},
-			accessorMixins = {};
-		Object.keys(properties).forEach(function(prop) {
-			computers[prop] = properties[prop].computer;
-			accessorMixins[prop] = properties[prop].accessorMixin;
-		});
-		this.computer = new PropertyObjectComputer(computers);
-		this.accessorMixin = new BasicPropertyObjectAccessorMixin(accessorMixins).ctr;
-	});
-
-	var Value = compose(function() {
-		this.computer = new ValueComputer();
-		this.accessorMixin = new ValueAccessorMixin().ctr;
-	});
-
-	var Stateful = compose(function(model) {
-		this.ctr = compose(_Stateful, model.accessorMixin, {
-			_computer: model.computer,
-		}, function(data) {
-			this._value = data;
-		});
-	});
-
-	var SiteStore = new Stateful(new Store(new BasicPropertyObject({
+	var SiteStore = new StatefulFactory(new Store(new BasicPropertyObject({
 		nom: new Value(),
 		description: new Value(),
 		adresse: new BasicPropertyObject({
@@ -106,6 +72,15 @@ define([
 			assert.equal(nomDuSite1.value(), "Site 1");
 			nomDuSite1.value("Nouveau nom du site 1");
 			assert.equal(nomDuSite1.value(), "Nouveau nom du site 1");
+
+		},
+		'nested item accessor prop': function() {
+			var site1Accessor = siteStore.item("1");
+			var site1AddressAccessor = site1Accessor.prop('adresse');
+			var site1CityAccessor = site1AddressAccessor.prop('ville');
+			assert.equal(site1CityAccessor.value(), "Choisy");
+			site1CityAccessor.value("Paris");
+			assert.equal(site1CityAccessor.value(), "Paris");
 
 		},
 	});

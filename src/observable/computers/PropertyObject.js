@@ -1,25 +1,18 @@
 define([
 	'compose',
+	'./BasicPropertyObject',
+	'./ValueOr',
 ], function(
-	compose
+	compose,
+	BasicPropertyObject,
+	ValueOr
 ){
-	var PropertyObject = compose(function(properties) {
-		this._properties = properties;
-	}, {
-		computeValue: function(changeArg, initValue) {
-			var value = initValue;
-			Object.keys(changeArg).forEach(function(key) {
-				var propChangeArg = changeArg[key];
-				if (propChangeArg.value) {
-					value[key] = propChangeArg.value;
-				}
-				if (propChangeArg.change) {
-					var property = this._properties[key];
-					value[key] = property.computeValue(propChangeArg.change, initValue[key]);
-				}
-			}.bind(this));
-			return value;
-		},
+	// un PropertyObject est un BasicPropertyObject qui inclu pour chaque propriété la logique de ValueOr
+	var PropertyObject = compose(BasicPropertyObject.prototype, function(properties) {
+		var decoratedProperties = this._properties = {};
+		Object.keys(properties).forEach(function(key) {
+			decoratedProperties[key] = new ValueOr(properties[key]);
+		});
 	});
 	return PropertyObject;
 });

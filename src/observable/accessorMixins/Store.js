@@ -129,7 +129,7 @@ define([
 		},
 		items: function() {
 			return this._getValue().map(function(key) {
-				return this.item(key);
+				return this._item(key);
 			}, this);
 		},
 		_computeDiff: function(initial, target) {
@@ -215,12 +215,8 @@ define([
 		_computeDiff: SortedAccessor.prototype._computeDiff,
 		_onChanges: SortedAccessor.prototype._onChanges,
 		onItemChanges: SortedAccessor.prototype.onItemChanges,
+		items: SortedAccessor.prototype.items,
 	}, {
-		items: function() {
-			return this._getValue().map(function(key) {
-				return this._item(key);
-			}, this);
-		},
 	});
 
 	var CountAccessor = compose(function(source) {

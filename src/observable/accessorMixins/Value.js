@@ -13,8 +13,8 @@ define([
 		},
 		onValue: function(cb) {
 			var self = this;
-			return this._onChanges(function() {
-				cb(self._getValue());
+			return this._onChanges(function(value) {
+				cb(value);
 			});
 		},
 	};

@@ -25,15 +25,11 @@ define([
 			sourceChangeArg[this._key] = changeArg;
 			this._source._change(sourceChangeArg);
 		},
-		_computeChanges: function(sourceChanges) {
-			return sourceChanges[this._key];
-		},
 		_onChanges: function(cb) {
-			var self = this;
+			var key = this._key;
 			return this._source._onChanges(function(sourceChanges) {
-				var changes = self._computeChanges(sourceChanges);
-				if (changes) {
-					cb(changes);
+				if (key in sourceChanges) {
+					cb(sourceChanges[key]);
 				}
 			});
 		},

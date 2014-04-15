@@ -44,16 +44,12 @@ define([
 			sourceChangeArg[this._key] = { change: changeArg };
 			this._source._change(sourceChangeArg);
 		},
-		_computeChanges: function(sourceChanges) {
-			var itemChange = sourceChanges[this._key];
-			return itemChange && itemChange.change;
-		},
 		_onChanges: function(cb) {
-			var self = this;
+			var key = this._key;
 			return this._source._onChanges(function(sourceChanges) {
-				var changes = self._computeChanges(sourceChanges);
-				if (changes) {
-					cb(changes);
+				var itemChange = sourceChanges[key];
+				if (itemChange) {
+					cb(itemChange.change);
 				}
 			});
 		},
@@ -125,17 +121,10 @@ define([
 		this._compareFn = compareFn;
 	}, {
 		_getValue: function() {
-			var self = this,
-				value = this._source._getValue();
-
-			var ret = Object.keys(value).map(function(key) {
-				return { key: key, value: value[key] };
-			});
-			ret.sort(function(a, b) {
-				return self._compareFn(a.value, b.value);
-			});
-			return ret.map(function(keyValue) {
-				return keyValue.key;
+			var source = this._source._getValue();
+			var compareFn = this._compareFn;
+			return Object.keys(source).sort(function(key1, key2) {
+				return compareFn(source[key1], source[key2]);
 			});
 		},
 		items: function() {
@@ -188,7 +177,8 @@ define([
 			var oldValue = this._getValue();
 			return this._source._onChanges(function() {
 				var newValue = self._getValue();
-				listener(self._computeDiff(oldValue, newValue));
+				var changes = self._computeDiff(oldValue, newValue);
+				changes.length && listener(changes);
 				oldValue = newValue;
 			});
 		},

@@ -13,7 +13,9 @@ define([
 		_change: function(changeArg) {
 			this._value = this._computer.computeValue(changeArg, this._value);
 			this._emit('value', this._value);
+			// console.time('emit changes on Stateful');
 			this._emit('changes', changeArg);
+			// console.timeEnd('emit changes on Stateful');
 		},
 		_onChanges: function(cb) {
 			return this._on('changes', cb);

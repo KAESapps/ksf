@@ -60,7 +60,9 @@ define([
 
 					child.set('bounds', {
 						height: childHBound,
-						width: childWBound
+						width: childWBound,
+						heightMax: innerSize.height,
+						widthMax: innerSize.width
 					});
 				}.bind(this));
 

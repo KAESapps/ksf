@@ -8,18 +8,27 @@ require.config({
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'../Resource',
+	'../ResourceFactory',
+	'../../../observable/model/PropertyObjectOrUndefined',
+	'../../../observable/model/Value',
 	'lodash/objects/cloneDeep',
 ], function(
 	registerSuite,
 	assert,
-	Resource,
+	ResourceFactory,
+	PropertyObjectOrUndefined,
+	Value,
 	cloneDeep
 ){
+	var Site = new ResourceFactory(new PropertyObjectOrUndefined({
+		name: new Value(),
+		description: new Value(),
+	})).ctr;
+
 	registerSuite({
 		"pull": function() {
 			var observedSite1Values = [];
-			var site1 = new Resource("1");
+			var site1 = new Site("1");
 
 			assert.deepEqual(site1.value(), {
 				dataTime: undefined,
@@ -49,7 +58,10 @@ define([
 					},
 				}, {
 					dataTime: dataTime,
-					data: { name: 'site 1'},
+					data: {
+						name: 'site 1',
+						description: "description du site 1",
+					},
 					lastRequestStatus: {
 						started: started,
 						finished: finished,
@@ -57,6 +69,35 @@ define([
 					},
 				}]);
 
+			});
+		},
+		"observe stage": function() {
+			var observedStageValues = [];
+			var site1 = new Site("1");
+
+			site1.prop('lastRequestStatus').prop('stage').onValue(function(value) {
+				observedStageValues.push(value);
+			});
+
+			return site1.pull().then(function() {
+				assert.deepEqual(observedStageValues, [
+					'inProgress',
+					'success',
+				]);
+			});
+		},
+		"observe name": function() {
+			var observedValues = [];
+			var site1 = new Site("1");
+
+			site1.prop('data').prop('name').onValue(function(value) {
+				observedValues.push(value);
+			});
+
+			return site1.pull().then(function() {
+				assert.deepEqual(observedValues, [
+					"site 1",
+				]);
 			});
 		},
 	});

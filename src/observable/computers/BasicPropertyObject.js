@@ -14,6 +14,12 @@ define([
 			}.bind(this));
 			return value;
 		},
+		computeChangeArgFromValue: function(newValue, initValue) {
+
+		},
+		computeChangeArgFromChangeArg: function(changeArg, initValue) {
+			return changeArg;
+		},
 	});
 	return PropertyObject;
 });

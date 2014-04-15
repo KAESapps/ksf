@@ -6,6 +6,7 @@ define([
 	'../Store',
 	'../Value',
 	'../BasicPropertyObject',
+	'../PropertyObjectOrUndefined',
 
 ], function(
 	registerSuite,
@@ -14,7 +15,8 @@ define([
 	StatefulFactory,
 	Store,
 	Value,
-	BasicPropertyObject
+	BasicPropertyObject,
+	PropertyObjectOrUndefined
 ){
 
 	var SiteStore = new StatefulFactory(new Store(new BasicPropertyObject({
@@ -29,6 +31,7 @@ define([
 
 	var siteStore;
 	registerSuite({
+		name: 'nested model',
 		'beforeEach': function() {
 
 			siteStore = new SiteStore({
@@ -82,6 +85,137 @@ define([
 			site1CityAccessor.value("Paris");
 			assert.equal(site1CityAccessor.value(), "Paris");
 
+		},
+	});
+
+	var LastRequestStatus = new StatefulFactory(new PropertyObjectOrUndefined({
+		started: new Value(),
+		finished: new Value(),
+		stage: new Value(),
+	})).ctr;
+
+	registerSuite({
+		name: 'PropertyObjectOrUndefined',
+		"init to undefined": function() {
+			var reqStatus = new LastRequestStatus();
+			assert.equal(reqStatus.value(), undefined);
+		},
+		"init to object": function() {
+			var reqStatus = new LastRequestStatus({
+				started: "started",
+				finished: undefined,
+				stage: "stage",
+			});
+			assert.deepEqual(reqStatus.value(), {
+				started: "started",
+				finished: undefined,
+				stage: "stage",
+			});
+		},
+		"from object to undefined": function() {
+			var reqStatus = new LastRequestStatus({
+				started: "started",
+				finished: undefined,
+				stage: "stage",
+			});
+			var observedChanges = [];
+			reqStatus.onChanges(function(change) {
+				observedChanges.push(change);
+			});
+			var observedValues = [];
+			reqStatus.onValue(function(value) {
+				observedValues.push(value);
+			});
+
+			reqStatus._change(undefined);
+
+			assert.deepEqual(observedChanges, [
+				undefined,
+			]);
+			assert.deepEqual(observedValues, [
+				undefined,
+			]);
+		},
+		"from undefined to object": function() {
+			var reqStatus = new LastRequestStatus();
+			var observedChanges = [];
+			reqStatus.onChanges(function(change) {
+				observedChanges.push(change);
+			});
+			var observedValues = [];
+			reqStatus.onValue(function(value) {
+				observedValues.push(value);
+			});
+
+			reqStatus._change({
+				started: "started",
+				stage: "stage",
+			});
+
+			assert.deepEqual(observedChanges, [
+				{
+					started: "started",
+					stage: "stage",
+				},
+			]);
+			// pour un PropertyObjectOrUndefined, il faut interpréter de façon équivalente le fait que la propriété n'existe pas ou que sa valeur soit égale à undefined.
+			assert.deepEqual(observedValues, [
+				{
+					started: "started",
+					stage: "stage",
+				},
+			]);
+		},
+		"started accessor from undefined to object": function() {
+			var reqStatus = new LastRequestStatus();
+			var startedAccessor = reqStatus.prop('started');
+			var observedValues = [];
+			startedAccessor.onValue(function(value) {
+				observedValues.push(value);
+			});
+
+			reqStatus._change({
+				started: "started",
+				stage: "stage",
+			});
+
+			assert.deepEqual(observedValues, [
+				"started",
+			]);
+		},
+		"finished accessor from undefined to object": function() {
+			var reqStatus = new LastRequestStatus();
+			var accessor = reqStatus.prop('finished');
+			var observedValues = [];
+			accessor.onValue(function(value) {
+				observedValues.push(value);
+			});
+
+			reqStatus._change({
+				started: "started",
+				stage: "stage",
+			});
+
+			assert.deepEqual(observedValues, [
+			]);
+		},
+		"started accessor from object to undefined": function() {
+			var reqStatus = new LastRequestStatus({
+				started: "started",
+				finished: undefined,
+				stage: "stage",
+			});
+			var startedAccessor = reqStatus.prop('started');
+			var observedValues = [];
+			startedAccessor.onValue(function(value) {
+				observedValues.push(value);
+			});
+
+			reqStatus._change(undefined);
+
+			assert.deepEqual(observedValues, [
+				undefined,
+			]);
 		},
 	});
 

@@ -1,35 +1,38 @@
-require.config({
+/*require.config({
 	map: {
 		ksf: {
 			'dojo/request': 'ksf/rest/withCache/tests/requestResourceMock',
 		}
 	}
 });
-define([
+*/define([
 	'intern!object',
 	'intern/chai!assert',
 	'../ResourceFactory',
 	'../../../observable/model/Value',
 	'../../../observable/model/Integer',
 	'lodash/objects/cloneDeep',
+	'./sourceProvider',
 ], function(
 	registerSuite,
 	assert,
 	ResourceFactory,
 	Value,
 	Integer,
-	cloneDeep
+	cloneDeep,
+	sourceProvider
 ){
+	var asyncSource = sourceProvider.item("1");
+
 	var Site = new ResourceFactory({
-		name: new Value(),
-		description: new Value(),
+		nom: new Value(),
 		surface: new Integer(),
 	}).ctr;
 
 	registerSuite({
 		"pull": function() {
 			var observedSite1Values = [];
-			var site1 = new Site("1");
+			var site1 = new Site(asyncSource);
 
 			assert.deepEqual(site1.value(), {
 				dataTime: undefined,
@@ -60,8 +63,7 @@ define([
 				}, {
 					dataTime: dataTime,
 					data: {
-						name: 'site 1',
-						description: "description du site 1",
+						nom: 'Site 1',
 						surface: 12,
 					},
 					lastRequestStatus: {
@@ -75,7 +77,7 @@ define([
 		},
 		"observe stage": function() {
 			var observedStageValues = [];
-			var site1 = new Site("1");
+			var site1 = new Site(asyncSource);
 
 			site1.prop('lastRequestStatus').prop('stage').onChange(function(value) {
 				observedStageValues.push(value);

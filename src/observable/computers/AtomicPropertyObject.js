@@ -14,7 +14,9 @@ define([
 			var properties = this._properties;
 			Object.keys(properties).forEach(function(key) {
 				var property = properties[key];
-				outChangeArg[key] = property.computeChangeArg(changeArg[key], initValue[key]);
+				if (property.computeChangeArg) {
+					outChangeArg[key] = property.computeChangeArg(changeArg[key], initValue[key]);
+				}
 			});
 			return outChangeArg;
 		},

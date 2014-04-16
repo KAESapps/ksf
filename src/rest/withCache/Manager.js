@@ -1,36 +1,31 @@
 define([
 	'compose',
-	'./Resource',
+	'./ResourceFactory',
 	'./Query',
 ], function(
 	compose,
-	RestResource,
-	RestQuery
+	ResourceFactory,
+	Query
 ){
-	var Manager = compose(function(baseUrl, rscModel) {
-		this._baseUrl = baseUrl;
-		// this._rscModel = rscModel; // TODO: ça pourrait être un objet qui présente un computer et une liste de propertyAccessorFactories par nom de propriété
+	var Manager = compose(function(args) {
+		this._source = args.source;
+		this._Resource = new ResourceFactory(args.properties).ctr;
+		this._idProperty = args.idProperty || "id";
 		this._resources = {};
 		this._queries = {};
 	}, {
 		item: function(id) {
 			var rsc = this._resources[id];
 			if (! rsc) {
-				rsc = new RestResource({
-					url: this._baseUrl + id,
-					// model: this._rscModel,
-				});
+				rsc = new this._Resource(this._source.item(id));
 				this._resources[id] = rsc;
 			}
 			return rsc;
 		},
 		query: function(params) {
-			var query = this._queries[params];
+			var query = this._queries[params]; // TODO: faire une recherche par valeur et pas par référence de 'params'
 			if (! query) {
-				query = new RestQuery({
-					url: this._baseUrl + "?" + params,
-					manager: this,
-				});
+				query = new Query(this, this._source.query(params), this._idProperty);
 				this._queries[params] = query;
 			}
 			return query;

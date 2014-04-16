@@ -1,76 +1,43 @@
-require.config({
-	map: {
-		ksf: {
-			'dojo/request': 'ksf/rest/withCache/tests/requestQueryMock',
-		}
-	}
-});
 define([
 	'intern!object',
 	'intern/chai!assert',
 	'../Manager',
+	'../../../observable/model/Value',
+	'../../../observable/model/Integer',
 	'lodash/objects/cloneDeep',
+	'./sourceProvider',
 ], function(
 	registerSuite,
 	assert,
 	Manager,
-	cloneDeep
+	Value,
+	Integer,
+	cloneDeep,
+	sourceProvider
 ){
-	registerSuite({
-		name: "pull query",
-		"query data": function() {
-			var observedSitesPage1Values = [];
-			var manager = new Manager("baseUrl");
-
-			var sitesPage1 = manager.query("page1");
-			assert.deepEqual(sitesPage1.value(), {
-				dataTime: undefined,
-				data: undefined,
-				lastRequestStatus: undefined,
-			});
-
-
-			sitesPage1.onValue(function(value) {
-				observedSitesPage1Values.push(cloneDeep(value));
-			});
-
-
-			return sitesPage1.pull().then(function() {
-				var started = sitesPage1.value().lastRequestStatus.started;
-				var finished = sitesPage1.value().lastRequestStatus.finished;
-				var dataTime = sitesPage1.value().dataTime;
-
-				assert.deepEqual(observedSitesPage1Values, [
-					{
-						dataTime: undefined,
-						data: undefined,
-						lastRequestStatus: {
-							started: started,
-							finished: undefined,
-							stage: 'inProgress',
-						}
-					},
-					{
-						dataTime: dataTime,
-						data: ["1", "2", "3"],
-						lastRequestStatus: {
-							started: started,
-							finished: finished,
-							stage: 'success',
-						}
-					},
-				]);
-			});
+	var manager = new Manager({
+		properties: {
+			nom: new Value(),
+			surface: new Integer(),
 		},
-		"resources data": function() {
-			var manager = new Manager("baseUrl");
-			var sitesPage1 = manager.query("page1");
-			return sitesPage1.pull().then(function() {
-				var dataTime = manager.item("1").value().dataTime;
+		source: sourceProvider,
+	});
+
+	registerSuite({
+		"resource data updated by pulling a query": function() {
+			var page1 = manager.query("page1");
+			return page1.pull().then(function() {
+				assert.equal(Object.keys(manager._resources).length, 3);
+				var site1 = manager.item("1");
+
+				var dataTime = site1.value().dataTime;
 				assert(dataTime - new Date() < 1000); // be sure that's a date and it is quite recent
-				assert.deepEqual(manager.item("1").value(), {
+				assert.deepEqual(site1.value(), {
 					dataTime: dataTime,
-					data: { name: 'site 1'},
+					data: {
+						nom: 'Site 1',
+						surface: 12,
+					},
 					lastRequestStatus: undefined, // data was provided by pulling a query and not this resource directly
 				});
 			});

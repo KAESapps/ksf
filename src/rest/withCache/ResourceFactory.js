@@ -5,7 +5,6 @@ define([
 	'../../observable/model/AtomicPropertyObject',
 	'../../observable/model/PropertyObjectOrUndefined',
 	'../../observable/model/Value',
-	'dojo/request',
 
 ], function(
 	compose,
@@ -13,11 +12,8 @@ define([
 	IncrementalPropertyObject,
 	AtomicPropertyObject,
 	PropertyObjectOrUndefined,
-	Value,
-	request
+	Value
 ){
-	var diffRestRessource = function() {};
-	var getPatchArg = function() {};
 
 	var ResourceFactory = compose(function(properties) {
 		var model = new IncrementalPropertyObject({
@@ -29,8 +25,8 @@ define([
 			}),
 			data: new AtomicPropertyObject(properties),
 		});
-		this.ctr = compose(function(url) {
-			this._url = url;
+		this.ctr = compose(function(source) {
+			this._source = source;
 			this._value = {
 				dataTime: undefined,
 				data: {},
@@ -49,7 +45,7 @@ define([
 						stage: 'inProgress',
 					}
 				});
-				return request.get(this._url).then(function(resp) {
+				return this._source.get().then(function(resp) {
 					// TODO
 					// var diff = diffRestRessource(this.value().data, resp.data);
 					// var dataPatchArg = getPatchArg(diff);

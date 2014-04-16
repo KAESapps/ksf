@@ -11,9 +11,9 @@ define([
 				return this._getValue();
 			}
 		},
-		onValue: function(cb) {
+		onChange: function(cb) {
 			var self = this;
-			return this._onChanges(function(value) {
+			return this._onChange(function(value) {
 				cb(value);
 			});
 		},

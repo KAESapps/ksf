@@ -19,9 +19,9 @@ define([
 			sourceChangeArg[this._key] = changeArg;
 			this._source._change(sourceChangeArg);
 		},
-		_onChanges: function(cb) {
+		_onChange: function(cb) {
 			var key = this._key;
-			return this._source._onChanges(function(sourceChanges) {
+			return this._source._onChange(function(sourceChanges) {
 				if (sourceChanges === undefined) {
 					cb(undefined);
 				} else if (key in sourceChanges) {
@@ -31,7 +31,7 @@ define([
 		},
 	});
 
-	var BasicPropertyObject = compose(function(properties) {
+	var IncrementalPropertyObject = compose(function(properties) {
 		this.ctr = compose({
 			_accessorFactories: {},
 			prop: function(prop) {
@@ -40,11 +40,8 @@ define([
 			value: function() {
 				return this._getValue();
 			},
-			onValue: function(cb) {
-				return this._onValue(cb);
-			},
-			onChanges: function(cb) {
-				return this._onChanges(cb);
+			onChange: function(cb) {
+				return this._onChange(cb);
 			},
 		});
 
@@ -56,5 +53,5 @@ define([
 			this.ctr.prototype._accessorFactories[prop] = compose(BasicPropObjPropertyAccessor, AccessorAPI);
 		}
 	});
-	return BasicPropertyObject;
+	return IncrementalPropertyObject;
 });

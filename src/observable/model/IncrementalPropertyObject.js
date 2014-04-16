@@ -1,11 +1,11 @@
 define([
 	"compose",
-	'../computers/PropertyObjectOrUndefined',
-	'../accessorMixins/PropertyObjectOrUndefined',
+	'../computers/IncrementalPropertyObject',
+	'../accessorMixins/IncrementalPropertyObject',
 ], function(
 	compose,
-	PropertyObjectComputer,
-	PropertyObjectAccessorMixin
+	IncrementalPropertyObjectComputer,
+	IncrementalPropertyObjectAccessorMixin
 ){
 	var IncrementalPropertyObject = compose(function(properties) {
 		var computers = {},
@@ -14,12 +14,8 @@ define([
 			computers[prop] = properties[prop].computer;
 			accessorMixins[prop] = properties[prop].accessorMixin;
 		});
-		this.computer = new PropertyObjectComputer(computers);
-		this.accessorMixin = new PropertyObjectAccessorMixin(accessorMixins).ctr;
-	}, {
-		defaultValue: function() {
-			return undefined;
-		},
+		this.computer = new IncrementalPropertyObjectComputer(computers);
+		this.accessorMixin = new IncrementalPropertyObjectAccessorMixin(accessorMixins).ctr;
 	});
 	return IncrementalPropertyObject;
 });

@@ -1,11 +1,11 @@
 define([
 	'compose',
-	'./BasicPropertyObject',
+	'./IncrementalPropertyObject',
 ], function(
 	compose,
-	BasicPropertyObject
+	IncrementalPropertyObject
 ){
-	var PropertyObject = compose(BasicPropertyObject, {
+	var PropertyObject = compose(IncrementalPropertyObject, {
 		computeValue: function(changeArg, initValue) {
 			if (changeArg === undefined) {
 				return undefined;
@@ -19,10 +19,14 @@ define([
 				return value;
 			}
 		},
-		computeChangeArgFromValue: function(newValue, initValue) {
-			if (initValue === undefined) {
-				return newValue;
+		computeChangeArg: function(changeArg, initValue) {
+			if (changeArg === undefined) {
+				return undefined;
 			}
+			if (initValue === undefined) {
+				initValue = {};
+			}
+			return IncrementalPropertyObject.prototype.computeChangeArg.call(this, changeArg, initValue);
 		},
 	});
 	return PropertyObject;

@@ -44,9 +44,9 @@ define([
 			sourceChangeArg[this._key] = { change: changeArg };
 			this._source._change(sourceChangeArg);
 		},
-		_onChanges: function(cb) {
+		_onChange: function(cb) {
 			var key = this._key;
-			return this._source._onChanges(function(sourceChanges) {
+			return this._source._onChange(function(sourceChanges) {
 				var itemChange = sourceChanges[key];
 				if (itemChange) {
 					cb(itemChange.change);
@@ -62,7 +62,7 @@ define([
 		},
 		onValue: function(cb) {
 			var self = this;
-			return this._onChanges(function() {
+			return this._onChange(function() {
 				cb(self._getValue());
 			});
 		},
@@ -93,9 +93,9 @@ define([
 			// TODO: filtrer les changes, ne rien retourner s'il n'y a pas de changes qui passent le filtre
 			return changes;
 		},
-		_onChanges: function(cb) {
+		_onChange: function(cb) {
 			var self = this;
-			return this._source._onChanges(function(sourceChanges) {
+			return this._source._onChange(function(sourceChanges) {
 				var changes = self._computeChanges(sourceChanges);
 				if (changes) {
 					cb(changes);
@@ -112,7 +112,7 @@ define([
 			return new SortedAccessor(this, sortFn);
 		},
 		onChanges: function(cb) {
-			return this._onChanges(cb);
+			return this._onChange(cb);
 		},
 	});
 
@@ -172,10 +172,10 @@ define([
 			});
 			return ret;
 		},
-		_onChanges: function(listener) {
+		_onChange: function(listener) {
 			var self = this;
 			var oldValue = this._getValue();
-			return this._source._onChanges(function() {
+			return this._source._onChange(function() {
 				var newValue = self._getValue();
 				var changes = self._computeDiff(oldValue, newValue);
 				changes.length && listener(changes);
@@ -184,7 +184,7 @@ define([
 		},
 		onItemChanges: function(cb) {
 			var self = this;
-			return this._onChanges(function(changes) {
+			return this._onChange(function(changes) {
 				cb(changes.map(function(change) {
 					if (change.type === 'add') {
 						return {
@@ -213,7 +213,7 @@ define([
 			return value.slice(self._bounds.from, self._bounds.to);
 		},
 		_computeDiff: SortedAccessor.prototype._computeDiff,
-		_onChanges: SortedAccessor.prototype._onChanges,
+		_onChange: SortedAccessor.prototype._onChange,
 		onItemChanges: SortedAccessor.prototype.onItemChanges,
 		items: SortedAccessor.prototype.items,
 	}, {
@@ -228,7 +228,7 @@ define([
 		},
 		onValue: function(cb) {
 			var self = this;
-			return this._source._onChanges(function() {
+			return this._source._onChange(function() {
 				cb(self._getValue());
 			});
 		},

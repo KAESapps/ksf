@@ -1,11 +1,11 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'../PropertyObject',
+	'../oldPropertyObject',
 	'../Value',
 	'../Array',
 	'../ValueOr',
-	'../BasicPropertyObject',
+	'../IncrementalPropertyObject',
 
 ], function(
 	registerSuite,
@@ -14,7 +14,7 @@ define([
 	Value,
 	Array,
 	ValueOr,
-	BasicPropertyObject
+	IncrementalPropertyObject
 ){
 
 
@@ -367,9 +367,9 @@ define([
 	registerSuite({
 		name: 'basic property object',
 		'beforeEach': function() {
-			computer = new BasicPropertyObject({
+			computer = new IncrementalPropertyObject({
 				dataTime: new Value(),
-				lastRequestStatus: new ValueOr(new BasicPropertyObject({
+				lastRequestStatus: new ValueOr(new IncrementalPropertyObject({
 					started: new Value(),
 					finished: new Value(),
 				})),

@@ -3,26 +3,34 @@ define([
 	'intern/chai!assert',
 	'compose',
 	'../../StatefulFactory',
+	'../../StatefulWithLogicFactory',
 	'../Store',
 	'../Value',
-	'../BasicPropertyObject',
+	'../IncrementalPropertyObject',
 	'../PropertyObjectOrUndefined',
+	'../ImplicitDict',
+	'../AtomicPropertyObject',
+	'../Integer',
 
 ], function(
 	registerSuite,
 	assert,
 	compose,
 	StatefulFactory,
+	StatefulWithLogicFactory,
 	Store,
 	Value,
-	BasicPropertyObject,
-	PropertyObjectOrUndefined
+	IncrementalPropertyObject,
+	PropertyObjectOrUndefined,
+	ImplicitDict,
+	AtomicPropertyObject,
+	Integer
 ){
 
-	var SiteStore = new StatefulFactory(new Store(new BasicPropertyObject({
+	var SiteStore = new StatefulFactory(new Store(new IncrementalPropertyObject({
 		nom: new Value(),
 		description: new Value(),
-		adresse: new BasicPropertyObject({
+		adresse: new IncrementalPropertyObject({
 			rue: new Value(),
 			ville: new Value(),
 		}),
@@ -119,11 +127,11 @@ define([
 				stage: "stage",
 			});
 			var observedChanges = [];
-			reqStatus.onChanges(function(change) {
+			reqStatus.onChange(function(change) {
 				observedChanges.push(change);
 			});
 			var observedValues = [];
-			reqStatus.onValue(function(value) {
+			reqStatus.onChange(function(value) {
 				observedValues.push(value);
 			});
 
@@ -139,11 +147,11 @@ define([
 		"from undefined to object": function() {
 			var reqStatus = new LastRequestStatus();
 			var observedChanges = [];
-			reqStatus.onChanges(function(change) {
+			reqStatus.onChange(function(change) {
 				observedChanges.push(change);
 			});
 			var observedValues = [];
-			reqStatus.onValue(function(value) {
+			reqStatus.onChange(function(value) {
 				observedValues.push(value);
 			});
 
@@ -170,7 +178,7 @@ define([
 			var reqStatus = new LastRequestStatus();
 			var startedAccessor = reqStatus.prop('started');
 			var observedValues = [];
-			startedAccessor.onValue(function(value) {
+			startedAccessor.onChange(function(value) {
 				observedValues.push(value);
 			});
 
@@ -187,7 +195,7 @@ define([
 			var reqStatus = new LastRequestStatus();
 			var accessor = reqStatus.prop('finished');
 			var observedValues = [];
-			accessor.onValue(function(value) {
+			accessor.onChange(function(value) {
 				observedValues.push(value);
 			});
 
@@ -207,7 +215,7 @@ define([
 			});
 			var startedAccessor = reqStatus.prop('started');
 			var observedValues = [];
-			startedAccessor.onValue(function(value) {
+			startedAccessor.onChange(function(value) {
 				observedValues.push(value);
 			});
 
@@ -216,6 +224,114 @@ define([
 			assert.deepEqual(observedValues, [
 				undefined,
 			]);
+		},
+	});
+
+	var Dict = new StatefulFactory(new ImplicitDict()).ctr;
+
+	registerSuite({
+		name: 'ImplicitDict',
+		"init value": function() {
+			var dict = new Dict({
+				nom: 'toto',
+				age: 30,
+			});
+
+			assert.deepEqual(dict.value(), {
+				nom: 'toto',
+				age: 30,
+			});
+		},
+		"prop accessor get value": function() {
+			var dict = new Dict({
+				nom: 'toto',
+				age: 30,
+			});
+			var nom = dict.prop('nom');
+
+			assert.deepEqual(nom.value(), "toto");
+		},
+		"prop accessor set value": function() {
+			var dict = new Dict({
+				nom: 'toto',
+				age: 30,
+			});
+			var nom = dict.prop('nom');
+			nom.value('titi');
+			assert.deepEqual(nom.value(), "titi");
+		},
+		"prop accessor changes": function() {
+			var dict = new Dict({
+				nom: 'toto',
+				age: 30,
+			});
+			var observedValues = [];
+			var nom = dict.prop('nom');
+			nom.onChange(function(value) {
+				observedValues.push(value);
+			});
+			nom.value('titi');
+
+			assert.deepEqual(observedValues, ["titi"]);
+		},
+		"set prop value to undefined": function() {
+			var dict = new Dict({
+				nom: 'toto',
+				age: 30,
+			});
+			var observedValues = [];
+			var nom = dict.prop('nom');
+			nom.onChange(function(value) {
+				observedValues.push(value);
+			});
+			nom.value(undefined);
+
+			assert.deepEqual(observedValues, [undefined]);
+
+			assert.deepEqual(dict.value(), {
+				age: 30,
+			});
+		},
+
+
+	});
+
+	var Site = new StatefulWithLogicFactory(new AtomicPropertyObject({
+		nom: new Value(),
+		surface: new Integer(),
+	})).ctr;
+
+	registerSuite({
+		name: 'AtomicPropertyObject',
+		"no init value": function() {
+			var site = new Site();
+			assert.deepEqual(site.value(), {});
+		},
+		"change value": function() {
+			var site = new Site();
+			site.value({
+				nom: "site 1",
+				surface: 45.3,
+			});
+			assert.deepEqual(site.value(), {
+				nom: "site 1",
+				surface: 45,
+			});
+		},
+		"observe value": function() {
+			var site = new Site();
+			var observedValues = [];
+			site.onChange(function(value) {
+				observedValues.push(value);
+			});
+			site.value({
+				nom: "site 1",
+				surface: 45.3,
+			});
+			assert.deepEqual(observedValues, [{
+				nom: "site 1",
+				surface: 45,
+			}]);
 		},
 	});
 

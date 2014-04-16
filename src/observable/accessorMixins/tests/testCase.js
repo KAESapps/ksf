@@ -4,14 +4,14 @@ define([
 	'compose',
 	'../Store',
 	'../Value',
-	'../BasicPropertyObject',
+	'../IncrementalPropertyObject',
 ], function(
 	registerSuite,
 	assert,
 	compose,
 	Store,
 	Value,
-	BasicPropertyObject
+	IncrementalPropertyObject
 ){
 	var StatefulMock = compose(function() {
 		this.changesArgs = [];
@@ -33,10 +33,10 @@ define([
 		},
 	});
 
-	var SiteStoreAccessorMixin = new Store(new BasicPropertyObject({
+	var SiteStoreAccessorMixin = new Store(new IncrementalPropertyObject({
 		nom: new Value().ctr,
 		description: new Value().ctr,
-		adresse: new BasicPropertyObject({
+		adresse: new IncrementalPropertyObject({
 			rue: new Value().ctr,
 			ville: new Value().ctr,
 		}).ctr,

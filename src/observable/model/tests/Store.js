@@ -5,7 +5,7 @@ define([
 	'../../StatefulFactory',
 	'../Store',
 	'../Value',
-	'../BasicPropertyObject',
+	'../IncrementalPropertyObject',
 
 ], function(
 	registerSuite,
@@ -14,10 +14,10 @@ define([
 	StatefulFactory,
 	Store,
 	Value,
-	BasicPropertyObject
+	IncrementalPropertyObject
 ){
 
-	var PersonStore = new StatefulFactory(new Store(new BasicPropertyObject({
+	var PersonStore = new StatefulFactory(new Store(new IncrementalPropertyObject({
 		name: new Value(),
 		age: new Value(),
 	}))).ctr;

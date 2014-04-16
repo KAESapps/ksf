@@ -3,16 +3,6 @@ define([
 ], function(
 	compose
 ){
-	var PatchableValueAPI = {
-		value: function(value) {
-			if (arguments.length) {
-				this._change({ value: value });
-			} else {
-				return this._getValue();
-			}
-		}
-	};
-
 	var BasicPropObjPropertyAccessor = compose(function(source, key) {
 		this._source = source;
 		this._key = key;
@@ -25,9 +15,9 @@ define([
 			sourceChangeArg[this._key] = changeArg;
 			this._source._change(sourceChangeArg);
 		},
-		_onChanges: function(cb) {
+		_onChange: function(cb) {
 			var key = this._key;
-			return this._source._onChanges(function(sourceChanges) {
+			return this._source._onChange(function(sourceChanges) {
 				if (key in sourceChanges) {
 					cb(sourceChanges[key]);
 				}
@@ -35,9 +25,18 @@ define([
 		},
 	});
 
-	var BasicPropertyObject = compose(function(properties) {
-		this.ctr = compose(PatchableValueAPI, {
+	var IncrementalPropertyObject = compose(function(properties) {
+		this.ctr = compose({
 			_accessorFactories: {},
+			value: function(value) {
+				return this._getValue();
+			},
+			onChange: function(cb) {
+				return this._onChange(cb);
+			},
+			patch: function(changeArg) {
+				this._change(changeArg);
+			},
 			prop: function(prop) {
 				return new (this._accessorFactories[prop])(this, prop);
 			}
@@ -51,5 +50,5 @@ define([
 			this.ctr.prototype._accessorFactories[prop] = compose(BasicPropObjPropertyAccessor, AccessorAPI);
 		}
 	});
-	return BasicPropertyObject;
+	return IncrementalPropertyObject;
 });

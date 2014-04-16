@@ -1,15 +1,17 @@
 define([
 	'compose',
-	'../../observable/_Stateful',
-	'../../observable/model/BasicPropertyObject',
+	'../../observable/_StatefulWithLogic',
+	'../../observable/model/IncrementalPropertyObject',
+	'../../observable/model/AtomicPropertyObject',
 	'../../observable/model/PropertyObjectOrUndefined',
 	'../../observable/model/Value',
 	'dojo/request',
 
 ], function(
 	compose,
-	_Stateful,
-	BasicPropertyObject,
+	_StatefulWithLogic,
+	IncrementalPropertyObject,
+	AtomicPropertyObject,
 	PropertyObjectOrUndefined,
 	Value,
 	request
@@ -17,34 +19,27 @@ define([
 	var diffRestRessource = function() {};
 	var getPatchArg = function() {};
 
-	var ResourceFactory = compose(function(itemModel) {
-		var model = new BasicPropertyObject({
+	var ResourceFactory = compose(function(properties) {
+		var model = new IncrementalPropertyObject({
 			dataTime: new Value(),
 			lastRequestStatus: new PropertyObjectOrUndefined({
 				started: new Value(),
 				finished: new Value(),
 				stage: new Value(),
 			}),
-			data: itemModel,
+			data: new AtomicPropertyObject(properties),
 		});
 		this.ctr = compose(function(url) {
 			this._url = url;
 			this._value = {
 				dataTime: undefined,
-				data: undefined,
+				data: {},
 				lastRequestStatus: undefined,
 			};
 		},
-		_Stateful,
+		_StatefulWithLogic,
 		model.accessorMixin,
 		{
-			// value is read only for public users
-			value: function() {
-				return this._getValue();
-			},
-			onValue: function(cb) {
-				return this._onValue(cb);
-			},
 			_computer: model.computer,
 			pull: function() {
 				this._change({
@@ -60,7 +55,7 @@ define([
 					// var dataPatchArg = getPatchArg(diff);
 					this._change({
 						dataTime: new Date(),
-						data: resp ,
+						data: resp,
 						lastRequestStatus: {
 							finished: new Date(),
 							stage: 'success',

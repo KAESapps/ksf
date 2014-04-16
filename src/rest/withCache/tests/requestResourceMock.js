@@ -10,6 +10,7 @@ define([
 			deferred.resolve({
 				name: "site 1",
 				description: "description du site 1",
+				surface: 12.3,
 			});
 			return deferred;
 		},

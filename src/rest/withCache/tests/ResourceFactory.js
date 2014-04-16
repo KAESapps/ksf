@@ -9,21 +9,22 @@ define([
 	'intern!object',
 	'intern/chai!assert',
 	'../ResourceFactory',
-	'../../../observable/model/PropertyObjectOrUndefined',
 	'../../../observable/model/Value',
+	'../../../observable/model/Integer',
 	'lodash/objects/cloneDeep',
 ], function(
 	registerSuite,
 	assert,
 	ResourceFactory,
-	PropertyObjectOrUndefined,
 	Value,
+	Integer,
 	cloneDeep
 ){
-	var Site = new ResourceFactory(new PropertyObjectOrUndefined({
+	var Site = new ResourceFactory({
 		name: new Value(),
 		description: new Value(),
-	})).ctr;
+		surface: new Integer(),
+	}).ctr;
 
 	registerSuite({
 		"pull": function() {
@@ -32,12 +33,12 @@ define([
 
 			assert.deepEqual(site1.value(), {
 				dataTime: undefined,
-				data: undefined,
+				data: {},
 				lastRequestStatus: undefined,
 			});
 
-			site1.onValue(function(value) {
-				observedSite1Values.push(cloneDeep(value));
+			site1.onChange(function() {
+				observedSite1Values.push(cloneDeep(site1.value()));
 			});
 
 			return site1.pull().then(function() {
@@ -50,7 +51,7 @@ define([
 
 				assert.deepEqual(observedSite1Values, [{
 					dataTime: undefined,
-					data: undefined,
+					data: {},
 					lastRequestStatus: {
 						started: started,
 						finished: undefined,
@@ -61,6 +62,7 @@ define([
 					data: {
 						name: 'site 1',
 						description: "description du site 1",
+						surface: 12,
 					},
 					lastRequestStatus: {
 						started: started,
@@ -75,7 +77,7 @@ define([
 			var observedStageValues = [];
 			var site1 = new Site("1");
 
-			site1.prop('lastRequestStatus').prop('stage').onValue(function(value) {
+			site1.prop('lastRequestStatus').prop('stage').onChange(function(value) {
 				observedStageValues.push(value);
 			});
 
@@ -83,20 +85,6 @@ define([
 				assert.deepEqual(observedStageValues, [
 					'inProgress',
 					'success',
-				]);
-			});
-		},
-		"observe name": function() {
-			var observedValues = [];
-			var site1 = new Site("1");
-
-			site1.prop('data').prop('name').onValue(function(value) {
-				observedValues.push(value);
-			});
-
-			return site1.pull().then(function() {
-				assert.deepEqual(observedValues, [
-					"site 1",
 				]);
 			});
 		},

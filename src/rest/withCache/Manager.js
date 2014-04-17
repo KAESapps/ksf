@@ -23,12 +23,17 @@ define([
 			return rsc;
 		},
 		query: function(params) {
-			var query = this._queries[params]; // TODO: faire une recherche par valeur et pas par référence de 'params'
+			var paramsHash = this._hashParams(params);
+			var query = this._queries[paramsHash];
 			if (! query) {
 				query = new Query(this, this._source.query(params), this._idProperty);
-				this._queries[params] = query;
+				this._queries[paramsHash] = query;
 			}
 			return query;
+		},
+		_hashParams: function(params) {
+			// TODO: trouver un algo de hash qui trie les clés des objets pour s'assurer que les hash soit toujours le même pour des objets avec la même valeur
+			return JSON.stringify(params);
 		},
 	});
 	return Manager;

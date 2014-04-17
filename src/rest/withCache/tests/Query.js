@@ -69,5 +69,20 @@
 
 			});
 		},
+		"observe data": function() {
+			var observedValues = [];
+			var page1 = new Query(managerMock, sourceProvider.query());
+
+			page1.prop('data').onChange(function(value) {
+				observedValues.push(value);
+			});
+
+			return page1.pull().then(function() {
+				assert.deepEqual(observedValues, [
+					["1", "2", "3"],
+				]);
+			});
+		},
+
 	});
 });

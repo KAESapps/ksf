@@ -52,7 +52,6 @@ define([
 				}
 			});
 			return this._source.get().then(function(resp) {
-				console.time('traitement de la réponse serveur');
 				// mise à jour de la valeur des ressources récupérées
 				this._updateResources(resp);
 
@@ -68,7 +67,6 @@ define([
 						stage: 'success',
 					},
 				});
-				console.timeEnd('traitement de la réponse serveur');
 			}.bind(this),
 			// error
 			function(resp) {
@@ -77,8 +75,8 @@ define([
 						finished: new Date(),
 						stage: 'error',
 					},
-				}.bind(this));
-			});
+				});
+			}.bind(this));
 		},
 		_updateResources: function(resp) {
 			var idProperty = this._idProperty;

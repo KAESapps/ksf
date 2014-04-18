@@ -1,12 +1,12 @@
 define([
-	'ksf/utils/destroy',
+	'../utils/destroy',
 ], function(
 	destroy
 ){
-	var Destroyable = function(){
+	var _Destroyable = function(){
 		this._owned = [];
 	};
-	Destroyable.prototype = {
+	_Destroyable.prototype = {
 		own: function(o){
 			this._owned.push(o);
 			return o;
@@ -20,5 +20,5 @@ define([
 		},
 	};
 
-	return Destroyable;
+	return _Destroyable;
 });

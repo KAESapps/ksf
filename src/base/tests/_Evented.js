@@ -1,17 +1,17 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'../Evented',
+	'../_Evented',
 	'compose',
 ], function(
 	registerSuite,
 	assert,
-	Evented,
+	_Evented,
 	compose
 ) {
 
 	var o;
-	var EventedObject = compose(Evented);
+	var EventedObject = compose(_Evented);
 
 	registerSuite({
 		beforeEach : function() {

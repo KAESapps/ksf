@@ -1,6 +1,4 @@
-define([
-], function(
-){
+define([], function() {
 	return {
 		bounds: function(bounds) {
 			var width = bounds.width || null;

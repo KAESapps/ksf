@@ -1,6 +1,4 @@
-define([
-], function(
-){
+define([], function() {
 	return {
 		size: function() {
 			return {

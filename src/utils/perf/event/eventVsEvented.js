@@ -1,18 +1,18 @@
 define([
 	'compose',
 	'../../event',
-	'ksf/base/Evented',
+	'ksf/base/_Evented',
 ], function(
 	compose,
 	event,
-	Evented
+	_Evented
 ){
 	var ObservableWithEvent = compose(function() {
 		this.onValue = event();
 		this.onChanges = event();
 		this.onKeys = event();
 	});
-	var ObservableWithEvented = compose(Evented);
+	var ObservableWithEvented = compose(_Evented);
 
 	JSLitmus.test('event create instance', function() {
 		var observable = new ObservableWithEvent();

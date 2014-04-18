@@ -1,6 +1,4 @@
-define([
-], function(
-){
+define([], function() {
 	return {
 		_on: function(type, cb){
 			this._listeners || (this._listeners = {});

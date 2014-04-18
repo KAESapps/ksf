@@ -1,12 +1,12 @@
 define([
 	'compose',
-	'../base/Evented',
+	'../base/_Evented',
 ], function(
 	compose,
-	Evented
+	_Evented
 ){
 
-	var Stateful = compose(Evented, {
+	var Stateful = compose(_Evented, {
 		_getValue: function() {
 			return this._value;
 		},

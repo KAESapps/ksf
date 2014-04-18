@@ -1,13 +1,13 @@
 define([
 	'compose',
-	'../../base/Destroyable',
-	'../WithSize'
+	'../../base/_Destroyable',
+	'../_WithSize'
 ], function(
 	compose,
-	Destroyable,
-	WithSize
+	_Destroyable,
+	_WithSize
 ){
-	return compose(Destroyable, WithSize, function() {
+	return compose(_Destroyable, _WithSize, function() {
 		this._root = this.own(this._rootFactory());
 		this.domNode = this._root.domNode;
 	}, {

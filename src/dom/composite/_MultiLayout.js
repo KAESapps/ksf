@@ -1,6 +1,6 @@
 define([
 	'compose',
-	'ksf/utils/destroy'
+	'../../utils/destroy'
 ], function(
 	compose,
 	destroy

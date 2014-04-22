@@ -1,19 +1,21 @@
 define([
 	"compose",
 	'../computers/AtomicPropertyObject',
-	'../accessorMixins/Value',
+	'../accessorMixins/AtomicPropertyObject',
 ], function(
 	compose,
 	AtomicPropertyObjectComputer,
-	ValueAccessorMixin
+	AtomicPropertyObjectAccessorMixin
 ){
 	var AtomicPropertyObject = compose(function(properties) {
-		var computers = {};
+		var computers = {},
+			accessorMixins = {};
 		Object.keys(properties).forEach(function(prop) {
 			computers[prop] = properties[prop].computer;
+			accessorMixins[prop] = properties[prop].accessorMixin;
 		});
 		this.computer = new AtomicPropertyObjectComputer(computers);
-		this.accessorMixin = new ValueAccessorMixin().ctr;
+		this.accessorMixin = new AtomicPropertyObjectAccessorMixin(accessorMixins).ctr;
 	}, {
 		defaultValue: function() {
 			return {};

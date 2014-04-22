@@ -12,10 +12,7 @@ define([
 			}
 		},
 		onChange: function(cb) {
-			var self = this;
-			return this._onChange(function(value) {
-				cb(value);
-			});
+			return this._onChange(cb);
 		},
 	};
 

@@ -10,6 +10,10 @@ define([
 	var Value = compose(function() {
 		this.computer = new ValueComputer();
 		this.accessorMixin = new ValueAccessorMixin().ctr;
+	}, {
+		defaultValue: function() {
+			return undefined;
+		},
 	});
 	return Value;
 });

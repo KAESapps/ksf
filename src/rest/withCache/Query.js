@@ -67,6 +67,7 @@ define([
 						stage: 'success',
 					},
 				});
+				return resp;
 			}.bind(this),
 			// error
 			function(resp) {
@@ -76,6 +77,7 @@ define([
 						stage: 'error',
 					},
 				});
+				return resp;
 			}.bind(this));
 		},
 		_updateResources: function(resp) {

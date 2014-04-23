@@ -13,6 +13,7 @@ define([
 		this._idProperty = args.idProperty || "id";
 		this._resources = {};
 		this._queries = {};
+		this._QueryCtr = args.QueryCtr || Query;
 	}, {
 		item: function(id) {
 			var rsc = this._resources[id];
@@ -26,7 +27,7 @@ define([
 			var paramsHash = this._hashParams(params);
 			var query = this._queries[paramsHash];
 			if (! query) {
-				query = new Query(this, this._source.query(params), this._idProperty);
+				query = new this._QueryCtr(this, this._source.query(params), this._idProperty);
 				this._queries[paramsHash] = query;
 			}
 			return query;

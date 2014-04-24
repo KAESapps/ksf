@@ -11,10 +11,11 @@ define([
 				console.time("get computed size");
 			}
 
-			var node = this.domNode;
+			var node = this.domNode,
+				compStyle = getComputedStyle(node);
 			var size = {
-				height: node.offsetHeight,
-				width: node.offsetWidth
+				height: parseFloat(compStyle.getPropertyValue('height')),
+				width: parseFloat(compStyle.getPropertyValue('width'))
 			};
 
 			if (has('ksf-monitoring')) {

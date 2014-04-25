@@ -6,20 +6,31 @@ define([
 	var PropertyObject = compose(function(properties) {
 		this._properties = properties;
 	}, {
+		initValue: function(initArg) {
+			var value = {};
+			var properties = this._properties;
+			Object.keys(properties).forEach(function(key) {
+				var property = properties[key];
+				value[key] = property.initValue(initArg && initArg[key]);
+			});
+			return value;
+		},
 		computeValue: function(changeArg, initValue) {
 			var value = initValue;
+			var properties = this._properties;
 			Object.keys(changeArg).forEach(function(key) {
-				var property = this._properties[key];
+				var property = properties[key];
 				value[key] = property.computeValue(changeArg[key], initValue[key]);
-			}.bind(this));
+			});
 			return value;
 		},
 		computeChangeArg: function(changeArg, initValue) {
 			var outChangeArg = {};
+			var properties = this._properties;
 			Object.keys(changeArg).forEach(function(key) {
-				var property = this._properties[key];
+				var property = properties[key];
 				outChangeArg[key] = property.computeChangeArg(changeArg[key], initValue[key]);
-			}.bind(this));
+			});
 			return outChangeArg;
 		},
 	});

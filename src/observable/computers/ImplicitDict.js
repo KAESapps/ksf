@@ -3,7 +3,13 @@ define([
 ], function(
 	compose
 ){
+	/**
+	Version de Dict avec un format de change simplifié, où les clés sont créées si elles n'existent pas et supprimées si leur valeur est undefined
+	*/
 	var Dict = compose({
+		initValue: function(initArg) {
+			return initArg || {};
+		},
 		computeValue: function(changeArg, initValue) {
 			var self = this;
 			var value = initValue;

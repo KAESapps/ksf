@@ -4,6 +4,9 @@ define([
 	compose
 ){
 	var Value = compose({
+		initValue: function(initValue) {
+			return initValue;
+		},
 		computeValue: function(changeArg, initValue) {
 			return changeArg;
 		},

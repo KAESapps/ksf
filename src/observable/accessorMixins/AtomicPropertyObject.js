@@ -28,8 +28,11 @@ define([
 	var AtomicPropertyObject = compose(function(properties) {
 		this.ctr = compose({
 			_accessorFactories: {},
-			value: function(value) {
+			value: function() {
 				return this._getValue();
+			},
+			change: function(changeArg) {
+				this._change(changeArg);
 			},
 			onChange: function(cb) {
 				return this._onChange(cb);

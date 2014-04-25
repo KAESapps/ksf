@@ -6,6 +6,7 @@ define([
 	'../Array',
 	'../ValueOr',
 	'../IncrementalPropertyObject',
+	'../PropertyObjectOrUndefined',
 
 ], function(
 	registerSuite,
@@ -14,7 +15,8 @@ define([
 	Value,
 	Array,
 	ValueOr,
-	IncrementalPropertyObject
+	IncrementalPropertyObject,
+	PropertyObjectOrUndefined
 ){
 
 
@@ -365,27 +367,45 @@ define([
 
 	var computer;
 	registerSuite({
-		name: 'basic property object',
+		name: 'incremental property object',
 		'beforeEach': function() {
 			computer = new IncrementalPropertyObject({
 				dataTime: new Value(),
-				lastRequestStatus: new ValueOr(new IncrementalPropertyObject({
+				lastRequestStatus: new PropertyObjectOrUndefined({
 					started: new Value(),
 					finished: new Value(),
-				})),
+				}),
 			});
 		},
-		'replace lastRequestStatus completely': function() {
+		'init value without arg': function() {
+			var initValue = computer.initValue();
+			assert.deepEqual(initValue, {
+				dataTime: undefined,
+				lastRequestStatus: undefined,
+			});
+		},
+		'init value with arg': function() {
+			var initValue = computer.initValue({
+				lastRequestStatus: {
+					started: "started",
+				}
+			});
+			assert.deepEqual(initValue, {
+				dataTime: undefined,
+				lastRequestStatus: {
+					started: "started",
+					finished: undefined,
+				},
+			});
+		},
+		'patch lastRequestStatus from undefined': function() {
 			var initValue = {
 				dataTime: 'dataTime',
 				lastRequestStatus: undefined,
 			};
 			var changeArg = {
 				lastRequestStatus: {
-					value: {
-						started: 'started',
-						finished: 'finished',
-					}
+					started: 'started',
 				}
 			};
 			var value = computer.computeValue(changeArg, initValue);
@@ -393,11 +413,11 @@ define([
 				dataTime: 'dataTime',
 				lastRequestStatus: {
 					started: 'started',
-					finished: 'finished',
+					finished: undefined,
 				}
 			});
 		},
-		'patch lastRequestStatus': function() {
+		'patch lastRequestStatus from not undefined': function() {
 			var initValue = {
 				dataTime: 'dataTime',
 				lastRequestStatus: {
@@ -407,9 +427,7 @@ define([
 			};
 			var changeArg = {
 				lastRequestStatus: {
-					change: {
-						finished: 'finished',
-					}
+					finished: 'finished',
 				}
 			};
 			var value = computer.computeValue(changeArg, initValue);

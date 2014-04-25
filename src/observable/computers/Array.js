@@ -3,20 +3,22 @@ define([
 ], function(
 	compose
 ){
+	// attention, non fonctionnel, il faudrait trier les clés pour les add et les remove, savoir quand il faut faire les move, ... pas simple
 	var Array = compose(function(item) {
 		this._item = item;
 	}, {
+		initValue: function(initArg) {
+			var item = this._item;
+			return initArg.map(function(itemInitArg) {
+				return item.initValue(itemInitArg);
+			});
+		},
 		computeValue: function(changeArg, initValue) {
-			var self = this;
+			var item = this._item;
 			var value = initValue;
 			if (changeArg.change) {
 				Object.keys(changeArg.change).forEach(function(index) {
-					var changeAtIndex = changeArg.change[index];
-					if (changeAtIndex.value) {
-						value[index] = changeAtIndex.value;
-					} else if (changeAtIndex.change) {
-						value[index] = self._item.computeValue(changeAtIndex.change, initValue[index]);
-					}
+					value[index] = item.computeValue(changeArg.change[index], initValue[index]);
 				});
 			}
 			if (changeArg.remove) {
@@ -26,9 +28,10 @@ define([
 			}
 			if (changeArg.add) {
 				Object.keys(changeArg.add).forEach(function(index) {
-					value.splice(index, 0, changeArg.add[index]);
+					value.splice(index, 0, item.initValue(changeArg.add[index]));
 				});
 			}
+			if (changeArg.move) {}
 			return value;
 		},
 	});

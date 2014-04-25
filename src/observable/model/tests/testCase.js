@@ -305,11 +305,14 @@ define([
 		name: 'AtomicPropertyObject',
 		"no init value": function() {
 			var site = new Site();
-			assert.deepEqual(site.value(), {});
+			assert.deepEqual(site.value(), {
+				nom: undefined,
+				surface: undefined,
+			});
 		},
 		"change value": function() {
 			var site = new Site();
-			site.value({
+			site.change({
 				nom: "site 1",
 				surface: 45.3,
 			});
@@ -324,7 +327,7 @@ define([
 			site.onChange(function(value) {
 				observedValues.push(value);
 			});
-			site.value({
+			site.change({
 				nom: "site 1",
 				surface: 45.3,
 			});

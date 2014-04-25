@@ -8,8 +8,9 @@ define([
 	var StatefulFactory = compose(function(model) {
 		this.ctr = compose(_Stateful, model.accessorMixin, {
 			_computer: model.computer,
-		}, function(data) {
-			this._value = arguments.length ? data : model.defaultValue();
+		}, function(initArg) {
+			var computer = this._computer;
+			this._value = arguments.length ? computer.initValue(initArg) : computer.initValue();
 		});
 	});
 	return StatefulFactory;

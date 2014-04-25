@@ -2,7 +2,7 @@ define([
 	'intern!object',
 	'intern/chai!assert',
 	'../Store',
-	'../PropertyObject',
+	'../IncrementalPropertyObject',
 	'../Value',
 
 ], function(
@@ -20,7 +20,21 @@ define([
 
 	registerSuite({
 		name: 'store',
-
+		'initValue without arg': function() {
+			var value = siteStore.initValue();
+			assert.deepEqual(value, {});
+		},
+		'initValue with arg': function() {
+			var value = siteStore.initValue({
+				1: {nom: "site 1"},
+			});
+			assert.deepEqual(value, {
+				1: {
+					nom: "site 1",
+					description: undefined,
+				},
+			});
+		},
 		'patch one site': function() {
 			var initValue = {
 				0: {nom: 'site 1', description: "Description du site 1"},
@@ -30,9 +44,7 @@ define([
 			var changeArg = {
 				1: {
 					change: {
-						nom: {
-							value: 'nouveau nom du site 2',
-						}
+						nom: 'nouveau nom du site 2',
 					}
 				}
 			};

@@ -4,6 +4,9 @@ define([
 	compose
 ){
 	var Dict = compose({
+		initValue: function(initArg) {
+			return initArg || {};
+		},
 		computeValue: function(changeArg, initValue) {
 			var self = this;
 			var value = initValue;

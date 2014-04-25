@@ -9,6 +9,7 @@ define([
 ){
 
 	var IncrementalPropertyObject = compose(function(properties, Computer) {
+		this._properties = properties;
 		var computers = {},
 			accessorMixins = {};
 		Object.keys(properties).forEach(function(prop) {
@@ -23,7 +24,13 @@ define([
 		this.accessorMixin = new IncrementalPropertyObjectAccessorMixin(accessorMixins).ctr;
 	}, {
 		defaultValue: function() {
-			return {};
+			var ret = {};
+			var properties = this._properties;
+			Object.keys(properties).forEach(function(key) {
+				var prop = properties[key];
+				ret[key] = prop.defaultValue();
+			});
+			return ret;
 		},
 	});
 	return IncrementalPropertyObject;

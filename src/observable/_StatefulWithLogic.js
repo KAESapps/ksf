@@ -14,6 +14,7 @@ define([
 			changeArg = this._computer.computeChangeArg(changeArg, this._value);
 			this._value = this._computer.computeValue(changeArg, this._value);
 			this._emit('change', changeArg);
+			return changeArg;
 		},
 		_onChange: function(cb) {
 			return this._on('change', cb);

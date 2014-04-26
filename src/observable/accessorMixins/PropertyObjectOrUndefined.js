@@ -17,7 +17,7 @@ define([
 		_change: function(changeArg) {
 			var sourceChangeArg = {};
 			sourceChangeArg[this._key] = changeArg;
-			this._source._change(sourceChangeArg);
+			return this._source._change(sourceChangeArg);
 		},
 		_onChange: function(cb) {
 			var key = this._key;

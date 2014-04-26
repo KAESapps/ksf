@@ -13,7 +13,9 @@ define([
 		var computers = {},
 			accessorMixins = {};
 		Object.keys(properties).forEach(function(prop) {
-			computers[prop] = properties[prop].computer;
+			if (properties[prop].computer) {
+				computers[prop] = properties[prop].computer;
+			}
 			accessorMixins[prop] = properties[prop].accessorMixin;
 		});
 		if (Computer) {  // le computer est injectable

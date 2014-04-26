@@ -13,7 +13,7 @@ define([
 		_change: function(changeArg) {
 			var sourceChangeArg = {};
 			sourceChangeArg[this._key] = changeArg;
-			this._source._change(sourceChangeArg);
+			return this._source._change(sourceChangeArg);
 		},
 		_onChange: function(cb) {
 			var key = this._key;
@@ -25,7 +25,31 @@ define([
 		},
 	});
 
-	var IncrementalPropertyObject = compose(function(properties) {
+	var ComputedPropertyAccessor = compose(function(source) {
+		this._source = source;
+	}, {
+		_getValue: function() {
+			var props = this._props;
+			var sourceValue = this._source._getValue();
+			var values = props.map(function(prop) {
+				return sourceValue[prop];
+			});
+			return this._computeFn.apply(null, values);
+		},
+		_onChange: function(cb) {
+			var self = this;
+			var props = this._props;
+			return this._source._onChange(function(sourceChanges) {
+				if (props.some(function(prop) {
+					return prop in sourceChanges;
+				})) {
+					cb(self._getValue());
+				}
+			});
+		},
+	});
+
+	var IncrementalPropertyObject = compose(function(properties, computedProps) {
 		this.ctr = compose({
 			_accessorFactories: {},
 			value: function(value) {
@@ -35,7 +59,7 @@ define([
 				return this._onChange(cb);
 			},
 			patch: function(changeArg) {
-				this._change(changeArg);
+				return this._change(changeArg);
 			},
 			prop: function(prop) {
 				return new (this._accessorFactories[prop])(this, prop);
@@ -46,9 +70,13 @@ define([
 			this.addProperty(prop, properties[prop]);
 		}, this);
 	}, {
-		addProperty: function(prop, AccessorAPI) {
-			this.ctr.prototype._accessorFactories[prop] = compose(BasicPropObjPropertyAccessor, AccessorAPI);
-		}
+		addProperty: function(key, AccessorAPI) {
+			if (AccessorAPI.isComputedProperty) {
+				this.ctr.prototype._accessorFactories[key] = compose(ComputedPropertyAccessor, AccessorAPI);
+			} else {
+				this.ctr.prototype._accessorFactories[key] = compose(BasicPropObjPropertyAccessor, AccessorAPI);
+			}
+		},
 	});
 	return IncrementalPropertyObject;
 });

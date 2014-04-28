@@ -1,9 +1,10 @@
 define([], function() {
 	return {
 		size: function() {
+			var compStyle = getComputedStyle(this.domNode);
 			return {
-				height: this.domNode.offsetHeight,
-				width: this.domNode.offsetWidth
+				height: parseFloat(compStyle.getPropertyValue('height')),
+				width: parseFloat(compStyle.getPropertyValue('width'))
 			};
 		}
 	};

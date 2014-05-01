@@ -93,11 +93,8 @@ define([
 		_item: function(key) {
 			return this._source._item(key);
 		},
-		onValue: function(cb) {
-			var self = this;
-			return this._onChange(function() {
-				cb(self._getValue());
-			});
+		onChange: function(cb) {
+			return this._onChange(cb);
 		},
 		count: function() {
 			return new CountAccessor(this);
@@ -147,7 +144,7 @@ define([
 		sort: function(sortFn) {
 			return new SortedAccessor(this, sortFn);
 		},
-		onChanges: function(cb) {
+		onChange: function(cb) {
 			return this._onChange(cb);
 		},
 	});
@@ -162,6 +159,12 @@ define([
 			return Object.keys(source).sort(function(key1, key2) {
 				return compareFn(source[key1], source[key2]);
 			});
+		},
+		value: function() {
+			return this._getValue();
+		},
+		item: function(key) {
+			return this._item(key);
 		},
 		items: function() {
 			return this._getValue().map(function(key) {

@@ -13,6 +13,9 @@ define([
 		if (typeof val === 'boolean') {
 			return val;
 		}
+		if (val instanceof Date) {
+			return JSON.stringify(val);
+		}
 		return '';
 	}
 
@@ -20,9 +23,12 @@ define([
 		return array.map(value2csv).toString() + '\r\n';
 	}
 
+	/**
+	Convert an array of items (objects with same shape) to a CSV string
+	Column titles of header line are picked from first item
+	*/
 	function convert2csv(array) {
 		// header line
-		// get columns title from first item
 		var keys = Object.keys(array[0]);
 		var header = array2csvLine(keys);
 

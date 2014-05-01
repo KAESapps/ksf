@@ -17,7 +17,6 @@ define([
 			_props: props,
 			_computeFn: computeFn,
 		});
-		this.ctr.isComputedProperty = true;
 	});
 	return Value;
 });

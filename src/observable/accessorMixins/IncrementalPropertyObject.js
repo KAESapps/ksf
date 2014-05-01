@@ -13,7 +13,7 @@ define([
 		_change: function(changeArg) {
 			var sourceChangeArg = {};
 			sourceChangeArg[this._key] = changeArg;
-			return this._source._change(sourceChangeArg);
+			return this._source._change(sourceChangeArg)[this._key];
 		},
 		_onChange: function(cb) {
 			var key = this._key;
@@ -49,7 +49,7 @@ define([
 		},
 	});
 
-	var IncrementalPropertyObject = compose(function(properties, computedProps) {
+	var IncrementalPropertyObject = compose(function(properties, computedProperties) {
 		this.ctr = compose({
 			_accessorFactories: {},
 			value: function(value) {
@@ -69,13 +69,15 @@ define([
 		Object.keys(properties).forEach(function(prop) {
 			this.addProperty(prop, properties[prop]);
 		}, this);
+		computedProperties && Object.keys(computedProperties).forEach(function(prop) {
+			this.addComputedProperty(prop, computedProperties[prop]);
+		}, this);
 	}, {
 		addProperty: function(key, AccessorAPI) {
-			if (AccessorAPI.isComputedProperty) {
-				this.ctr.prototype._accessorFactories[key] = compose(ComputedPropertyAccessor, AccessorAPI);
-			} else {
-				this.ctr.prototype._accessorFactories[key] = compose(BasicPropObjPropertyAccessor, AccessorAPI);
-			}
+			this.ctr.prototype._accessorFactories[key] = compose(BasicPropObjPropertyAccessor, AccessorAPI);
+		},
+		addComputedProperty: function(key, AccessorMixin) {
+			this.ctr.prototype._accessorFactories[key] = compose(ComputedPropertyAccessor, AccessorMixin);
 		},
 	});
 	return IncrementalPropertyObject;

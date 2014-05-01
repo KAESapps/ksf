@@ -6,7 +6,7 @@ define([
 	var ValueAPI = {
 		value: function(value) {
 			if (arguments.length) {
-				this._change(value);
+				return this._change(value);
 			} else {
 				return this._getValue();
 			}

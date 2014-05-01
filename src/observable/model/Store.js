@@ -7,13 +7,9 @@ define([
 	StoreComputer,
 	StoreAccessorMixin
 ){
-	var Store = compose(function(itemModel) {
+	var Store = compose(function(itemModel, aggregates) {
 		this.computer = new StoreComputer(itemModel.computer);
-		this.accessorMixin = new StoreAccessorMixin(itemModel.accessorMixin).ctr;
-	}, {
-		defaultValue: function() {
-			return {};
-		},
+		this.accessorMixin = new StoreAccessorMixin(itemModel.accessorMixin, aggregates).ctr;
 	});
 	return Store;
 });

@@ -5,6 +5,7 @@ require.config({
 	},
 	packages: [
 		{ name: 'es6-shim', location: 'es6-shim', main: 'es6-shim' },
+		{ name: 'Absurd', location: 'absurd/client-side/build', main: 'absurd.min' }
 	],
 	map: {
 		'ksf': {

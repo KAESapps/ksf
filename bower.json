@@ -4,7 +4,8 @@
   "dependencies": {
     "dojo": "1.9.3",
     "lodash-amd": "2.X",
-    "requirejs-text": "2.0.10"
+    "requirejs-text": "2.0.10",
+    "absurd": "latest"
   },
   "homepage": "https://github.com/KAESapps/ksf",
   "authors": [

@@ -3,9 +3,11 @@ define([
 ], function(
 	compose
 ){
-	var Value = compose({
+	var Value = compose(function(defaultValue) {
+		this._defaultValue = defaultValue;
+	}, {
 		initValue: function(initValue) {
-			return initValue;
+			return arguments.length ? initValue : this._defaultValue;
 		},
 		computeValue: function(changeArg, initValue) {
 			return changeArg;

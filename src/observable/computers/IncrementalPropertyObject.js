@@ -8,10 +8,11 @@ define([
 	}, {
 		initValue: function(initArg) {
 			var value = {};
+			var argumentsLength = arguments.length;
 			var properties = this._properties;
 			Object.keys(properties).forEach(function(key) {
 				var property = properties[key];
-				value[key] = property.initValue(initArg && initArg[key]);
+				value[key] = argumentsLength ? property.initValue(initArg && initArg[key]) : property.initValue();
 			});
 			return value;
 		},

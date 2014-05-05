@@ -7,13 +7,9 @@ define([
 	ValueComputer,
 	ValueAccessorMixin
 ){
-	var Value = compose(function() {
-		this.computer = new ValueComputer();
+	var Value = compose(function(defaultValue) {
+		this.computer = new ValueComputer(defaultValue);
 		this.accessorMixin = new ValueAccessorMixin().ctr;
-	}, {
-		defaultValue: function() {
-			return undefined;
-		},
 	});
 	return Value;
 });

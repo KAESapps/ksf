@@ -13,12 +13,16 @@ define([
 		add: function(value, key) {
 			var changeArg = {};
 			changeArg[key] = {add: value};
-			return this._change(changeArg);
+			var changes = this._change(changeArg);
+			return Object.keys(changes)[0];
 		},
 		remove: function(key) {
 			var changeArg = {};
 			changeArg[key] = {remove: true};
 			return this._change(changeArg);
+		},
+		onChange: function(cb) {
+			return this._onChange(cb);
 		},
 	};
 

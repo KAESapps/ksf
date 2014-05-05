@@ -11,9 +11,11 @@ define([], function() {
 		_emit: function(type, event){
 			var listeners = this._listeners && this._listeners[type];
 			if (listeners) {
+				listeners = listeners.slice(0);
 				var length = listeners.length;
-				for (var i=0; i < length; i++) {
-					listeners[i](event);
+				var i=0;
+				while (i < length) {
+					listeners[i++](event);
 				}
 			}
 		}

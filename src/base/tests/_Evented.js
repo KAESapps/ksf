@@ -23,7 +23,7 @@ define([
 		},
 		"one listener": function(){
 			var observedEvents = [];
-			o.on('value', function(ev){
+			o._on('value', function(ev){
 				observedEvents.push(ev);
 			});
 			o._emit('value', "hello");
@@ -34,10 +34,10 @@ define([
 		"many listeners": function(){
 			var observedEvents1 = [];
 			var observedEvents2 = [];
-			o.on('value', function(ev){
+			o._on('value', function(ev){
 				observedEvents1.push(ev);
 			});
-			o.on('value', function(ev){
+			o._on('value', function(ev){
 				observedEvents2.push(ev);
 			});
 			o._emit('value', "hello");
@@ -51,10 +51,10 @@ define([
 		"remove one listener from many": function() {
 			var observedEvents1 = [];
 			var observedEvents2 = [];
-			var canceler1 = o.on('value', function(ev){
+			var canceler1 = o._on('value', function(ev){
 				observedEvents1.push(ev);
 			});
-			o.on('value', function(ev){
+			o._on('value', function(ev){
 				observedEvents2.push(ev);
 			});
 			canceler1();
@@ -65,6 +65,27 @@ define([
 				"hello",
 			]);
 		},
+		'listening once': function() {
+			var observedEvents1 = [];
+			var observedEvents2 = [];
+			var canceler1 = o._on('value', function(ev){
+				canceler1();
+				observedEvents1.push(ev);
+			});
+			o._on('value', function(ev){
+				observedEvents2.push(ev);
+			});
+			o._emit('value', "ev1");
+			o._emit('value', "ev2");
+
+			assert.deepEqual(observedEvents1, [
+				"ev1",
+			]);
+			assert.deepEqual(observedEvents2, [
+				"ev1",
+				"ev2",
+			]);
+		}
 	});
 
 });

@@ -3,11 +3,9 @@ define([
 ], function(
 	compose
 ) {
-	function createId(name) {
-		name = name ? name + '-' : '';
-		return name + 'sxxxxxx'.replace(/x/g, function(c) {
-			return (Math.random()*16|0).toString(16);
-		});
+	var id = 0;
+	function createId() {
+		return 'kss' + id++;
 	}
 
 	var styleElement = document.createElement('style');
@@ -38,8 +36,8 @@ define([
 		}
 	};
 	
-	var Style = compose(function(css, options) {
-		this.id = createId(options && options.name);
+	return compose(function(css) {
+		this.id = createId();
 		
 		this.rule = document.createTextNode(css.replace(/#this/g, '.' + this.id));
 		rules.add(this.rule);
@@ -54,17 +52,28 @@ define([
 			applied -= 1;
 			updateCss();
 		},
-		applyParts: function(parts) {
-			for (var p in parts) {
-				this.applyPart(p, parts[p]);
+		applyState: function(domNode, state) {
+			domNode.classList.add(state);
+		},
+		unapplyState: function(domNode, state) {
+			domNode.classList.remove(state);
+		},
+/* TODO: useful?
+		//	Tag a child for referencing it in style description
+		tagChild: function(childNode, tag) {
+			childNode.classList.add(tag);
+		},
+		untagChild: function(childNode, tag) {
+			childNode.classList.remove(tag);
+		},
+		tagChildren: function(children) {
+			for (var tag in children) {
+				this.tagChild(children[tag], tag);
 			}
 		},
-		applyPart: function(part, domNode) {
-			domNode.classList.add(part);
-		},
+*/
 		destroy: function() {
 			rules.remove(this.rule);
 		}
 	});
-	return Style;
 });

@@ -52,7 +52,7 @@ define([
 	var IncrementalPropertyObject = compose(function(properties, computedProperties) {
 		this.ctr = compose({
 			_accessorFactories: {},
-			value: function(value) {
+			value: function() {
 				return this._getValue();
 			},
 			onChange: function(cb) {

@@ -8,7 +8,7 @@ define([
 
 	var serialize = JSON.stringify;
 	var deserialize = function(json) {
-		return JSON.parse(json, function(key, value) {
+		return json && JSON.parse(json, function(key, value) {
 			var match;
 			if (typeof value === 'string') {
 				match = jsonDateRx.exec(value);

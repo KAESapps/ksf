@@ -86,6 +86,9 @@ define([
 				}
 			});
 		},
+		delete: function() {
+			return this._source.remove(this._key);
+		},
 	});
 
 	// TODO: à découper
@@ -184,7 +187,6 @@ define([
 					initialCopy.splice(index, 1);
 				}
 			});
-			var self = this;
 			// insert new components and move current components
 			target.forEach(function(key, index) {
 				var currentItem = initialCopy[index];
@@ -379,7 +381,7 @@ define([
 			var computeFn = this._computeFn;
 			var source = this._source;
 			var sourceValue;
-			return this._source._onChange(function(changes, value) {
+			return this._source._onChange(function(changes) {
 				cb(mapValues(changes, function(change, itemKey) {
 					if (change.add) {
 						var value = clone(change.add);

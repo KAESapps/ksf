@@ -19,7 +19,7 @@ define([
 		remove: function(key) {
 			var changeArg = {};
 			changeArg[key] = {remove: true};
-			return this._change(changeArg);
+			return this._change(changeArg)[key];
 		},
 		onChange: function(cb) {
 			return this._onChange(cb);
@@ -65,13 +65,22 @@ define([
 		},
 	};
 
+	/**
+		Un itemAccessor permet d'accéder à la valeur d'un élément du store par id.
+		Potentiellement, on peut demander un itemAccessor pour un élément qui n'existe pas (son id n'est pas connu dans le store). Son _getValue renvoi alors 'undefined', c'est à dire qu'il ne répond pas (il pourrait même déclencher une erreur). Il pourrait avoir une méthode 'exists' qui permet de savoir s'il existe avant d'appeler '_getValue'.
+		C'est pourquoi, sur 'onChange', on récupère uniquement les changements de valeurs et pas l'événement de destruction. Il faut s'abonner à 'onDelete' pour savoir que l'élément a été supprimé sur le store, que 'exists()' va renvoyer 'faux' et qu'il ne faut pas appeler '_getValue' et qu'on ne peut pas appeler '_change' non plus
+	*/
 	var ItemAccessor = compose(function(source, key) {
 		this._source = source;
 		this._key = key;
 	}, {
+		_exists: function() {
+			return this._key in this._source._getValue();
+		},
 		_getValue: function() {
 			return this._source._getValue()[this._key];
 		},
+
 		_change: function(changeArg) {
 			var sourceChangeArg = {};
 			sourceChangeArg[this._key] = { change: changeArg };
@@ -81,13 +90,26 @@ define([
 			var key = this._key;
 			return this._source._onChange(function(sourceChanges) {
 				var itemChange = sourceChanges[key];
-				if (itemChange) {
+				if (itemChange && itemChange.change) {
 					cb(itemChange.change);
 				}
 			});
 		},
 		delete: function() {
 			return this._source.remove(this._key);
+		},
+		// la méthode 'create' n'est pas très utile, mais c'est pour montrer le parallèle avec 'delete' qui en sont en fait que des redirections vers 'add' et 'remove' de la source.
+		create: function() {
+			return this._source.add(this._key);
+		},
+		onDelete: function(cb) {
+			var key = this._key;
+			return this._source._onChange(function(sourceChanges) {
+				var itemChange = sourceChanges[key];
+				if (itemChange && itemChange.remove) {
+					cb();
+				}
+			});
 		},
 	});
 

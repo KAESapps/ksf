@@ -95,7 +95,7 @@ define([
 				}
 			});
 		},
-		delete: function() {
+		'delete': function() {
 			return this._source.remove(this._key);
 		},
 		// la méthode 'create' n'est pas très utile, mais c'est pour montrer le parallèle avec 'delete' qui en sont en fait que des redirections vers 'add' et 'remove' de la source.

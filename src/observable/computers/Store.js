@@ -51,7 +51,9 @@ define([
 					}
 				}
 				if (changeAtKey.change) {
-					changeAtKey.change = item.computeChangeArg && item.computeChangeArg(changeAtKey.change, initValue[key]);
+					if (item.computeChangeArg) {
+						changeAtKey.change = item.computeChangeArg(changeAtKey.change, initValue[key]);
+					}
 				}
 			}
 			return changeArg;

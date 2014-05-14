@@ -7,20 +7,24 @@ define([
 		this._source = source;
 		this._key = key;
 	}, {
-		value: function() {
+		value: function(value) {
+			if (arguments.length) {
+				return this._change(value);
+			}
 			var sourceValue = this._source._getValue();
 			return sourceValue[this._key];
 		},
-		_change: function(changeArg) {
+		_change: function(value) {
 			var sourceChangeArg = {};
-			sourceChangeArg[this._key] = changeArg;
-			return this._source._change(sourceChangeArg)[this._key];
+			sourceChangeArg[this._key] = { value: value };
+			return this._source._change(sourceChangeArg)[this._key].value;
 		},
 		onChange: function(cb) {
 			var key = this._key;
 			return this._source._onChange(function(sourceChanges) {
-				if (key in sourceChanges) {
-					cb(sourceChanges[key]);
+				var itemChange = sourceChanges[key];
+				if (itemChange && itemChange.value) {
+					cb(itemChange.value);
 				}
 			});
 		},

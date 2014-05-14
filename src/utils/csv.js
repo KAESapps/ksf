@@ -11,7 +11,7 @@ define([
 			return val;
 		}
 		if (typeof val === 'boolean') {
-			return val;
+			return val ? 1 : 0;
 		}
 		if (val instanceof Date) {
 			return JSON.stringify(val);
@@ -25,17 +25,32 @@ define([
 
 	/**
 	Convert an array of items (objects with same shape) to a CSV string
-	Column titles of header line are picked from first item
+	Column titles of header line are picked from first item if no columnsConfig is provided
 	*/
-	function convert2csv(array) {
+	function convert2csv(array, columnsConfig) {
+		if (!columnsConfig) {
+			columnsConfig = Object.keys(array[0]);
+		}
+		var columns = columnsConfig.map(function(col) {
+			if (typeof(col) === 'string') {
+				return {
+					id: col,
+					label: col
+				};
+			} else {
+				return col;
+			}
+		});
+		
 		// header line
-		var keys = Object.keys(array[0]);
-		var header = array2csvLine(keys);
+		var header = array2csvLine(columns.map(function(col) {
+			return col.label;
+		}));
 
 		// body
 		var body = array.reduce(function(csv, item) {
-			var values = keys.map(function(key) {
-				return item[key];
+			var values = columns.map(function(col) {
+				return item[col.id];
 			});
 			return csv += array2csvLine(values);
 		}, '');

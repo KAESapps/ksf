@@ -55,13 +55,13 @@ define([
 		prop: function(prop) {
 			return new (this._getPropAccessorFactory(prop))(this);
 		},
-		csv: function() {
+		csv: function(columnsConfig) {
 			var storeValue = this._getValue();
 			return convert2csv(Object.keys(storeValue).map(function(key) {
 				var itemValue = clone(storeValue[key]);
 				itemValue.id = key;
 				return itemValue;
-			}));
+			}), columnsConfig);
 		},
 	};
 

@@ -34,6 +34,9 @@ define([
 		filter: function(filterFn) {
 			return new FilterAccessor(this, filterFn);
 		},
+		sub: function(prop, value) {
+			return new SubStoreAccessor(this, prop, value);
+		},
 		sort: function(sortFn) {
 			return new SortedAccessor(this, sortFn);
 		},
@@ -62,6 +65,9 @@ define([
 				itemValue.id = key;
 				return itemValue;
 			}), columnsConfig);
+		},
+		onChange: function(cb) {
+			return this._onChange(cb);
 		},
 	};
 
@@ -157,20 +163,25 @@ define([
 				}
 			});
 		},
-		_item: function(key) {
-			return this._source._item(key);
-		},
 		_getPropAccessorFactory: function(prop) {
 			return this._source._getPropAccessorFactories(prop);
 		},
-	},
-	// as filter accessor mixin
-	{
-		sort: function(sortFn) {
-			return new SortedAccessor(this, sortFn);
-		},
-		onChange: function(cb) {
-			return this._onChange(cb);
+	});
+
+	var SubStoreAccessor = compose(FilterAccessor, function(source, prop, value) {
+		this._filterProp = prop;
+		this._filterValue = value;
+		this._filterFn = function(itemValue) {
+			return itemValue[prop] === value;
+		};
+	}, {
+		add: function(value, key) {
+			value = value || {};
+			value[this._filterProp] = this._filterValue;
+			var changeArg = {};
+			changeArg[key] = {add: value};
+			var changes = this._source._change(changeArg);
+			return Object.keys(changes)[0];
 		},
 	});
 

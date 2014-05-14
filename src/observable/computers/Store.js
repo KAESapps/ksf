@@ -40,25 +40,23 @@ define([
 			var item = this._item;
 			// replace undefined key by a generated key
 			for (var key in changeArg) {
-				if (key === 'undefined') {
-					key = Math.random();
-					changeArg[key] = changeArg['undefined'];
-					delete changeArg['undefined'];
-				}
-			}
-			Object.keys(changeArg).forEach(function(key) {
 				var changeAtKey = changeArg[key];
 				// generate values for add
 				if ('add' in changeAtKey) {
 					changeAtKey.add = item.initValue(changeAtKey.add);
+					if (key === 'undefined') {
+						key = Math.random();
+						changeArg[key] = changeArg['undefined'];
+						delete changeArg['undefined'];
+					}
 				}
 				if (changeAtKey.change) {
 					changeAtKey.change = item.computeChangeArg && item.computeChangeArg(changeAtKey.change, initValue[key]);
 				}
-			});
-
+			}
 			return changeArg;
 		},
+
 	});
 	return Store;
 

@@ -8,17 +8,16 @@ define([
 			return initArg || {};
 		},
 		computeValue: function(changeArg, initValue) {
-			var self = this;
 			var value = initValue;
 			Object.keys(changeArg).forEach(function(key) {
 				var changeAtKey = changeArg[key];
-				if (changeAtKey.value) {
+				if ('value' in changeAtKey) {
 					value[key] = changeAtKey.value;
 				}
 				if (changeAtKey.remove) {
 					delete value[key];
 				}
-				if (changeAtKey.add) {
+				if ('add' in changeAtKey) {
 					value[key] = changeAtKey.add;
 				}
 			});

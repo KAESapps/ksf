@@ -44,29 +44,20 @@ define([
 		this._nameSpace = nameSpace;
 	}, {
 		get: function() {
-			var nameSpace = this._nameSpace;
-			var nameSpaceLength = nameSpace.length;
+			var self = this;
 			var ret = {};
-			Object.keys(localStorage).forEach(function(lsKey) {
-				if (lsKey.slice(0, nameSpaceLength) === nameSpace) {
-					var itemKey = lsKey.slice(nameSpaceLength+1);
-					ret[itemKey] = deserialize(localStorage[lsKey]);
-				}
+			this.keys().forEach(function(itemKey) {
+				ret[itemKey] = self.getItem(itemKey);
 			});
 			return ret;
 		},
 		set: function(value) {
 			var self = this;
-			var nameSpace = this._nameSpace;
-			var nameSpaceLength = nameSpace.length;
-			Object.keys(localStorage).forEach(function(lsKey) {
-				if (lsKey.slice(0, nameSpaceLength) === nameSpace) {
-					var itemKey = lsKey.slice(nameSpaceLength+2);
-					if (itemKey in value) {
-						self.setItem(itemKey, value[itemKey]);
-					} else {
-						self.removeItem(itemKey);
-					}
+			this.keys().forEach(function(itemKey) {
+				if (itemKey in value) {
+					self.setItem(itemKey, value[itemKey]);
+				} else {
+					self.removeItem(itemKey);
 				}
 			});
 		},
@@ -76,15 +67,28 @@ define([
 			return deserialize(json);
 		},
 		setItem: function(itemKey, value) {
-			// console.time('stringify');
 			var json = serialize(value);
-			// console.timeEnd('stringify');
-			// console.time('store');
 			localStorage.setItem(this._nameSpace+'/'+itemKey, json);
-			// console.timeEnd('store');
 		},
 		removeItem: function(itemKey) {
 			localStorage.removeItem(this._nameSpace+'/'+itemKey);
+		},
+		clear: function() {
+			var self = this;
+			this.keys().forEach(function(key) {
+				self.removeItem(key);
+			});
+		},
+		keys: function() {
+			var nameSpace = this._nameSpace;
+			var nameSpaceLength = nameSpace.length;
+			return Object.keys(localStorage).reduce(function(itemKeys, lsKey) {
+				if (lsKey.slice(0, nameSpaceLength) === nameSpace) {
+					var itemKey = lsKey.slice(nameSpaceLength+1);
+					itemKeys.push(itemKey);
+				}
+				return itemKeys;
+			}, []);
 		},
 	});
 

@@ -144,7 +144,7 @@ define([
 			var ret = {};
 			Object.keys(value).forEach(function(key) {
 				var item = value[key];
-				if (self._filterFn(item)) {
+				if (self._filterFn(item, key)) {
 					ret[key] = item;
 				}
 			});
@@ -165,6 +165,9 @@ define([
 		},
 		_getPropAccessorFactory: function(prop) {
 			return this._source._getPropAccessorFactories(prop);
+		},
+		item: function(key) {
+			return this._item(key);
 		},
 	});
 

@@ -23,7 +23,7 @@ define([
 			var key = this._key;
 			return this._source._onChange(function(sourceChanges) {
 				var itemChange = sourceChanges[key];
-				if (itemChange && itemChange.value) {
+				if (itemChange && 'value' in itemChange) {
 					cb(itemChange.value);
 				}
 			});

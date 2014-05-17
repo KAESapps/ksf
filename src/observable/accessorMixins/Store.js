@@ -132,7 +132,7 @@ define([
 		},
 	};
 
-	var FilterAccessor = compose(AccessorBase, function(source, filterFn) {
+	var FilterAccessor = compose(AccessorBase, StoreAccessorsAPI, function(source, filterFn) {
 		this._source = source;
 		this._filterFn = filterFn;
 	},

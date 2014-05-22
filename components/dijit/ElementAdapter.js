@@ -28,7 +28,7 @@ define([
 			},
 
 			_dijitResize: function() {
-				this._dijit.resize();
+				this._dijit.resize && this._dijit.resize();
 			},
 
 			on: function(eventName, callback) {

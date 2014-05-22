@@ -1,6 +1,5 @@
 {
   "name": "ksf",
-  "version": "0.1.0",
   "dependencies": {
     "dojo": "1.9.1",
     "compose": "kriszyp/compose#e247957d59efb4966b8f94e964202b93022513b4",

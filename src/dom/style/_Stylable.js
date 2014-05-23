@@ -8,7 +8,9 @@ define([
 	};
 	_Stylable.prototype = {
 		style: function(style) {
+			this.hasOwnProperty('_style') && this._style.unapply(this.domNode);
 			style.apply(this.domNode);
+			this._style = style;
 		}
 	};
 

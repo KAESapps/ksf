@@ -186,6 +186,9 @@ define([
 			var changes = this._source._change(changeArg);
 			return Object.keys(changes)[0];
 		},
+		remove: function(key) {
+			return this._source.remove(key);
+		}
 	});
 
 	var SortedAccessor = compose(AccessorBase, function(source, compareFn) {

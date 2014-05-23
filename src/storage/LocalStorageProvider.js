@@ -53,12 +53,9 @@ define([
 		},
 		set: function(value) {
 			var self = this;
-			this.keys().forEach(function(itemKey) {
-				if (itemKey in value) {
-					self.setItem(itemKey, value[itemKey]);
-				} else {
-					self.removeItem(itemKey);
-				}
+			this.clear();
+			Object.keys(value).forEach(function(itemKey) {
+				self.setItem(itemKey, value[itemKey]);
 			});
 		},
 		getItem: function(itemKey) {

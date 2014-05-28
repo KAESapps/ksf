@@ -216,12 +216,13 @@ define([
 		_computeDiff: function(initial, target) {
 			var ret = [],
 				initialCopy = initial.slice();
-			initial.forEach(function(item){
-				if (target.indexOf(item) < 0) {
-					var index = initialCopy.indexOf(item);
+			initial.forEach(function(key){
+				if (target.indexOf(key) < 0) {
+					var index = initialCopy.indexOf(key);
 					ret.push({
 						type: 'remove',
-						index: index
+						index: index,
+						value: key,
 					});
 					initialCopy.splice(index, 1);
 				}
@@ -236,14 +237,17 @@ define([
 						ret.push({
 							type: 'add',
 							index: index,
-							value: key
+							value: key,
+							beforeKey: currentItem,
 						});
 						initialCopy.splice(index, 0, key);
 					} else {
 						ret.push({
 							type: 'move',
 							from: initialIndex,
-							to: index
+							to: index,
+							key: key,
+							beforeKey: currentItem,
 						});
 						initialCopy.splice(initialIndex, 1);
 						initialCopy.splice(index, 0, key);
@@ -459,7 +463,7 @@ define([
 		this._prop = prop;
 	}, {
 		value: function() {
-			var sourceValue = this._source.value();
+			var sourceValue = this._source._getValue();
 			var prop = this._prop;
 			return Object.keys(sourceValue).reduce(function(acc, itemKey) {
 				return acc + sourceValue[itemKey][prop];

@@ -310,7 +310,7 @@ define([
 			var parentValue = this._source._getValue();
 			return Object.keys(parentValue).length;
 		},
-		onValue: function(cb) {
+		onChange: function(cb) {
 			var self = this;
 			return this._source._onChange(function() {
 				cb(self._getValue());

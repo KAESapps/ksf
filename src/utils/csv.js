@@ -8,13 +8,13 @@ define([
 			return '"' + val + '"';
 		}
 		if (typeof val === 'number') {
-			return val;
+			return '"' + val.toLocaleString() + '"';
 		}
 		if (typeof val === 'boolean') {
 			return val ? 1 : 0;
 		}
 		if (val instanceof Date) {
-			return JSON.stringify(val);
+			return '"' + val.toLocaleString() + '"';
 		}
 		return '';
 	}

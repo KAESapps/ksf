@@ -46,10 +46,10 @@ define([
 						var rev = change.doc._rev;
 						revs[id] = rev;
 						if (change.deleted) {
-							console.log('store change deleted', change);
+							// console.log('store change deleted', change);
 							self._emit('change', [change.id, null]);
 						} else {
-							console.log('store change create/update', change);
+							// console.log('store change create/update', change);
 							self._emit('change', [id, change.doc.value]);
 						}
 					});
@@ -80,6 +80,7 @@ define([
 					// console.log('notification envoyée pendant le changement', resp);
 					return [key, value];
 				// sinon on attend qu'elle soit émise
+				// TODO: se pourrait-il qu'une autre mutation soit intervenue entre temps (via la réplication) et ait été notifiée (donc ait changé le numéro de révision) avant même que l'on éxécute ce code ? Si c'est le cas, il faudrait rechercher dans l'historique des révisions du document et résoudre le defered si il est présent
 				} else {
 					var dfd = new Deferred();
 					var cancel = self.onChange(function(change) {

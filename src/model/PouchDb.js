@@ -44,13 +44,18 @@ define([
 					}).on('change', function (change) {
 						var id = change.doc._id;
 						var rev = change.doc._rev;
-						revs[id] = rev;
 						if (change.deleted) {
 							// console.log('store change deleted', change);
-							// TODO: ne pas émettre si c'est la première fois que l'on voit ce document, c'est à dire qu'il arrive dans la base directement au statut 'deleted' lors d'une réplication
-							self._emit('change', [change.id, null]);
+							// ne pas émettre si c'est la première fois que l'on voit ce document, c'est à dire qu'il arrive dans la base directement au statut 'deleted' lors d'une réplication
+							if (id in revs) {
+								revs[id] = rev;
+								self._emit('change', [change.id, null]);
+							} else {
+								revs[id] = rev;
+							}
 						} else {
 							// console.log('store change create/update', change);
+							revs[id] = rev;
 							self._emit('change', [id, change.doc.value]);
 						}
 					});

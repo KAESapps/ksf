@@ -1,7 +1,9 @@
 define([
 	'compose',
+	'./Store',
 ], function(
-	compose
+	compose,
+	Store
 ){
 	function toLocaleString (s) {
 		if (s === undefined) { return ''; }
@@ -82,6 +84,10 @@ define([
 					oldLenght = newLength;
 				}
 			});
+		},
+		// TODO: à enlever lorsque l'on reverra l'API de ItemList. Cela devrait être fait par le itemFactory.
+		item: function(key) {
+			return new Store(this._store, key);
 		},
 	});
 	return Sorted;

@@ -2,7 +2,7 @@ define([
 	'compose',
 	'ksf/base/_Evented',
 	'dojo/Deferred',
-	'pouchdb/dist/pouchdb-2.2.3.min',
+	'pouchdb/dist/pouchdb-nightly',
 ], function(
 	compose,
 	_Evented,
@@ -47,6 +47,7 @@ define([
 						revs[id] = rev;
 						if (change.deleted) {
 							// console.log('store change deleted', change);
+							// TODO: ne pas émettre si c'est la première fois que l'on voit ce document, c'est à dire qu'il arrive dans la base directement au statut 'deleted' lors d'une réplication
 							self._emit('change', [change.id, null]);
 						} else {
 							// console.log('store change create/update', change);

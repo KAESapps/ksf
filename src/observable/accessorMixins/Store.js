@@ -466,7 +466,8 @@ define([
 			var sourceValue = this._source._getValue();
 			var prop = this._prop;
 			return Object.keys(sourceValue).reduce(function(acc, itemKey) {
-				return acc + sourceValue[itemKey][prop];
+				var sum = acc + sourceValue[itemKey][prop];
+				return isNaN(sum) ? acc : sum;
 			}, 0);
 		},
 		_onChange: function(cb) {

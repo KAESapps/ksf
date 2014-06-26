@@ -99,5 +99,9 @@ define([
 			return new IncrementalLocalStorage(this._nameSpace + '/' + nameSpace);
 		}
 	});
+
+	LocalStorageProvider.Store = IncrementalLocalStorage;
+	LocalStorageProvider.Item = LocalStorage;
+
 	return LocalStorageProvider;
 });

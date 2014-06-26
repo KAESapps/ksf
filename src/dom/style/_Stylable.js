@@ -11,6 +11,7 @@ define([
 			this.hasOwnProperty('_style') && this._style.unapply(this.domNode);
 			style.apply(this.domNode);
 			this._style = style;
+			return this;
 		}
 	};
 

@@ -4,18 +4,32 @@ define([
 	destroy
 ){
 	var _Destroyable = function(){
-		this._owned = [];
+		this._owned = {};
+		this._ownedAnonymous = [];
 	};
 	_Destroyable.prototype = {
-		own: function(o){
-			this._owned.push(o);
+		_own: function(o, key){
+			if (key) {
+				this._destroy(this._owned[key]);
+				this._owned[key] = o;
+			} else {
+				this._ownedAnonymous.push(o);
+			}
 			return o;
 		},
-		unown: function(o){
-			this._owned.splice([this._owned.indexOf(o)], 1);
+		_unown: function(key){
+			delete this._owned[key];
+		},
+		_destroy: function(key) {
+			var o = this._owned[key];
+			this._unown(key);
+			destroy(o);
 		},
 		destroy: function(){
-			destroy(this._owned);
+			destroy(this._ownedAnonymous);
+			for (var key in this._owned) {
+				destroy(this._owned[key]);
+			}
 			this._destroyed = true;
 		},
 	};

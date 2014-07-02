@@ -2,11 +2,13 @@ define([
 	'compose',
 	'lodash/objects/mapValues',
 	'lodash/objects/clone',
+	'lodash/objects/isEqual',
 	'ksf/utils/csv',
 ], function(
 	compose,
 	mapValues,
 	clone,
+	isEqual,
 	convert2csv
 ){
 	var StoreMutationAPI = {
@@ -174,9 +176,16 @@ define([
 	var SubStoreAccessor = compose(FilterAccessor, function(source, prop, value) {
 		this._filterProp = prop;
 		this._filterValue = value;
-		this._filterFn = function(itemValue) {
-			return itemValue[prop] === value;
-		};
+		if (typeof value === 'object') {
+			// deep compare
+			this._filterFn = function(itemValue) {
+				return isEqual(itemValue[prop], value);
+			};
+		} else {
+			this._filterFn = function(itemValue) {
+				return itemValue[prop] === value;
+			};
+		}
 	}, {
 		add: function(value, key) {
 			value = value || {};

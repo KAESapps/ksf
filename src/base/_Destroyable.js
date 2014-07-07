@@ -10,7 +10,7 @@ define([
 	_Destroyable.prototype = {
 		_own: function(o, key){
 			if (key) {
-				this._destroy(this._owned[key]);
+				this._destroy(key);
 				this._owned[key] = o;
 			} else {
 				this._ownedAnonymous.push(o);

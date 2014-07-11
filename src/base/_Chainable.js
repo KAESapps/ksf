@@ -1,13 +1,8 @@
-define([
-
-], function(
-
-){
-	var Chainable = {
+define([], function() {
+	return {
 		chain: function() {
 			this[arguments[0]].apply(this, Array.prototype.slice.call(arguments, 1));
 			return this;
 		}
 	};
-	return Chainable;
 });

@@ -2,15 +2,13 @@ define([
 	'compose',
 	'../../base/_Destroyable',
 	'../../base/_Evented',
-	'../_WithSize'
 ], function(
 	compose,
 	_Destroyable,
-	_Evented,
-	_WithSize
+	_Evented
 ){
-	return compose(_Destroyable, _Evented, _WithSize, function() {
-		this._root = this._own(this._rootFactory());
+	return compose(_Destroyable, _Evented, function() {
+		this._root = this._own(this._rootFactory.apply(this, arguments));
 		this.domNode = this._root.domNode;
 	}, {
 		inDom: function(inDom) {
@@ -19,5 +17,11 @@ define([
 		bounds: function(bounds) {
 			this._root.bounds && this._root.bounds(bounds);
 		},
+		size: function() {
+			return this._root.size();
+		},
+		position: function(position) {
+			return this._root.position(position);
+		}
 	});
 });

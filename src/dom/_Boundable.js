@@ -1,5 +1,8 @@
 define([], function() {
-	return {
+	var Boundable = function() {
+		this.domNode.style.boxSizing = 'border-box';
+	};
+	Boundable.prototype = {
 		bounds: function(bounds) {
 			var width = bounds && bounds.width || null;
 			var height = bounds && bounds.height || null;
@@ -8,4 +11,5 @@ define([], function() {
 			nodeStyle.height = isNaN(height) ? height : height && (height + 'px');
 		}
 	};
+	return Boundable;
 });

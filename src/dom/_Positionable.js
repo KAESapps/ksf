@@ -16,6 +16,7 @@ define([], function() {
 					nodeStyle[p] = position[p];
 				}
 				this._position = position;
+				return this;
 			}
 		}
 	};

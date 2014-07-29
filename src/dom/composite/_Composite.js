@@ -21,7 +21,12 @@ define([
 			return this._root.size();
 		},
 		position: function(position) {
-			return this._root.position(position);
+			var rootPos = this._root.position(position);
+			if (position === undefined) {
+				return rootPos;
+			} else {
+				return this;
+			}
 		}
 	});
 });

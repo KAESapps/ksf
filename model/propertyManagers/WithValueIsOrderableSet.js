@@ -18,7 +18,7 @@ define([
 		// the value is read only, so the setValue method does not change the value of the property
 		// it only changes the content of the value (it is an helper method)
 		this.setValue = function(rsc, items){
-			if (!items || !items.forEach || items.length === 0){return;}
+			if (!items || !items.forEach){return;}
 			var collection = this.getValue(rsc);
 
 			collection._startChanges();

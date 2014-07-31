@@ -45,7 +45,7 @@ define([
 				if ('add' in changeAtKey) {
 					changeAtKey.add = item.initValue(changeAtKey.add);
 					if (key === 'undefined') {
-						key = Math.random();
+						key = (Math.random()*1e16).toFixed();
 						changeArg[key] = changeArg['undefined'];
 						delete changeArg['undefined'];
 					}

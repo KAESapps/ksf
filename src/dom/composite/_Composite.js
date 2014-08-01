@@ -8,7 +8,7 @@ define([
 	_Evented
 ){
 	return compose(_Destroyable, _Evented, function() {
-		this._root = this._own(this._rootFactory.apply(this, arguments));
+		if (this._rootFactory) { this._root = this._own(this._rootFactory.apply(this, arguments)); }
 		this.domNode = this._root.domNode;
 	}, {
 		inDom: function(inDom) {

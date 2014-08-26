@@ -33,7 +33,7 @@ define([
 		value: function(value) {
 			if (arguments.length) {
 				var arg = {};
-				arg[this._key] = value;
+				arg[this._key] = (this._key in this._source.value()) ? {set: value} : {add: value};
 				return this._source.change(arg);
 			} else {
 				return this._value;

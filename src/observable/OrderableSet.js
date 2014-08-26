@@ -7,7 +7,7 @@ define([
 ) {
 	function add (value, key, beforeKey) {
 		var insertIndex;
-		if ('beforeKey' !== undefined) {
+		if (beforeKey !== undefined) {
 			var beforeKeyIndex = value.indexOf(beforeKey);
 			if (beforeKeyIndex < 0) {
 				throw new Error('beforeKey is not present in set', beforeKey, value);
@@ -59,6 +59,19 @@ define([
 				throw new Error('not implemented yet');
 			}
 			return this._value;
+		},
+		add: function(key, beforeKey) {
+			return this.change([{
+				type: 'add',
+				key: key,
+				beforeKey: beforeKey,
+			}]);
+		},
+		remove: function(key) {
+			return this.change([{
+				type: 'remove',
+				key: key,
+			}]);
 		},
 	});
 });

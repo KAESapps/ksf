@@ -11,10 +11,13 @@ define([], function() {
 			Object.keys(change).forEach(function(prop) {
 				var propChange = change[prop];
 				if ('add' in propChange) {
-					cbs.add.call(scope || null, prop, propChange.add);
+					cbs.add && cbs.add.call(scope || null, prop, propChange.add);
 				}
 				if ('remove' in propChange) {
-					cbs.remove.call(scope || null, prop);
+					cbs.remove && cbs.remove.call(scope || null, prop, propChange.remove);
+				}
+				if ('set' in propChange) {
+					cbs.set && cbs.set.call(scope || null, prop, propChange.set);
 				}
 			});
 		});

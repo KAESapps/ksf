@@ -1,12 +1,14 @@
 define([
 	'compose',
 	'../base/_Evented',
+	'lodash/arrays/zipObject',
 ], function(
 	compose,
-	_Evented
+	_Evented,
+	zipObject
 ) {
-	return compose(_Evented, function() {
-		this._value = {};
+	return compose(_Evented, function(initValue) {
+		this._value = initValue ? zipObject(initValue) : {};
 	}, {
 		// @param change objet de la forme {key1: 'add', key2: 'remove'}
 		change: function(change) {

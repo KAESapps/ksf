@@ -45,5 +45,17 @@ define([
 		onFocus: function(cb) {
 			return this._on('focus', cb);
 		},
+		blur: function() {
+			this._focusableCmps.some(function(cmpCancelerPair) {
+				if (cmpCancelerPair[0].focused()) {
+					cmpCancelerPair[0].blur();
+					return true;
+				}
+			});
+		},
+		focus: function() {
+			// default implementation that put focus on the first registered focusable
+			this._focusableCmps[0][0].focus();
+		},
 	};
 });

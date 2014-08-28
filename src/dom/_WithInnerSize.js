@@ -3,8 +3,8 @@ define([], function() {
 		_innerSize: function() {
 			var cs = getComputedStyle(this.domNode),
 				bb = cs.getPropertyValue('box-sizing') === 'border-box',
-				height = cs.getPropertyValue('height'),
-				width = cs.getPropertyValue('width');
+				height = this.domNode.clientHeight,
+				width = this.domNode.clientWidth;
 
 			if (height === 'auto' || width === 'auto') {
 				// means that display is not block or inline-block

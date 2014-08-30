@@ -26,8 +26,8 @@ define([
 					// TODO: vérifier que la clé n'existe pas déjà
 					value[key] = changeAtKey.add;
 				}
-				self._emit('change', change);
 			});
+			self._emit('change', change);
 		},
 		value: function() {
 			if (arguments.length) {

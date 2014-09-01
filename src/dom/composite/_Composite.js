@@ -16,6 +16,7 @@ define([
 		_setRoot: function(root) {
 			this._root = root;
 			this.domNode = root.domNode;
+			return root;
 		},
 		inDom: function(inDom) {
 			return this._root.inDom && this._root.inDom(inDom);

@@ -9,6 +9,7 @@ define([], function() {
 			var nodeStyle = this.domNode.style;
 			nodeStyle.width = isNaN(width) ? width : width && (width + 'px');
 			nodeStyle.height = isNaN(height) ? height : height && (height + 'px');
+			return this;
 		}
 	};
 	return Boundable;

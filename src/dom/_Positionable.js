@@ -1,20 +1,61 @@
 define([], function() {
 	return {
+		/* Positionable API:
+
+		- mode = absolute' | 'relative'
+		
+		# mode = 'absolute'
+		- left
+		- bottom
+		- right
+		- top
+		
+		# mode = 'relative'
+		- orientation: 'vertical' | 'horizontal'
+		- align: 'left' | 'right' | 'top' | 'bottom' | 'middle'
+
+		 */
 		position: function(position) {
+			// get
 			if (position === undefined) {
-				// get
 				return this._position;
+			// set
 			} else {
-				// set
-				var nodeStyle = this.domNode.style;
+				var nodeCss = this.domNode.style;
 				// reset previous
-				for (var p in this._position) {
-					nodeStyle[p] = null;
+				for (var p in this._positionPreviousStyles) {
+					nodeCss[p] = this._positionPreviousStyles[p];
 				}
+
 				// set new
-				for (p in position) {
-					nodeStyle[p] = position[p];
+				var positionCss = {};
+				this._positionPreviousCss = {};
+				
+				if (position.mode === 'absolute') {
+					positionCss.position = 'absolute';
+					positionCss.left = position.left;
+					positionCss.right = position.right;
+					positionCss.top = position.top;
+					positionCss.bottom = position.bottom;
 				}
+				else if (position.mode === 'relative') {
+					positionCss.position = 'relative';
+					if (position.orientation === 'horizontal') {
+						positionCss.display = 'inline-' + (nodeCss.display || 'block');
+						positionCss.verticalAlign = position.align;
+					} else {
+						positionCss.display = (nodeCss.display || 'block');
+					}
+				}
+				else {
+					positionCss = position;
+				}
+
+				for (p in positionCss) {
+					this._positionPreviousCss[p] = nodeCss[p];
+					nodeCss[p] = positionCss[p];
+				}
+
 				this._position = position;
 				return this;
 			}

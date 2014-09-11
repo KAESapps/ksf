@@ -11,14 +11,14 @@ define([], function() {
 				// probably a misuse, throw an exception
 				throw "Tried to measure a node that is not block or inline-block";
 			} else {
-				height = parseFloat(height);
+				height = Math.min(height, parseFloat(cs.getPropertyValue('height')));
 				if (bb) {
 					height -= parseFloat(cs.getPropertyValue('padding-top') || 0);
 					height -= parseFloat(cs.getPropertyValue('padding-bottom') || 0);
 					height -= parseFloat(cs.getPropertyValue('border-top-width') || 0);
 					height -= parseFloat(cs.getPropertyValue('border-bottom-width') || 0);	
 				}
-				width = parseFloat(width);
+				width = Math.min(width, parseFloat(cs.getPropertyValue('width')));
 				if (bb) {
 					width -= parseFloat(cs.getPropertyValue('padding-left') || 0);
 					width -= parseFloat(cs.getPropertyValue('padding-right') || 0);

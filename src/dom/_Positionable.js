@@ -45,6 +45,7 @@ define([], function() {
 						positionCss.verticalAlign = position.align;
 					} else {
 						positionCss.display = (nodeCss.display || 'block');
+						positionCss.textAlign = (position.align === 'middle') ? 'center' : position.align;
 					}
 				}
 				else {

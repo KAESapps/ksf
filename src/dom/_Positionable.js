@@ -45,7 +45,12 @@ define([], function() {
 						positionCss.verticalAlign = position.align;
 					} else {
 						positionCss.display = (nodeCss.display || 'block');
-						positionCss.textAlign = (position.align === 'middle') ? 'center' : position.align;
+						if (position.align === 'left' || position.align === 'middle') {
+							positionCss.marginRight = 'auto';
+						}
+						if (position.align === 'right' || position.align === 'middle') {
+							positionCss.marginLeft = 'auto';
+						}
 					}
 				}
 				else {

@@ -15,6 +15,7 @@ define([
 			return this._onChange(cb);
 		},
 	};
+	ValueAPI.change = ValueAPI.value;
 
 	var Value = compose(function() {
 		this.ctr = compose(ValueAPI);

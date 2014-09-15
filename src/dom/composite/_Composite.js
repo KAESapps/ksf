@@ -2,12 +2,14 @@ define([
 	'compose',
 	'../../base/_Destroyable',
 	'../../base/_Evented',
+	'../../base/_Chainable',
 ], function(
 	compose,
 	_Destroyable,
-	_Evented
+	_Evented,
+	_Chainable
 ){
-	return compose(_Destroyable, _Evented, function() {
+	return compose(_Destroyable, _Evented, _Chainable, function() {
 		if (this._rootFactory) {
 			this._root = this._own(this._rootFactory.apply(this, arguments));
 			this.domNode = this._root.domNode;

@@ -3,13 +3,13 @@ define([], function() {
 		/* Positionable API:
 
 		- mode = absolute' | 'relative'
-		
+
 		# mode = 'absolute'
 		- left
 		- bottom
 		- right
 		- top
-		
+
 		# mode = 'relative'
 		- orientation: 'vertical' | 'horizontal'
 		- align: 'left' | 'right' | 'top' | 'bottom' | 'middle'
@@ -30,7 +30,7 @@ define([], function() {
 				// set new
 				var positionCss = {};
 				this._positionPreviousCss = {};
-				
+
 				if (position.mode === 'absolute') {
 					positionCss.position = 'absolute';
 					positionCss.left = position.left;
@@ -39,7 +39,7 @@ define([], function() {
 					positionCss.bottom = position.bottom;
 				}
 				else if (position.mode === 'relative') {
-					positionCss.position = 'relative';
+					positionCss.position = nodeCss.position || null;
 					if (position.orientation === 'horizontal') {
 						positionCss.display = 'inline-' + (nodeCss.display || 'block');
 						positionCss.verticalAlign = position.align;

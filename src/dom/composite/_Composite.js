@@ -25,6 +25,7 @@ define([
 		},
 		bounds: function(bounds) {
 			this._root.bounds && this._root.bounds(bounds);
+			return this;
 		},
 		size: function() {
 			return this._root.size();

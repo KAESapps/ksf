@@ -24,8 +24,12 @@ define([
 			return this._root.inDom && this._root.inDom(inDom);
 		},
 		bounds: function(bounds) {
-			this._root.bounds && this._root.bounds(bounds);
-			return this;
+			var rootBounds = this._root.bounds && this._root.bounds(bounds);
+			if (bounds === undefined) {
+				return rootBounds;
+			} else {
+				return this;
+			}
 		},
 		size: function() {
 			return this._root.size();

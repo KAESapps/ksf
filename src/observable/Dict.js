@@ -55,6 +55,13 @@ define([
 			arg[key] = {set: value};
 			return this.change(arg);
 		},
+		setOrAdd: function(key, value) {
+			if (key in this._value) {
+				this.set(key, value);
+			} else {
+				this.add(key, value);
+			}
+		},
 	});
 
 });

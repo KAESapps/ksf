@@ -1,0 +1,24 @@
+{
+  "name": "ksf",
+  "version": "0.0.0",
+  "description": "KaeS Framework for modern web apps",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "deamdify": "~0.1.1"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/KAESapps/ksf.git"
+  },
+  "keywords": [
+    "kaes"
+  ],
+  "author": "Quentin Vuilliot <quentin.vuilliot@kaes.fr>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/KAESapps/ksf/issues"
+  }
+}

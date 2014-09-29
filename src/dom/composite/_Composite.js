@@ -1,5 +1,5 @@
 define([
-	'compose',
+	'../../utils/compose',
 	'../../base/_Destroyable',
 	'../../base/_Evented',
 	'../../base/_Chainable',

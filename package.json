@@ -1,0 +1,28 @@
+{
+  "name": "ksf",
+  "version": "0.0.0",
+  "description": "KaeS framework for modern web apps",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "lodash-node": "latest"
+  },
+  "devDependencies": {
+    "browserify": "latest",
+    "deamdify": "latest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/KAESapps/ksf.git"
+  },
+  "contributors": [
+    "Quentin Vuilliot <quentin.vuilliot@kaes.fr>",
+    "Sylvain Vuilliot <sylvain.vuilliot@kaes.fr>"
+  ],
+  "license": "MIT",
+  "browserify": {
+    "transform": ["deamdify"]
+  }
+
+}

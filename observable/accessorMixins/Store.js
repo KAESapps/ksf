@@ -1,8 +1,8 @@
 define([
 	'../../utils/compose',
-	'lodash/objects/mapValues',
-	'lodash/objects/clone',
-	'lodash/objects/isEqual',
+	'lodash-node/modern/objects/mapValues',
+	'lodash-node/modern/objects/clone',
+	'lodash-node/modern/objects/isEqual',
 	'../../utils/csv',
 ], function(
 	compose,

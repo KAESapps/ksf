@@ -1,7 +1,7 @@
 define([
-	'dojo/Deferred',
+	'when',
 ], function(
-	Deferred
+	when
 ){
 	/**
 

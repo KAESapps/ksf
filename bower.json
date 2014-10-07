@@ -2,10 +2,7 @@
   "name": "ksf",
   "version": "0.1.0",
   "dependencies": {
-    "dojo": "1.9.3",
     "lodash-amd": "2.X",
-    "requirejs-text": "2.0.10",
-    "absurd": "latest"
   },
   "homepage": "https://github.com/KAESapps/ksf",
   "authors": [

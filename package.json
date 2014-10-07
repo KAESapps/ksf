@@ -6,7 +6,9 @@
     "test": "tests"
   },
   "dependencies": {
-    "lodash-node": "latest"
+    "lodash-node": "~2.4",
+    "rest": "~1.2",
+    "when": "~3.5"
   },
   "devDependencies": {
     "browserify": "latest",

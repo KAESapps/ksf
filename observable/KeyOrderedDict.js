@@ -45,6 +45,9 @@ define([
 		onChange: function(cb) {
 			return this._on('change', cb);
 		},
+		add: function(key) {
+			return this._source.add(key, null);
+		}
 	});
 
 });

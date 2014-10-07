@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "dependencies": {
     "lodash-amd": "2.X",
+    "rest": "~1.2.0",
+    "when": "~3.5.0"
   },
   "homepage": "https://github.com/KAESapps/ksf",
   "authors": [

@@ -1,5 +1,5 @@
 define([
-	'rest',
+	'rest/browser',
 	'rest/interceptor/mime',
 	'rest/interceptor/errorCode',
 ], function(

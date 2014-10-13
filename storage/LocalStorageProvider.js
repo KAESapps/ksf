@@ -1,26 +1,12 @@
 define([
 	'../utils/compose',
+	'../utils/JSONParseWithDates'
 ], function(
-	compose
+	compose,
+	JSONParseWithDates
 ){
-
-	var jsonDateRx = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)(Z|([+\-])(\d{2}):(\d{2}))$/;
-
 	var serialize = JSON.stringify;
-	var deserialize = function(json) {
-		return json && JSON.parse(json, function(key, value) {
-			var match;
-			if (typeof value === 'string') {
-				match = jsonDateRx.exec(value);
-				if (match) {
-					return new Date(Date.UTC(
-						+match[1], +match[2] - 1, +match[3], +match[4], +match[5], +match[6])
-					);
-				}
-			}
-			return value;
-		});
-	};
+	var deserialize = JSONParseWithDates;
 
 	var LocalStorage = compose(function(nameSpace) {
 		this._nameSpace = nameSpace;

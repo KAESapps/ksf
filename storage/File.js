@@ -1,7 +1,9 @@
 define([
 	'when',
+	'../utils/JSONParseWithDates'
 ], function(
-	when
+	when,
+	JSONParseWithDates
 ){
 	/**
 
@@ -29,7 +31,7 @@ define([
 				var file = fileInput.files[0];
 				var reader = new FileReader();
 				reader.onload = function(ev) {
-					var data = JSON.parse(ev.target.result);
+					var data = JSONParseWithDates(ev.target.result);
 					deferred.resolve({
 						name: file.name,
 						data: data,

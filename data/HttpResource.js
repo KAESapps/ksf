@@ -1,16 +1,15 @@
 define([
 	'../utils/compose',
+	'../base/_Evented',
 	'../observable/Map',
 ], function(
 	compose,
+	_Evented,
 	Map
 ) {
-	return compose(function(httpClient) {
+	return compose(_Evented, function(httpClient, initValue) {
 		this._client = httpClient;
-		this._fullValue = new Map();
-		// ici on stocke la dernière requête qui a permi de mettre à jour 'fullValue'
-		// cela permet, lorsque fullValue n'a pas encore été initialisée de mutualiser les appels a GET qui seraient fait juste pour l'initialiser
-		this._lastFullValueRequest = null;
+		this._fullValue = new Map(initValue);
 	}, {
 		// observable value =====================
 		value: function() {
@@ -39,66 +38,67 @@ define([
 			});
 		},
 		// http methods ========================
-		get: function(noCache) {
-			var lastRequest = this._lastFullValueRequest;
-			// si on force un rafraichissement ou que fullValue n'a jamais été initialisée (ou n'est pas en cours d'initilisation), on fait une requête
-			if (noCache ||
-				!lastRequest
-			) {
-				var self = this;
-				this._lastFullValueRequest = this._client({
-					method: 'GET',
-				}).then(function(resp) {
-					self._fullValue.change({
-						valueTime: Date.now(),
-						value: resp.entity,
-						exists: true,
-					});
-					return resp;
-				}, function(resp) {
-					if (resp.statut.code === 404) {
-						self._fullValue.change({
-							valueTime: Date.now(),
-							value: null,
-							exists: false,
-						});
-					}
-					// TODO: comment rejeter le promise comme si on n'avait rien fait ?
-					return new Error(resp);
-				});
-				return this._lastFullValueRequest;
-			} else {
-				return lastRequest;
-			}
-		},
-		put: function(value) {
-			var self = this;
+		get: function() {
+			var fullValue = this._fullValue;
+			// TODO: faudrait-il gérer ici le fait qu'il puisse y avoir un appel à GET alors qu'un autre GET est déjà en cours ?
+			// et plus globalement qu'il y a déjà une requête en cours qui aura pour effet de mettre à jour  'fullValue' pour éviter d'en faire une autre (ou au contraire abandonner celle en cours)
 			var request = this._client({
-				method: 'PUT',
-				entity: value,
-			}).then(function(resp) {
-				self._fullValue.change({
+				method: 'GET',
+			});
+			return request.then(function(resp) {
+				fullValue.change({
 					valueTime: Date.now(),
-					exists: true,
 					value: resp.entity,
+					exists: true,
 				});
+				return request; // on retourne le promise initial
 			}, function(resp) {
 				if (resp.statut.code === 404) {
-					self._fullValue.change({
+					fullValue.change({
 						valueTime: Date.now(),
 						value: null,
 						exists: false,
 					});
 				}
 				// TODO: comment rejeter le promise comme si on n'avait rien fait ?
-				return new Error(resp);
+				return request;
 			});
-			this._lastRequest.value(request);
-			return request;
+		},
+		put: function(value) {
+			var self = this;
+			var fullValue = this._fullValue;
+			var request = this._client({
+				method: 'PUT',
+				entity: value,
+			});
+			return request.then(function(resp) {
+				fullValue.change({
+					valueTime: Date.now(),
+					exists: true,
+					value: resp.entity,
+				});
+				self._emit('successfulChangeRequest');
+				return request;
+			}, function(resp) {
+				if (resp.statut.code === 404) {
+					fullValue.change({
+						valueTime: Date.now(),
+						value: null,
+						exists: false,
+					});
+				}
+				return request;
+			});
 		},
 		post: function(value) {},
 		delete: function() {},
 		options: function(noCache) {}, // on pourrait mettre à jour le 'exists'
 		patch: function(patch) {},
+		// observation
+		onSuccessfulChangeRequest: function(cb) {
+			// cet événement indique que la ressource a été effectivement modifiée sur le serveur
+			// c'est une approximation d'un événement que l'on aurait reçu du serveur si on pouvait l'observer
+			return this._on('successfulChangeRequest', cb);
+		},
 	});
 });

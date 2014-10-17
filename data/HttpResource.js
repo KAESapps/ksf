@@ -41,7 +41,7 @@ define([
 		},
 		// extended observable API
 		subscribe: function(cb) {
-			if (this.valueTime() !== null) {
+			if (this._fullValue.valueOfKey('valueTime') !== null) {
 				// TODO: faudrait-il le faire en asynchrone ?
 				return cb(this.value());
 			}
@@ -50,7 +50,7 @@ define([
 			});
 		},
 		subscribeOnce: function(cb) {
-			if (this.valueTime() !== null) {
+			if (this._fullValue.valueOfKey('valueTime') !== null) {
 				// TODO: faudrait-il le faire en asynchrone ?
 				cb(this.value());
 			} else {

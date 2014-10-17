@@ -1,8 +1,10 @@
 define([
+	'when',
 	'../utils/compose',
 	'../base/_Evented',
 	'../observable/Map',
 ], function(
+	when,
 	compose,
 	_Evented,
 	Map
@@ -37,6 +39,35 @@ define([
 				cb(self.fullValue());
 			});
 		},
+		// extended observable API
+		subscribe: function(cb) {
+			if (this.valueTime() !== null) {
+				// TODO: faudrait-il le faire en asynchrone ?
+				return cb(this.value());
+			}
+			return this.onChange(function(value) {
+				cb(value);
+			});
+		},
+		subscribeOnce: function(cb) {
+			if (this.valueTime() !== null) {
+				// TODO: faudrait-il le faire en asynchrone ?
+				cb(this.value());
+			} else {
+				var canceler = this.onChange(function(value) {
+					canceler();
+					cb(value);
+				});
+			}
+		},
+		valuePromise: function() {
+			// retourne un promise pour la valeur actuelle ou en cours de chargement
+			// utile pour ne commencer à observer que lorsque la valeur est initialisée
+			var self = this;
+			return when.promise(function(resolve) {
+				self.subscribeOnce(resolve);
+			});
+		},
 		// http methods ========================
 		get: function() {
 			var fullValue = this._fullValue;
@@ -45,7 +76,7 @@ define([
 			var request = this._client({
 				method: 'GET',
 			});
-			return request.then(function(resp) {
+			this._lastValueRequest = request.then(function(resp) {
 				fullValue.change({
 					valueTime: Date.now(),
 					value: resp.entity,
@@ -63,6 +94,7 @@ define([
 				// TODO: comment rejeter le promise comme si on n'avait rien fait ?
 				return request;
 			});
+			return this._lastValueRequest;
 		},
 		put: function(value) {
 			var self = this;
@@ -71,7 +103,7 @@ define([
 				method: 'PUT',
 				entity: value,
 			});
-			return request.then(function(resp) {
+			this._lastValueRequest = request.then(function(resp) {
 				fullValue.change({
 					valueTime: Date.now(),
 					exists: true,
@@ -89,6 +121,7 @@ define([
 				}
 				return request;
 			});
+			return this._lastValueRequest;
 		},
 		post: function(value) {},
 		delete: function() {},

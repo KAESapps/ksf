@@ -40,10 +40,11 @@ define([
 			});
 		},
 		// extended observable API
+		// appelle cb à chaque changement de la valeur mais seulement à partir du moment où elle est inialisée à partir du serveur
 		subscribe: function(cb) {
 			if (this._fullValue.valueOfKey('valueTime') !== null) {
 				// TODO: faudrait-il le faire en asynchrone ?
-				return cb(this.value());
+				cb(this.value());
 			}
 			return this.onChange(function(value) {
 				cb(value);
@@ -123,8 +124,33 @@ define([
 			});
 			return this._lastValueRequest;
 		},
+		delete: function() {
+			var self = this;
+			var fullValue = this._fullValue;
+			var request = this._client({
+				method: 'DELETE',
+			});
+			this._lastValueRequest = request.then(function() {
+				fullValue.change({
+					valueTime: Date.now(),
+					exists: false,
+					value: null,
+				});
+				self._emit('successfulChangeRequest');
+				return request;
+			}, function(resp) {
+				if (resp.statut.code === 404) {
+					fullValue.change({
+						valueTime: Date.now(),
+						value: null,
+						exists: false,
+					});
+				}
+				return request;
+			});
+			return this._lastValueRequest;
+		},
 		post: function(value) {},
-		delete: function() {},
 		options: function(noCache) {}, // on pourrait mettre à jour le 'exists'
 		patch: function(patch) {},
 		// observation

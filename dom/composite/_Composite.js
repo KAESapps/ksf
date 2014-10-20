@@ -17,6 +17,7 @@ define([
 	}, {
 		_setRoot: function(root) {
 			this._root = root;
+			this._own(root);
 			this.domNode = root.domNode;
 			return root;
 		},

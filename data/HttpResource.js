@@ -61,13 +61,23 @@ define([
 				});
 			}
 		},
+		//helpers
 		valuePromise: function() {
 			// retourne un promise pour la valeur actuelle ou en cours de chargement
-			// utile pour ne commencer à observer que lorsque la valeur est initialisée
+			// déclenche un get si le cache n'a pas été initialisée
 			var self = this;
+			// si la valeur est connue en cache
+			if (this._fullValue.valueOfKey('valueTime') !== null) {
+				return when(this.value());
+			}
+			// sinon retourne un promise pour la valeur à venir
 			return when.promise(function(resolve) {
 				self.subscribeOnce(resolve);
 			});
+		},
+		initValue: function() {
+			// on déclenche un GET uniqueent si si la valeur n'est pas encore connue et s'il n'y a déjà une requête en cours
+			return this._lastValueRequest || this.get();
 		},
 		// http methods ========================
 		get: function() {
@@ -124,7 +134,7 @@ define([
 			});
 			return this._lastValueRequest;
 		},
-		delete: function() {
+		'delete': function() {
 			var self = this;
 			var fullValue = this._fullValue;
 			var request = this._client({

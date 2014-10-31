@@ -95,7 +95,7 @@ define([
 				});
 				return request; // on retourne le promise initial
 			}, function(resp) {
-				if (resp.statut.code === 404) {
+				if (resp.status.code === 404) {
 					fullValue.change({
 						valueTime: Date.now(),
 						value: null,

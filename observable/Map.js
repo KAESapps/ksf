@@ -26,7 +26,7 @@ define([
 		onChange: function(cb) {
 			return this._on('change', cb);
 		},
-		valueAt: function(key) {
+		valueOfKey: function(key) {
 			return this._storage[key];
 		},
 		// permet de récupérer la liste des valeurs non null en mode getter

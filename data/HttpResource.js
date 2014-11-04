@@ -42,7 +42,7 @@ define([
 		// extended observable API
 		// appelle cb à chaque changement de la valeur mais seulement à partir du moment où elle est inialisée à partir du serveur
 		subscribe: function(cb) {
-			if (this._fullValue.valueOfKey('valueTime') !== null) {
+			if (this._fullValue.valueOfKey('valueTime') !== undefined) {
 				// TODO: faudrait-il le faire en asynchrone ?
 				cb(this.value());
 			}
@@ -51,7 +51,7 @@ define([
 			});
 		},
 		subscribeOnce: function(cb) {
-			if (this._fullValue.valueOfKey('valueTime') !== null) {
+			if (this._fullValue.valueOfKey('valueTime') !== undefined) {
 				// TODO: faudrait-il le faire en asynchrone ?
 				cb(this.value());
 			} else {
@@ -67,7 +67,7 @@ define([
 			// déclenche un get si le cache n'a pas été initialisée
 			var self = this;
 			// si la valeur est connue en cache
-			if (this._fullValue.valueOfKey('valueTime') !== null) {
+			if (this._fullValue.valueOfKey('valueTime') !== undefined) {
 				return when(this.value());
 			}
 			// sinon retourne un promise pour la valeur à venir
@@ -98,7 +98,7 @@ define([
 				if (resp.status.code === 404) {
 					fullValue.change({
 						valueTime: Date.now(),
-						value: null,
+						value: undefined,
 						exists: false,
 					});
 				}
@@ -126,7 +126,7 @@ define([
 				if (resp.statut.code === 404) {
 					fullValue.change({
 						valueTime: Date.now(),
-						value: null,
+						value: undefined,
 						exists: false,
 					});
 				}
@@ -144,7 +144,7 @@ define([
 				fullValue.change({
 					valueTime: Date.now(),
 					exists: false,
-					value: null,
+					value: undefined,
 				});
 				self._emit('successfulChangeRequest');
 				return request;
@@ -152,7 +152,7 @@ define([
 				if (resp.statut.code === 404) {
 					fullValue.change({
 						valueTime: Date.now(),
-						value: null,
+						value: undefined,
 						exists: false,
 					});
 				}

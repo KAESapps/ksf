@@ -62,6 +62,14 @@ define([
 				this.add(key, value);
 			}
 		},
+		keys: function() {
+			return Object.keys(this._value);
+		},
+		removeAll: function() {
+			return this.change(this.keys().reduce(function(change, key) {
+				change[key] = {remove: true};
+			}, {}));
+		},
 	});
 
 });

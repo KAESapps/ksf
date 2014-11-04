@@ -14,7 +14,11 @@ define([
 		change: function(change) {
 			var storage = this._storage;
 			Object.keys(change).forEach(function(key) {
-				storage[key] = change[key];
+				if (change[key] === null) {
+					delete storage[key];
+				} else {
+					storage[key] = change[key];
+				}
 			});
 			this._emit('change', change);
 		},
@@ -22,7 +26,7 @@ define([
 			return this._on('change', cb);
 		},
 		valueOfKey: function(key) {
-			return this._storage[key] || null;
+			return key in this._storage ? this._storage[key] : null;
 		},
 	});
 

@@ -8,6 +8,9 @@ define([
 	// observable pour un attribut d'un noeud d'un arbre
 	return compose(_Evented, function(tree, nodeKey, attr) {
 		var self = this;
+		this._tree = tree;
+		this._nodeKey = nodeKey;
+		this._attr = attr;
 		this._value = (tree.value()[nodeKey] && attr in tree.value()[nodeKey].value) ? tree.value()[nodeKey].value[attr] : null;
 		this._observer = tree.onChange(function(change) {
 			if (change.addChild && change.addChild.child === nodeKey) {
@@ -30,6 +33,9 @@ define([
 	}, {
 		value: function() {
 			return this._value;
+		},
+		change: function(value) {
+			return this._tree.setAttr(this._nodeKey, this._attr, value);
 		},
 		onChange: function(cb) {
 			return this._on('change', cb);

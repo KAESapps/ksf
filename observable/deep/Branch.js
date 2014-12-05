@@ -74,20 +74,20 @@ define([
 			return this._on('change', cb);
 		},
 		onKeyAdded: function(cb) {
-			// appeler le cb dès qu'une clé est ajoutée (passe à non null)
+			// appeler le cb dès qu'une clé est ajoutée (passe à non undefined)
 			return this._on('keyAdded', cb);
 		},
 		onKeyRemoved: function(cb) {
-			// appeler le cb dès qu'une clé est enlevée (passe à null)
+			// appeler le cb dès qu'une clé est enlevée (passe à undefined)
 			return this._on('keyRemoved', cb);
 		},
 		value: function() {
 			return this._values;
 		},
 		addKey: function(key) {
-			// ajoute au moins une entrée qui permet d'être sûr que la clé est créée. Par défaut, c'est la valeur 'null'
+			// ajoute au moins une entrée qui permet d'être sûr que la clé est créée. Par défaut, c'est la valeur 'true'
 			key = key || (Math.random()*1e16).toFixed();
-			this.change(key, null);
+			this.change(key, true);
 			return key;
 		},
 		removeKey: function(key) {

@@ -25,9 +25,6 @@ return compose(_Evented, function(data) {
 			value: value,
 		});
 	},
-	valueOfKey: function(key) {
-		return this._values[key];
-	},
 	onChange: function(cb) {
 		return this._on('change', cb);
 	},

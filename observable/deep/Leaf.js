@@ -12,7 +12,7 @@ define([
 		this._value = tree.value()[key];
 		tree.onChange(function(change) {
 			if (change.key === key) {
-				this._value = change.value;
+				self._value = change.value;
 				self._emit('change', change.value);
 			}
 		});

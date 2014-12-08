@@ -1,16 +1,18 @@
 define([
 	'../../utils/compose',
 	'../../base/_Evented',
+	'../../base/_Destroyable',
 ], function(
 	compose,
-	_Evented
+	_Evented,
+	_Destroyable
 ) {
 	function firstPathSegment (path) {
 		var slashIndex = path.indexOf('/');
 		return slashIndex < 0 ? path : path.substring(0, slashIndex);
 	}
 
-	return compose(_Evented, function(source, key) {
+	return compose(_Evented, _Destroyable, function(source, key) {
 		var self = this;
 		this._source = source;
 		this._key = key;
@@ -25,7 +27,7 @@ define([
 			}
 		});
 
-		source.onChange(function(change) {
+		this._own(source.onChange(function(change) {
 			if (firstPathSegment(change.key) === key) {
 				var relativeKey = change.key.substr(keyLength+1);
 
@@ -50,7 +52,7 @@ define([
 					value: change.value,
 				});
 			}
-		});
+		}));
 	}, {
 		hasKey: function(key) {
 			return Object.keys(this._values).some(function(valueKey) {

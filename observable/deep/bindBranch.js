@@ -21,8 +21,13 @@ define([
 		} else {
 			Object.keys(tree.keys()).forEach(add);
 		}
-		tree.onKeyAdded(add);
-		tree.onKeyRemoved(remove);
+		var keyAddedHandler = tree.onKeyAdded(add);
+		var keyRemovedHandler = tree.onKeyRemoved(remove);
+
+		return function() {
+			keyAddedHandler();
+			keyRemovedHandler();
+		};
 	};
 
 });

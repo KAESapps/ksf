@@ -5,6 +5,8 @@ define([
 	compose,
 	_Evented
 ) {
+	// permet d'assembler des observables comme s'ils étaient des propriétés d'un dict.
+	//  On peut alors observer le dict pour être averti des changements des sources et même changer le dict en transactionnel (si on change plusieurs propriétés d'un coup, il n'y aura qu'un seul changement émis par le dict)
 	return compose(_Evented, function(props) {
 		var self = this;
 		this.props = props;

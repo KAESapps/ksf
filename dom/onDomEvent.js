@@ -1,12 +1,8 @@
-define([], function() {
-	return function(eventName) {
-		return function(listener) {
-			var domNode = this.domNode,
-				domEventName = eventName;
-			domNode.addEventListener(domEventName, listener);
-			return function() {
-				domNode.removeEventListener(domEventName, listener);
-			};
+define([], function(){
+	return function(domNode, eventName, cb) {
+		domNode.addEventListener(eventName, cb);
+		return function() {
+			domNode.removeEventListener(eventName, cb);
 		};
 	};
 });

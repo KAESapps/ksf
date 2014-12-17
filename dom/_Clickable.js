@@ -1,5 +1,5 @@
-define(['./onDomEvent'], function(onDomEvent) {
+define(['./onDomEventMethod'], function(onDomEventMethod) {
 	return {
-		onAction: onDomEvent('click')
+		onAction: onDomEventMethod('click')
 	};
 });

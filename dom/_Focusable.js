@@ -1,4 +1,4 @@
-define(['./onDomEventAsync'], function(onDomEventAsync){
+define(['./onDomEventAsyncMethod'], function(onDomEventAsyncMethod){
 	var Focusable = function() {
 		this.domNode.tabIndex = 0;
 	};
@@ -9,8 +9,8 @@ define(['./onDomEventAsync'], function(onDomEventAsync){
 		blur: function() {
 			this.domNode.blur();
 		},
-		onBlur: onDomEventAsync('blur'),
-		onFocus: onDomEventAsync('focus'),
+		onBlur: onDomEventAsyncMethod('blur'),
+		onFocus: onDomEventAsyncMethod('focus'),
 		focused: function() {
 			return document.activeElement === this.domNode;
 		},

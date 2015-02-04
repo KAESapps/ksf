@@ -7,7 +7,9 @@ define([
 	_Evented,
 	Set
 ) {
-
+	/*
+	 * Convert a Dict-like observable to a Set-like observable with keys only
+	 */
 	return compose(_Evented, function(source) {
 		this._source = source;
 
@@ -34,7 +36,10 @@ define([
 		},
 		add: function(key) {
 			return this._source.add(key, null);
-		}
+		},
+		remove: function(key) {
+			return this._source.remove(key);
+		},
 	});
 
 });

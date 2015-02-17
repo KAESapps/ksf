@@ -3,9 +3,9 @@ define([
 ], function(
 	compose
 ) {
-	var id = 0;
+	window.kssId = 0;
 	function createId() {
-		return 'kss' + id++;
+		return 'kss' + window.kssId++;
 	}
 
 	var styleElement = document.createElement('style');

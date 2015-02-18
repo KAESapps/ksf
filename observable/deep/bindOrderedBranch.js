@@ -14,6 +14,9 @@ define([
 			cbs.remove(key, storage[key]);
 			delete storage[key];
 		};
+		var move = cbs.move && function(ev) {
+			cbs.move(ev.key, ev.beforeKey);
+		};
 
 		if (cbs.init) {
 			// permet d'avoir une logique d'initialisation différente de la logique incrémentale
@@ -24,10 +27,12 @@ define([
 		}
 		var keyAddedHandler = add && orderedBranch.onKeyAdded(add);
 		var keyRemovedHandler = remove && orderedBranch.onKeyRemoved(remove);
+		var keyMovedHandler = move && orderedBranch.onKeyMoved(move);
 
 		return function() {
 			keyAddedHandler && keyAddedHandler();
 			keyRemovedHandler && keyRemovedHandler();
+			keyMovedHandler && keyMovedHandler();
 		};
 	};
 

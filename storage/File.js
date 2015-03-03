@@ -1,9 +1,11 @@
 define([
 	'when',
-	'../utils/JSONParseWithDates'
+	'../utils/JSONParseWithDates',
+	'browser-filesaver',
 ], function(
 	when,
-	JSONParseWithDates
+	JSONParseWithDates,
+	saveAs
 ){
 	/**
 

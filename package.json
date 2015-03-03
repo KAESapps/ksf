@@ -8,11 +8,14 @@
   "dependencies": {
     "lodash-node": "~2.4",
     "rest": "~1.2",
-    "when": "~3.5"
+    "when": "~3.5",
+    "browser-filesaver": "~1.0.0"
   },
   "devDependencies": {
     "browserify": "latest",
-    "deamdify": "latest"
+    "deamdify": "latest",
+    "tape": "latest",
+    "testling": "latest"
   },
   "repository": {
     "type": "git",

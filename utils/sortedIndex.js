@@ -1,6 +1,7 @@
-define([], function() {
+define(['./nativeCompare'], function(nativeCompare) {
 	// find the index to insert 'value' in 'array' in order to keep 'array' sorted according to 'compare'
 	return function sortedIndex(array, value, compare) {
+		compare = compare || nativeCompare;
 		var low = 0,
 		high = array ? array.length : low;
 

@@ -2,7 +2,7 @@ define([
 	'../../utils/compose',
 	'../../base/_Evented',
 	'../../base/_Destroyable',
-	'lodash-node/modern/arrays/sortedIndex',
+	'../../utils/sortedIndex',
 ], function(
 	compose,
 	_Evented,
@@ -15,7 +15,7 @@ define([
 	}
 
 	// étends l'API d'un Branch normal pour y ajouter la notion d'ordonnancement dans les enfants directs en fonction de la valeur d'une de leur propriété (ou plus génériquement d'un path)
-	return compose(_Evented, _Destroyable, function(source, key, orderingSubKey) {
+	return compose(_Evented, _Destroyable, function(source, key, orderingSubKey, compareFn) {
 		var self = this;
 		this._source = source;
 		this._key = key;
@@ -36,7 +36,7 @@ define([
 				if (childIndex < 0) {
 					var childOrderingKey = key + '/' + childKey + '/' + orderingSubKey;
 					var childValue = sourceValue[childOrderingKey];
-					var childInsertIndex = sortedIndex(self._orderedChildrenValues, childValue);
+					var childInsertIndex = sortedIndex(self._orderedChildrenValues, childValue, compareFn);
 					self._orderedChildrenKeys.splice(childInsertIndex, 0, childKey);
 					self._orderedChildrenValues.splice(childInsertIndex, 0, childValue);
 				}
@@ -70,7 +70,7 @@ define([
 						values[relativeKey] = change.value;
 
 						childValue = source.value()[childOrderingKey];
-						childInsertIndex = sortedIndex(self._orderedChildrenValues, childValue);
+						childInsertIndex = sortedIndex(self._orderedChildrenValues, childValue, compareFn);
 						self._orderedChildrenKeys.splice(childInsertIndex, 0, childKey);
 						self._orderedChildrenValues.splice(childInsertIndex, 0, childValue);
 						var beforeKey = self._orderedChildrenKeys[childInsertIndex+1];
@@ -90,7 +90,7 @@ define([
 					self._orderedChildrenKeys.splice(childIndex, 1);
 					self._orderedChildrenValues.splice(childIndex, 1);
 					childValue = source.value()[childOrderingKey];
-					childInsertIndex = sortedIndex(self._orderedChildrenValues, childValue);
+					childInsertIndex = sortedIndex(self._orderedChildrenValues, childValue, compareFn);
 					self._orderedChildrenKeys.splice(childInsertIndex, 0, childKey);
 					self._orderedChildrenValues.splice(childInsertIndex, 0, childValue);
 					// si la position a changé, on émet un événement

@@ -23,7 +23,12 @@ define([
 			// je ne sais pas si c'est très utile...
 			cbs.init(orderedBranch.keys());
 		} else {
-			add && orderedBranch.keys().forEach(add);
+			add && orderedBranch.keys().map(function(key) {
+				return {
+					key: key,
+					beforeKey: null
+				};
+			}).forEach(add);
 		}
 		var keyAddedHandler = add && orderedBranch.onKeyAdded(add);
 		var keyRemovedHandler = remove && orderedBranch.onKeyRemoved(remove);

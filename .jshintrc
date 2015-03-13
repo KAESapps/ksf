@@ -17,7 +17,8 @@
 	"expr": true,
 	"predef": [
 		"require",
-		"define"
+		"define",
+		"module"
 	]
 
 }

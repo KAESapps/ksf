@@ -3,7 +3,7 @@ define([
 ], function(
 	compose
 ) {
-	window.kssId = 0;
+	if (window.kssId === undefined) { window.kssId = 0; }
 	function createId() {
 		return 'kss' + window.kssId++;
 	}

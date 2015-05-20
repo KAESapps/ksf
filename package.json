@@ -9,11 +9,12 @@
     "lodash-node": "~2.4",
     "rest": "~1.2",
     "when": "~3.5",
-    "browser-filesaver": "~1.0.0"
+    "browser-filesaver": "~1.0.0",
+    "insert-css": "~0.2",
+    "deamdify": "latest"
   },
   "devDependencies": {
     "browserify": "latest",
-    "deamdify": "latest",
     "tape": "latest",
     "testling": "latest"
   },

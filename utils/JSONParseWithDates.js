@@ -1,5 +1,6 @@
 define([], function() {
-	var jsonDateRx = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)(Z|([+\-])(\d{2}):(\d{2}))$/;
+	// regex capturing ISO 8601 dates, including years > 9999
+	var jsonDateRx = /^\+?(\d{4,})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)(Z|([+\-])(\d{2}):(\d{2}))$/;
 
 	return function(json) {
 		return json && JSON.parse(json, function(key, value) {

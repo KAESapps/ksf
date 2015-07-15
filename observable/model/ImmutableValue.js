@@ -1,15 +1,8 @@
-define([
-	"../../utils/compose",
-	'../computers/ImmutableValue',
-	'../accessorMixins/ImmutableValue',
-], function(
-	compose,
-	ValueComputer,
-	ValueAccessorMixin
-){
-	var ImmutableValue = compose(function(value) {
-		this.computer = new ValueComputer(value);
-		this.accessorMixin = new ValueAccessorMixin().ctr;
-	});
-	return ImmutableValue;
+import compose from '../../utils/compose';
+import ValueComputer from '../computers/ImmutableValue';
+import ValueAccessorMixin from '../accessorMixins/ImmutableValue';
+var ImmutableValue = compose(function(value) {
+    this.computer = new ValueComputer(value);
+    this.accessorMixin = new ValueAccessorMixin().ctr;
 });
+export default ImmutableValue;

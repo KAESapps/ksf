@@ -6,10 +6,10 @@
 //	"maxlen": 80,
 	"trailing": true,
 	"curly": true,
+	"esnext": true,
 
 	"browser": true,
 	"devel": true,
-	"trailing": true,
 	"sub": true,
 	"eqeqeq": true,
 	"unused": true,

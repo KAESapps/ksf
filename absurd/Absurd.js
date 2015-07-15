@@ -1120,6 +1120,7 @@ var client = function() {
 					return this;
 				},
 				broadcast: function(event, data) {
+					var instance;
 					for(var i=0; i<instances.length, instance=instances[i]; i++) {
 						if(typeof instance[event] === 'function') {
 							instance[event](data);
@@ -2397,7 +2398,7 @@ lib.helpers.RequireUncached = function(module) {
     return absurdRequire(module);
 }
 lib.helpers.TransformUppercase = function(prop, options) {
-	var transformed = "";
+	var transformed = "", c;
 	for(var i=0; c=prop.charAt(i); i++) {
 		if(c === c.toUpperCase() && c.toLowerCase() !== c.toUpperCase()) {
 			transformed += "-" + c.toLowerCase();

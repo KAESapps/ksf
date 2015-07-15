@@ -1,15 +1,8 @@
-define([
-	"../../utils/compose",
-	'../computers/Dict',
-	'../accessorMixins/Dict',
-], function(
-	compose,
-	Computer,
-	AccessorMixin
-){
-	var Dict = compose(function() {
-		this.computer = new Computer();
-		this.accessorMixin = new AccessorMixin().ctr;
-	});
-	return Dict;
+import compose from '../../utils/compose';
+import Computer from '../computers/Dict';
+import AccessorMixin from '../accessorMixins/Dict';
+var Dict = compose(function() {
+    this.computer = new Computer();
+    this.accessorMixin = new AccessorMixin().ctr;
 });
+export default Dict;

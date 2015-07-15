@@ -1,9 +1,3 @@
-define([
-	
-], function(
-	
-){
-	return function() {
-		this._style.apply(this.domNode);
-	};
-});
+export default function() {
+    this._style.apply(this.domNode);
+};

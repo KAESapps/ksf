@@ -1,25 +1,19 @@
-define([
-	'compose',
-	'../../event',
-	'ksf/base/_Evented',
-], function(
-	compose,
-	event,
-	_Evented
-){
-	var ObservableWithEvent = compose(function() {
-		this.onValue = event();
-		this.onChanges = event();
-		this.onKeys = event();
-	});
-	var ObservableWithEvented = compose(_Evented);
+import compose from 'compose';
+import event from '../../event';
+import _Evented from 'ksf/base/_Evented';
+var ObservableWithEvent = compose(function() {
+    this.onValue = event();
+    this.onChanges = event();
+    this.onKeys = event();
+});
+var ObservableWithEvented = compose(_Evented);
 
-	JSLitmus.test('event create instance', function() {
-		var observable = new ObservableWithEvent();
-	});
-	JSLitmus.test('Evented create instance', function() {
-		var observable = new ObservableWithEvented();
-	});
+JSLitmus.test('event create instance', function() {
+    var observable = new ObservableWithEvent();
+});
+JSLitmus.test('Evented create instance', function() {
+    var observable = new ObservableWithEvented();
+});
 
 
 
@@ -58,4 +52,4 @@ define([
 		observable._emit('value', "value");
 		observable._emit('keys', "keys");
 	});
-*/});
+*/

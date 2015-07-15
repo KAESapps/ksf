@@ -1,33 +1,26 @@
-define([
-	"../../utils/compose",
-	'../computers/IncrementalPropertyObject',
-	'../accessorMixins/IncrementalPropertyObject',
-], function(
-	compose,
-	IncrementalPropertyObjectComputer,
-	IncrementalPropertyObjectAccessorMixin
-){
+import compose from '../../utils/compose';
+import IncrementalPropertyObjectComputer from '../computers/IncrementalPropertyObject';
+import IncrementalPropertyObjectAccessorMixin from '../accessorMixins/IncrementalPropertyObject';
 
-	var IncrementalPropertyObject = compose(function(properties, computedProperties, Computer) {
-		this._properties = properties;
-		this._computedProperties = computedProperties;
-		var computers = {},
-			accessorMixins = {},
-			computedAccessorMixins = {};
-		Object.keys(properties).forEach(function(prop) {
-			computers[prop] = properties[prop].computer;
-			accessorMixins[prop] = properties[prop].accessorMixin;
-		});
-		// les computed properties ne fournissent pas de computer mais seulement un accessorMixin
-		computedProperties && Object.keys(computedProperties).forEach(function(prop) {
-			computedAccessorMixins[prop] = computedProperties[prop].accessorMixin;
-		});
-		if (Computer) {  // le computer est injectable
-			this.computer = new Computer(computers);
-		} else {
-			this.computer = new IncrementalPropertyObjectComputer(computers);
-		}
-		this.accessorMixin = new IncrementalPropertyObjectAccessorMixin(accessorMixins, computedAccessorMixins).ctr;
-	});
-	return IncrementalPropertyObject;
+var IncrementalPropertyObject = compose(function(properties, computedProperties, Computer) {
+    this._properties = properties;
+    this._computedProperties = computedProperties;
+    var computers = {},
+        accessorMixins = {},
+        computedAccessorMixins = {};
+    Object.keys(properties).forEach(function(prop) {
+        computers[prop] = properties[prop].computer;
+        accessorMixins[prop] = properties[prop].accessorMixin;
+    });
+    // les computed properties ne fournissent pas de computer mais seulement un accessorMixin
+    computedProperties && Object.keys(computedProperties).forEach(function(prop) {
+        computedAccessorMixins[prop] = computedProperties[prop].accessorMixin;
+    });
+    if (Computer) { // le computer est injectable
+        this.computer = new Computer(computers);
+    } else {
+        this.computer = new IncrementalPropertyObjectComputer(computers);
+    }
+    this.accessorMixin = new IncrementalPropertyObjectAccessorMixin(accessorMixins, computedAccessorMixins).ctr;
 });
+export default IncrementalPropertyObject;

@@ -1,5 +1,4 @@
-define(['./onDomEventMethod'], function(onDomEventMethod) {
-	return {
-		onAction: onDomEventMethod('click')
-	};
-});
+import onDomEventMethod from './onDomEventMethod';
+export default {
+    onAction: onDomEventMethod('click')
+};

@@ -1,7 +1,6 @@
-define(['./onDomEventAsync'], function(onDomEvent) {
-	return function(eventName) {
-		return function(listener) {
-			return onDomEvent(this.domNode, eventName, listener);
-		};
-	};
-});
+import onDomEvent from './onDomEventAsync';
+export default function(eventName) {
+    return function(listener) {
+        return onDomEvent(this.domNode, eventName, listener);
+    };
+};

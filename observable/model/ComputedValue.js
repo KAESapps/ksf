@@ -1,12 +1,6 @@
-define([
-	"../../utils/compose",
-	'../accessorMixins/ComputedValue',
-], function(
-	compose,
-	ComputedValueAccessorMixin
-){
-	var Value = compose(function(props, computeFn) {
-		this.accessorMixin = new ComputedValueAccessorMixin(props, computeFn).ctr;
-	});
-	return Value;
+import compose from '../../utils/compose';
+import ComputedValueAccessorMixin from '../accessorMixins/ComputedValue';
+var Value = compose(function(props, computeFn) {
+    this.accessorMixin = new ComputedValueAccessorMixin(props, computeFn).ctr;
 });
+export default Value;

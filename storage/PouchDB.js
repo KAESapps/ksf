@@ -1,5 +1,5 @@
 import compose from '../utils/compose';
-import clone from 'lodash-node/modern/objects/clone';
+import clone from 'lodash/objects/clone';
 export default compose(function(name) {
     this._db = new PouchDB(name);
     this._revs = {};

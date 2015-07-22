@@ -1,6 +1,6 @@
 import compose from '../utils/compose';
 import _Evented from '../base/_Evented';
-import zipObject from 'lodash-node/modern/arrays/zipObject';
+import zipObject from 'lodash/arrays/zipObject';
 export default compose(_Evented, function(initValue) {
     this._value = initValue ? zipObject(initValue) : {};
 }, {

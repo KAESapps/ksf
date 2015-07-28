@@ -1,4 +1,4 @@
-export default {
+var _Evented = {
     _on: function(type, cb) {
         this._listeners || (this._listeners = {});
         var listeners = this._listeners[type] || (this._listeners[type] = []);
@@ -24,4 +24,10 @@ export default {
             }
         }
     }
-};
+}
+
+// make them public
+_Evented.on = _Evented._on
+_Evented.off = _Evented._off
+
+export default _Evented

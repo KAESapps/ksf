@@ -1308,7 +1308,7 @@ lib.api.add = function(API) {
 		// multiple selectors
 		if(/, ?/g.test(selector) && options.combineSelectors) {
 			var parts = selector.replace(/, /g, ',').split(',');
-			for(var i=0; i<parts.length, p=parts[i]; i++) {
+			for(var i=0, p; i<parts.length, p=parts[i]; i++) {
 				addRule(p, props, stylesheet, parentSelector);
 			}
 			return;
@@ -1371,7 +1371,7 @@ lib.api.add = function(API) {
 			} else if(/&/g.test(prop)) {
 				if(/, ?/g.test(prop) && options.combineSelectors) {
 					var parts = prop.replace(/, /g, ',').split(',');
-					for(var i=0; i<parts.length, p=parts[i]; i++) {
+					for(var i=0, p; i<parts.length, p=parts[i]; i++) {
 						if(p.indexOf('&') >= 0) {
 							addRule(p.replace(/&/g, selector), _objects[prop], stylesheet, parentSelector);
 						} else {

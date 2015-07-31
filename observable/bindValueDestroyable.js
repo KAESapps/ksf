@@ -1,9 +1,10 @@
-var destroy = require('../utils/destroy');
+import destroy from '../utils/destroy'
+import on from '../utils/on'
 
-module.exports = function(value, cb, scope) {
+export default function(value, cb, scope) {
 	scope = scope || null;
 	var toBeDestroyed = cb.call(scope, value.value());
-	var canceler = value.onChange(function(val) {
+	var canceler = on(value, 'change', function(val) {
 		destroy(toBeDestroyed);
 		toBeDestroyed = cb.call(scope, val);
 	});

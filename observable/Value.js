@@ -19,5 +19,5 @@ export default compose(_Evented, function(initValue){
 	},
 	offChange: function(cb) {
 		return this._off('change', cb);
-	}
+	},
 })

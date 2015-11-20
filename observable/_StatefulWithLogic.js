@@ -12,7 +12,11 @@ var Stateful = compose(_Evented, {
         return changeArg;
     },
     _onChange: function(cb) {
-        return this._on('change', cb);
+      var self = this
+      this._on('change', cb)
+      return function () {
+        self._off('change', cb)
+      }
     },
 });
 

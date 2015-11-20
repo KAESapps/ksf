@@ -22,4 +22,7 @@ export default compose(_Destroyable, function(source, transform, revert) {
     onChange: function(cb) {
         return this._value.onChange(cb);
     },
+    offChange: function(cb) {
+        return this._value.offChange(cb);
+    },
 });

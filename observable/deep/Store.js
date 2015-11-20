@@ -20,9 +20,6 @@ export default compose(_Evented, function(data) {
             value: value,
         });
     },
-    onChange: function(cb) {
-        return this._on('change', cb);
-    },
     value: function() {
         return this._values;
     },

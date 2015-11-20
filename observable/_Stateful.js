@@ -10,7 +10,11 @@ var Stateful = compose(_Evented, {
         this._emit('change', changeArg);
     },
     _onChange: function(cb) {
-        return this._on('change', cb);
+        var self = this
+        this._on('change', cb)
+        return function () {
+          self._off('change', cb)
+        }
     },
 
 });

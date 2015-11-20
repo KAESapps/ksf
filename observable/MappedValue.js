@@ -24,4 +24,7 @@ export default compose(_Destroyable, function(source, convert, revert) {
     onChange: function(cb) {
         return this._value.onChange(cb);
     },
+    offChange: function(cb) {
+        return this._value.offChange(cb);
+    },
 });

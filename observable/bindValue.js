@@ -1,10 +1,9 @@
+import on from '../utils/on'
+
 export default function(value, cb, scope) {
   if (scope) {
     cb = cb.bind(scope)
   }
   cb(value.value())
-  value.onChange(cb)
-  return function () {
-    value.offChange(cb)
-  }
+  return on(value, 'change', cb)
 };

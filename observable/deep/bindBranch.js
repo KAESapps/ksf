@@ -1,3 +1,5 @@
+var on = require('../../utils/on')
+
 export default function(tree, cbs) {
     var storage = {}; // permet aux cbs de renvoyer une valeur pour la stocker
     var add = cbs.add && function(key) {
@@ -16,10 +18,11 @@ export default function(tree, cbs) {
     } else {
         add && Object.keys(tree.keys()).forEach(add);
     }
-    var keyAddedHandler = add && tree.onKeyAdded(add);
-    var keyRemovedHandler = remove && tree.onKeyRemoved(remove);
+    var keyAddedHandler = add && on(tree, 'keyAdded', add);
+    var keyRemovedHandler = remove && on(tree, 'keyRemoved', remove);
 
     return function() {
+        // TODO : destroy storage values ?
         keyAddedHandler && keyAddedHandler();
         keyRemovedHandler && keyRemovedHandler();
     };

@@ -1,6 +1,7 @@
 import compose from '../../utils/compose';
 import _Evented from '../../base/_Evented';
 import _Destroyable from '../../base/_Destroyable';
+import on from '../../utils/on'
 
 function firstPathSegment(path) {
     var slashIndex = path.indexOf('/');
@@ -22,7 +23,7 @@ export default compose(_Evented, _Destroyable, function(source, key) {
         }
     });
 
-    this._own(source.onChange(function(change) {
+    this._own(on(source, 'change', function(change) {
         if (firstPathSegment(change.key) === key) {
             var relativeKey = change.key.substr(keyLength + 1);
 
@@ -66,17 +67,6 @@ export default compose(_Evented, _Destroyable, function(source, key) {
     },
     change: function(key, value) {
         return this._source.change(this._key + '/' + key, value);
-    },
-    onChange: function(cb) {
-        return this._on('change', cb);
-    },
-    onKeyAdded: function(cb) {
-        // appeler le cb dès qu'une clé est ajoutée (passe à non undefined)
-        return this._on('keyAdded', cb);
-    },
-    onKeyRemoved: function(cb) {
-        // appeler le cb dès qu'une clé est enlevée (passe à undefined)
-        return this._on('keyRemoved', cb);
     },
     value: function() {
         return this._values;

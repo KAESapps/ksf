@@ -4,8 +4,8 @@ export default function on (target, eventName, cb) {
 	// use specific method if available
 	var capitalized = capitalize(eventName)
 	if (target['on' + capitalized]) {
-		target['on' + capitalized](cb)
-		return function() {
+		var canceler = target['on' + capitalized](cb) // to be backward compatible TODO: remove in next major version
+		return (typeof canceler === 'function') ? canceler : function() {
 			target['off' + capitalized](cb)
 		}
 	}

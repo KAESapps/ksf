@@ -1370,7 +1370,7 @@ lib.api.add = function(API) {
 		    // check for ampersand operator
 			} else if(/&/g.test(prop)) {
 				if(/, ?/g.test(prop) && options.combineSelectors) {
-					var parts = prop.replace(/, /g, ',').split(',');
+					var p, parts = prop.replace(/, /g, ',').split(',');
 					for(var i=0; i<parts.length, p=parts[i]; i++) {
 						if(p.indexOf('&') >= 0) {
 							addRule(p.replace(/&/g, selector), _objects[prop], stylesheet, parentSelector);
